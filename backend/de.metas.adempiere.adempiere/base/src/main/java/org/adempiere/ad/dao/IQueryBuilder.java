@@ -112,7 +112,9 @@ public interface IQueryBuilder<T>
 
 	//@formatter:off
 	default IQueryBuilder<T> clearOrderBys() { orderBy().clear(); return this; }
+	/** order ascending, with {@code NULLS LAST} */
 	default IQueryBuilder<T> orderBy(final String columnName) { orderBy().addColumn(columnName); return this; }
+	/** order ascending, with {@code NULLS LAST} */
 	default IQueryBuilder<T> orderBy(final ModelColumn<T, ?> column) { orderBy().addColumn(column); return this; }
 	default IQueryBuilder<T> orderByDescending(final String columnName) { orderBy().addColumnDescending(columnName); return this; }
 	default IQueryBuilder<T> orderByDescending(final ModelColumn<T, ?> column) { orderBy().addColumnDescending(column.getColumnName()); return this; }
@@ -173,6 +175,8 @@ public interface IQueryBuilder<T>
 	/**
 	 * Filters those rows for whom the columnName's value is in given array.
 	 * If no values were provided the record is rejected.
+	 *
+	 * Note that "InArray*Filters" also support {@link RepoIdAware} and {@link de.metas.util.lang.ReferenceListAwareEnum}
 	 */
 	@SuppressWarnings("unchecked")
 	<V> IQueryBuilder<T> addInArrayFilter(String columnName, V... values);

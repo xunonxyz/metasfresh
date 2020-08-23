@@ -10,9 +10,9 @@ import de.metas.jenkins.MvnConf
 
 def build(final MvnConf mvnConf, final Map scmVars, final boolean forceBuild=false, final boolean forceSkip = false)
 {
-    stage('Build misc services')
+	stage('Build misc services')
     {
-	currentBuild.description= """${currentBuild.description}<p/>
+		currentBuild.description= """${currentBuild.description}<p/>
 			<h2>misc services</h2>
 		"""
 		if (forceSkip) {
@@ -23,21 +23,32 @@ def build(final MvnConf mvnConf, final Map scmVars, final boolean forceBuild=fal
 			return;
 		}
 
-		dir('edi')
-		{
-			def ediBuildFile = load('buildfile.groovy')
-			ediBuildFile.build(mvnConf, scmVars, forceBuild)
-		}
-		dir('procurement-webui')
-		{
-			def procurementWebuiBuildFile = load('buildfile.groovy')
-			procurementWebuiBuildFile.build(mvnConf, scmVars, forceBuild)
-		}
-		dir('admin')
-		{
-			def procurementWebuiBuildFile = load('buildfile.groovy')
-			procurementWebuiBuildFile.build(mvnConf, scmVars, forceBuild)
-		}
+		withMaven(jdk: 'java-14', maven: 'maven-3.6.3', mavenLocalRepo: '.repository', mavenOpts: '-Xmx1536M', options: [artifactsPublisher(disabled: true)])
+				{
+					dir('camel/de-metas-camel-shipping')
+							{
+								def camelBuildFile = load('buildfile.groovy')
+								camelBuildFile.build(mvnConf, scmVars, forceBuild)
+							}
+					dir('camel/de-metas-camel-edi') // todo: modernize and move to camel
+							{
+								def ediBuildFile = load('buildfile.groovy')
+								ediBuildFile.build(mvnConf, scmVars, forceBuild)
+							}
+				}
+		withMaven(jdk: 'java-8', maven: 'maven-3.6.3', mavenLocalRepo: '.repository', mavenOpts: '-Xmx1536M', options: [artifactsPublisher(disabled: true)])
+				{
+					dir('procurement-webui')
+							{
+								def procurementWebuiBuildFile = load('buildfile.groovy')
+								procurementWebuiBuildFile.build(mvnConf, scmVars, forceBuild)
+							}
+					dir('admin')
+							{
+								def procurementWebuiBuildFile = load('buildfile.groovy')
+								procurementWebuiBuildFile.build(mvnConf, scmVars, forceBuild)
+							}
+				}
     } // stage
 } 
 

@@ -51,8 +51,6 @@
 			two versions might clash in ait modules -->
 		<metasfresh.cxf.version>3.1.6</metasfresh.cxf.version>
 
-		<jackson.version>2.9.9</jackson.version>
-
 		<!-- jackson-dataformat-xml:2.9.9 has two different version in its dependency tree -->
 		<woodstox.stax2-api.version>4.1</woodstox.stax2-api.version>
 		
@@ -203,12 +201,6 @@
 		<dependencies>
 
 			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.18.10</version>
-			</dependency>
-
-			<dependency>
 				<groupId>com.mchange</groupId>
 				<artifactId>c3p0</artifactId>
 				<version>0.9.5.5</version>
@@ -291,16 +283,6 @@
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>1.6</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.jmockit</groupId>
-				<artifactId>jmockit</artifactId>
-				<!-- note that aparently 1.38 suffers from https://github.com/jmockit/jmockit1/issues/457 -->
-				<!-- also not that with 1.33 i got weird errors on some tests which i 
-					didn't get with 1.30 or 1.38: * java.lang.NoClassDefFoundError: javax/persistence/Entity 
-					* java.lang.StackOverflowError -->
-				<version>1.30</version>
 			</dependency>
 
 			<dependency>
@@ -405,12 +387,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>org.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-library</artifactId>
@@ -678,22 +654,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
-
-			<!-- Don't archive a web project's files (i.e. put the classes into WEB-INF/classes), 
-				because we want skinny war to include theirs own classes in that folder (and 
-				their WEB-INF/lib to be empty) -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archiveClasses>false</archiveClasses>
-					<attachClasses>true</attachClasses>
-				</configuration>
-			</plugin>
 		</plugins>
-
 	</build>
 
 	<profiles>
