@@ -46,7 +46,7 @@ metasfresh/metasfresh-db_init:${build_tag}
 
 # copy the (binary) postgresql data which results from loading the seed dump and applying the SQL scripts
 # thx to https://github.com/moby/moby/issues/25245#issuecomment-365980572
-mkdir -p ${scriptDir}/db/postgresql_data_dir
+mkdir -pv ${scriptDir}/db/postgresql_data_dir
 docker cp db_init_container${build_tag}:/var/lib/postgresql/data/ ${scriptDir}/db/postgresql_data_dir/
 
 # create the actual database image

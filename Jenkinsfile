@@ -3,9 +3,8 @@
 // thx to https://github.com/jenkinsci/pipeline-examples/blob/master/docs/BEST_PRACTICES.md
 
 // note that we set a default version for this library in jenkins, so we don't have to specify it here
+
 @Library('misc')
-import de.metas.jenkins.DockerConf
-import de.metas.jenkins.Misc
 import de.metas.jenkins.MvnConf
 
 chuckNorris()
@@ -22,32 +21,32 @@ final String MF_SQL_SEED_DUMP_URL_DEFAULT =
 properties([
         parameters([
                 booleanParam(defaultValue: false,
-				description: 'If true, then rebuild everything, no matter if there were changes since the last successful build',
+                        description: 'If true, then rebuild everything, no matter if there were changes since the last successful build',
                         name: 'MF_FORCE_FULL_BUILD'),
 
-		booleanParam(defaultValue: false,
-				description: 'If true, then don\'t build frontend, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
-				name: 'MF_FORCE_SKIP_FRONTEND_BUILD'),
+                booleanParam(defaultValue: false,
+                        description: 'If true, then don\'t build frontend, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
+                        name: 'MF_FORCE_SKIP_FRONTEND_BUILD'),
 
-		booleanParam(defaultValue: false,
-				description: 'If true, then don\'t build backend, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
-				name: 'MF_FORCE_SKIP_BACKEND_BUILD'),
+                booleanParam(defaultValue: false,
+                        description: 'If true, then don\'t build backend, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
+                        name: 'MF_FORCE_SKIP_BACKEND_BUILD'),
 
-		booleanParam(defaultValue: false,
-				description: 'If true, then don\'t build misc services, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
-				name: 'MF_FORCE_SKIP_MISC_SERVICES_BUILD'),
+                booleanParam(defaultValue: false,
+                        description: 'If true, then don\'t build misc services, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
+                        name: 'MF_FORCE_SKIP_MISC_SERVICES_BUILD'),
 
-		booleanParam(defaultValue: false,
-				description: 'If true, then don\'t build e2e, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
-				name: 'MF_FORCE_SKIP_E2E_BUILD'),
+                booleanParam(defaultValue: false,
+                        description: 'If true, then don\'t build e2e, even if there were changes or <code>MF_FORCE_FULL_BUILD</code> is set to <code>true<code>',
+                        name: 'MF_FORCE_SKIP_E2E_BUILD'),
 
                 string(defaultValue: MF_SQL_SEED_DUMP_URL_DEFAULT,
-				description: 'metasfresh database seed against which the build shall apply its migrate scripts.',
+                        description: 'metasfresh database seed against which the build shall apply its migrate scripts.',
                         name: 'MF_SQL_SEED_DUMP_URL'),
 
-		booleanParam(defaultValue: true,
-				description: 'If true and the build succeeds, then clean the workspace',
-				name: 'MF_CLEAN_WORKSPACE_IF_BUILD_SUCCEEDS'),
+                booleanParam(defaultValue: true,
+                        description: 'If true and the build succeeds, then clean the workspace',
+                        name: 'MF_CLEAN_WORKSPACE_IF_BUILD_SUCCEEDS'),
         ]),
         pipelineTriggers([]),
         buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: numberOfBuildsToKeepStr)) // keep the last $numberOfBuildsToKeepStr builds
@@ -94,7 +93,9 @@ try {
 
                                     } // configFileProvider
 
-                            cleanWs cleanWhenAborted: false, cleanWhenFailure: false // clean up the workspace after (successfull) builds
+                            if (params.MF_CLEAN_WORKSPACE_IF_BUILD_SUCCEEDS) {
+                                cleanWs cleanWhenAborted: false, cleanWhenFailure: false // clean up the workspace after (successfull) builds
+                            }
                         } // node
             } // timestamps
 } catch (all) {
@@ -135,18 +136,18 @@ private void buildAll(String mfVersion, MvnConf mvnConf, scmVars) {
                             dir('frontend')
                                     {
                                         def frontendBuildFile = load('buildfile.groovy')
-						frontendBuildFile.build(mvnConf, scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_FRONTEND_BUILD)
+                                        frontendBuildFile.build(mvnConf, scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_FRONTEND_BUILD)
                                     }
                             dir('backend')
                                     {
                                         def backendBuildFile = load('buildfile.groovy')
-						backendBuildFile.build(mvnConf, scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_BACKEND_BUILD)
+                                        backendBuildFile.build(mvnConf, scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_BACKEND_BUILD)
                                     }
                         }
                 dir('misc/services') // misc/services has modules with different maven/jdk settings
                         {
                             def miscServices = load('buildfile.groovy')
-						miscServices.build(mvnConf, scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_MISC_SERVICES_BUILD)
+                            miscServices.build(mvnConf, scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_MISC_SERVICES_BUILD)
                         }
 
                 withMaven(jdk: 'java-8', maven: 'maven-3.6.3', mavenLocalRepo: '.repository', mavenOpts: '-Xmx1536M', options: [artifactsPublisher(disabled: true)])
@@ -154,7 +155,7 @@ private void buildAll(String mfVersion, MvnConf mvnConf, scmVars) {
                             dir('e2e')
                                     {
                                         def e2eBuildFile = load('buildfile.groovy')
-						e2eBuildFile.build(scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_E2E_BUILD)
+                                        e2eBuildFile.build(scmVars, params.MF_FORCE_FULL_BUILD, params.MF_FORCE_SKIP_E2E_BUILD)
                                     }
                             dir('distribution')
                                     {
@@ -165,25 +166,5 @@ private void buildAll(String mfVersion, MvnConf mvnConf, scmVars) {
                             //junit '**/target/surefire-reports/*.xml'
                             publishJacocoReports(scmVars.GIT_COMMIT, 'codacy_project_token_for_metasfresh_repo')
                         } // withMaven
-			} // withEnv
-		} // configFileProvider
-
-		if(params.MF_CLEAN_WORKSPACE_IF_BUILD_SUCCEEDS) {
-			cleanWs cleanWhenAborted: false, cleanWhenFailure: false // clean up the workspace after (successfull) builds
-		}
-	} // node
-	} // timestamps
-} catch(all)
-{
-  final String mattermostMsg = "This **${env.BRANCH_NAME}** build failed or was aborted: ${BUILD_URL}"
-  if(env.BRANCH_NAME=='master' || env.BRANCH_NAME=='release')
-  {
-	mattermostSend color: 'danger', message: mattermostMsg
-  }
-  else
-  {
-	withCredentials([string(credentialsId: 'jenkins-issue-branches-webhook-URL', variable: 'secretWebhookUrl')])
-	{
-		mattermostSend color: 'danger', endpoint: secretWebhookUrl, channel: 'jenkins-low-prio', message: mattermostMsg
-	}
+            } // withEnv
 }
