@@ -2,7 +2,8 @@ db:
   build: db
   restart: always
   volumes:
-    - ./volumes/db/data:/var/lib/postgresql/data
+# i don't understand docker well enough, but with this line, the prepackaged stuff is lost when i start the db container
+#    - ./volumes/db/data:/var/lib/postgresql/data
     - ./volumes/db/log:/var/log/postgresql
   environment:
     - METASFRESH_USERNAME=metasfresh
@@ -47,8 +48,8 @@ webapi:
     # to access the webui-api directly
     # (eg. for debugging or connecting your app to the metasfresh api)
     # uncomment following port:
-    #ports:
-    #- "8080:8080"
+  ports:
+    - "8080:8080"
   restart: always
   volumes:
     - ./volumes/webapi/log:/opt/metasfresh-webui-api/log:rw
@@ -67,7 +68,7 @@ webui:
   links:
     - webapi:webapi
   ports:
-    - "80:80"
+    - "3003:80"
   restart: always
   #uncomment and set to URL where metasfresh will be available from browsers
   environment:
