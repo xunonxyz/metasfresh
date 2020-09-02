@@ -8,6 +8,7 @@
         <format>zip</format>
         <format>tar.gz</format>
     </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
             <directory>src/main/resources-filtered/docker-compose-v1</directory>
