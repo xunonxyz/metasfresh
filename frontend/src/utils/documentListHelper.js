@@ -48,7 +48,6 @@ const DLpropTypes = {
   filterView: PropTypes.func.isRequired,
   deleteTable: PropTypes.func.isRequired,
   indicatorState: PropTypes.func.isRequired,
-  closeListIncludedView: PropTypes.func.isRequired,
   setListPagination: PropTypes.func.isRequired,
   setListSorting: PropTypes.func.isRequired,
   setListId: PropTypes.func.isRequired,
@@ -83,10 +82,15 @@ const DLmapStateToProps = (state, props) => {
   if (!master) {
     master = viewState;
   }
-
-  const sort = master.sort ? master.sort : querySort;
-  const page = master.page ? master.page : toInteger(queryPage);
   let viewId = master.viewId ? master.viewId : queryViewId;
+  let sort = querySort || master.sort;
+  let page = toInteger(queryPage) || master.page;
+  // used for included views, so that we don't use sorting/pagination
+  // of the parent view
+  if (props.isIncluded) {
+    sort = master.sort || sort;
+    page = master.page || page;
+  }
 
   // used for modals
   if (defaultViewId) {
@@ -104,9 +108,9 @@ const DLmapStateToProps = (state, props) => {
   let childTableId = null;
   const childSelector = getSelection();
   const { includedView } = props;
-  if (includedView && includedView.windowType) {
+  if (includedView && includedView.windowId) {
     childTableId = getTableId({
-      windowId: includedView.windowType,
+      windowId: includedView.windowId,
       viewId: includedView.viewId,
     });
   }

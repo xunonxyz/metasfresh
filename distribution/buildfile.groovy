@@ -1,7 +1,6 @@
 // note that we set a default version for this library in jenkins, so we don't have to specify it here
+
 @Library('misc')
-import de.metas.jenkins.DockerConf
-import de.metas.jenkins.Misc
 import de.metas.jenkins.MvnConf
 
 Map build(final MvnConf mvnConf) {
@@ -17,21 +16,18 @@ Map build(final MvnConf mvnConf) {
                 // set the root-pom's parent pom. Although the parent pom is available via relativePath, we need it to be this build's version then the root pom is deployed to our maven-repo
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode -DparentVersion=${env.MF_VERSION} ${mvnConf.resolveParams} ${VERSIONS_PLUGIN}:update-parent"
 
-                //
-                // update the different version properties
-                final String metasfreshUpdatePropertyParam = "-Dproperty=metasfresh.version -DnewVersion=LATEST"
+                // update the metasfresh.version property. either to the latest version or to the given params.MF_METASFRESH_VERSION.
+                final String metasfreshUpdatePropertyParam = '-Dproperty=metasfresh.version -DallowDowngrade=true'
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshUpdatePropertyParam} ${VERSIONS_PLUGIN}:update-property"
 
-                final String metasfreshAdminPropertyParam = "-Dproperty=metasfresh-admin.version -DnewVersion=LATEST"
+                // gh #968 also update the metasfresh-webui-frontend.version, metasfresh-webui-api.versions and procurement versions.
+                final String metasfreshAdminPropertyParam = '-Dproperty=metasfresh-admin.version -DallowDowngrade=true'
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshAdminPropertyParam} ${VERSIONS_PLUGIN}:update-property"
-
-                final String metasfreshWebFrontEndUpdatePropertyParam = "-Dproperty=metasfresh-webui-frontend.version -DnewVersion=LATEST"
+                final String metasfreshWebFrontEndUpdatePropertyParam = '-Dproperty=metasfresh-webui-frontend.version -DallowDowngrade=true'
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshWebFrontEndUpdatePropertyParam} ${VERSIONS_PLUGIN}:update-property"
-
-                final String metasfreshWebApiUpdatePropertyParam = "-Dproperty=metasfresh-webui-api.version -DnewVersion=LATEST"
+                final String metasfreshWebApiUpdatePropertyParam = '-Dproperty=metasfresh-webui-api.version -DallowDowngrade=true'
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshWebApiUpdatePropertyParam} ${VERSIONS_PLUGIN}:update-property"
-
-                final String metasfreshProcurementWebuiUpdatePropertyParam = "-Dproperty=metasfresh-procurement-webui.version -DnewVersion=LATEST"
+                final String metasfreshProcurementWebuiUpdatePropertyParam = '-Dproperty=metasfresh-procurement-webui.version -DallowDowngrade=true'
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshProcurementWebuiUpdatePropertyParam} ${VERSIONS_PLUGIN}:update-property"
 
                 // set the artifact version of our pom - note that we are going to deploy the pom for the sake of downstream projects
@@ -66,9 +62,8 @@ Map build(final MvnConf mvnConf) {
                 //  * https://github.com/jenkinsci/build-with-parameters-plugin/pull/10
                 //  * https://jenkins.ci.cloudbees.com/job/plugins/job/build-with-parameters-plugin/15/org.jenkins-ci.plugins$build-with-parameters/
                 String releaseLinkWithText = "	<li>..and ${misc.createReleaseLinkWithText(MF_RELEASE_VERSION, MF_VERSION, artifactURLs, null/*dockerImages*/)}</li>";
-			if(env.BRANCH_NAME == 'release')
-			{
-				releaseLinkWithText = """	${releaseLinkWithText}
+                if (env.BRANCH_NAME == 'release') {
+                    releaseLinkWithText = """	${releaseLinkWithText}
 <li>..aaand ${misc.createWeeklyReleaseLinkWithText(MF_RELEASE_VERSION, MF_VERSION, artifactURLs, null/*dockerImages*/)}</li>"""
 			}
                 // echo "DONE calling misc.createReleaseLinkWithText"
