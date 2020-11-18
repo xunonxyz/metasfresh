@@ -16,9 +16,9 @@ public interface I_M_HU_PI_Item_Product
 
 //    org.compiere.util.KeyNamePair Model = new org.compiere.util.KeyNamePair(Table_ID, Table_Name);
 
-    /** AccessLevel = 7 - System - Client - Org
+    /** AccessLevel = 3 - Client - Org
      */
-//    java.math.BigDecimal accessLevel = java.math.BigDecimal.valueOf(7);
+//    java.math.BigDecimal accessLevel = java.math.BigDecimal.valueOf(3);
 
     /** Load Meta Data */
 
@@ -98,35 +98,6 @@ public interface I_M_HU_PI_Item_Product
     public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
 
 	/**
-	 * Set Maßeinheit.
-	 * Maßeinheit
-	 *
-	 * <br>Type: TableDir
-	 * <br>Mandatory: false
-	 * <br>Virtual Column: false
-	 */
-	public void setC_UOM_ID (int C_UOM_ID);
-
-	/**
-	 * Get Maßeinheit.
-	 * Maßeinheit
-	 *
-	 * <br>Type: TableDir
-	 * <br>Mandatory: false
-	 * <br>Virtual Column: false
-	 */
-	public int getC_UOM_ID();
-
-	public org.compiere.model.I_C_UOM getC_UOM();
-
-	public void setC_UOM(org.compiere.model.I_C_UOM C_UOM);
-
-    /** Column definition for C_UOM_ID */
-    public static final org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, org.compiere.model.I_C_UOM> COLUMN_C_UOM_ID = new org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, org.compiere.model.I_C_UOM>(I_M_HU_PI_Item_Product.class, "C_UOM_ID", org.compiere.model.I_C_UOM.class);
-    /** Column name C_UOM_ID */
-    public static final String COLUMNNAME_C_UOM_ID = "C_UOM_ID";
-
-	/**
 	 * Get Erstellt.
 	 * Datum, an dem dieser Eintrag erstellt wurde
 	 *
@@ -155,6 +126,35 @@ public interface I_M_HU_PI_Item_Product
     public static final org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, org.compiere.model.I_AD_User> COLUMN_CreatedBy = new org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, org.compiere.model.I_AD_User>(I_M_HU_PI_Item_Product.class, "CreatedBy", org.compiere.model.I_AD_User.class);
     /** Column name CreatedBy */
     public static final String COLUMNNAME_CreatedBy = "CreatedBy";
+
+	/**
+	 * Set Maßeinheit.
+	 * Maßeinheit
+	 *
+	 * <br>Type: TableDir
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	public void setC_UOM_ID (int C_UOM_ID);
+
+	/**
+	 * Get Maßeinheit.
+	 * Maßeinheit
+	 *
+	 * <br>Type: TableDir
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	public int getC_UOM_ID();
+
+	public org.compiere.model.I_C_UOM getC_UOM();
+
+	public void setC_UOM(org.compiere.model.I_C_UOM C_UOM);
+
+    /** Column definition for C_UOM_ID */
+    public static final org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, org.compiere.model.I_C_UOM> COLUMN_C_UOM_ID = new org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, org.compiere.model.I_C_UOM>(I_M_HU_PI_Item_Product.class, "C_UOM_ID", org.compiere.model.I_C_UOM.class);
+    /** Column name C_UOM_ID */
+    public static final String COLUMNNAME_C_UOM_ID = "C_UOM_ID";
 
 	/**
 	 * Set Beschreibung.
@@ -224,6 +224,31 @@ public interface I_M_HU_PI_Item_Product
     public static final org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, Object> COLUMN_GTIN = new org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, Object>(I_M_HU_PI_Item_Product.class, "GTIN", null);
     /** Column name GTIN */
     public static final String COLUMNNAME_GTIN = "GTIN";
+
+	/**
+	 * Set LU Fallback-Gebinde-GTIN.
+	 * Wird benutzt wenn die Ausgabe einer LU Gebinde-GTIN erforderlich ist, aber in metasfresh keine HU erfasst wurde.
+	 *
+	 * <br>Type: String
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	public void setGTIN_LU_PackingMaterial_Fallback (java.lang.String GTIN_LU_PackingMaterial_Fallback);
+
+	/**
+	 * Get LU Fallback-Gebinde-GTIN.
+	 * Wird benutzt wenn die Ausgabe einer LU Gebinde-GTIN erforderlich ist, aber in metasfresh keine HU erfasst wurde.
+	 *
+	 * <br>Type: String
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	public java.lang.String getGTIN_LU_PackingMaterial_Fallback();
+
+    /** Column definition for GTIN_LU_PackingMaterial_Fallback */
+    public static final org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, Object> COLUMN_GTIN_LU_PackingMaterial_Fallback = new org.adempiere.model.ModelColumn<I_M_HU_PI_Item_Product, Object>(I_M_HU_PI_Item_Product.class, "GTIN_LU_PackingMaterial_Fallback", null);
+    /** Column name GTIN_LU_PackingMaterial_Fallback */
+    public static final String COLUMNNAME_GTIN_LU_PackingMaterial_Fallback = "GTIN_LU_PackingMaterial_Fallback";
 
 	/**
 	 * Set Aktiv.
@@ -455,7 +480,7 @@ public interface I_M_HU_PI_Item_Product
     public static final String COLUMNNAME_Qty = "Qty";
 
 	/**
-	 * Set UPC/EAN.
+	 * Set UPC.
 	 * Produktidentifikation (Barcode) durch Universal Product Code oder European Article Number)
 	 *
 	 * <br>Type: String
@@ -465,7 +490,7 @@ public interface I_M_HU_PI_Item_Product
 	public void setUPC (java.lang.String UPC);
 
 	/**
-	 * Get UPC/EAN.
+	 * Get UPC.
 	 * Produktidentifikation (Barcode) durch Universal Product Code oder European Article Number)
 	 *
 	 * <br>Type: String

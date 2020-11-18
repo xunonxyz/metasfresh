@@ -26,9 +26,11 @@ import de.metas.handlingunits.attributes.sscc18.SSCC18;
 import de.metas.handlingunits.generichumodel.HU;
 import de.metas.handlingunits.generichumodel.HURepository;
 import de.metas.handlingunits.generichumodel.PackagingCode;
+import de.metas.handlingunits.inout.IHUPackingMaterialDAO;
 import de.metas.handlingunits.model.I_M_HU;
 import de.metas.handlingunits.model.I_M_HU_LUTU_Configuration;
 import de.metas.handlingunits.model.I_M_HU_PI_Item_Product;
+import de.metas.handlingunits.model.I_M_HU_PackingMaterial;
 import de.metas.handlingunits.model.X_M_HU_PI_Version;
 import de.metas.i18n.AdMessageKey;
 import de.metas.i18n.IMsgBL;
@@ -101,7 +103,9 @@ public class DesadvBL implements IDesadvBL
 {
 	private static final AdMessageKey MSG_EDI_DESADV_RefuseSending = AdMessageKey.of("EDI_DESADV_RefuseSending");
 
-	/** Process used to print the {@link I_EDI_DesadvLine_Pack}s labels */
+	/**
+	 * Process used to print the {@link I_EDI_DesadvLine_Pack}s labels
+	 */
 	private static final String AD_PROCESS_VALUE_EDI_DesadvLine_SSCC_Print = "EDI_DesadvLine_SSCC_Print";
 
 	private final transient IInOutDAO inOutDAO = Services.get(IInOutDAO.class);
@@ -120,6 +124,8 @@ public class DesadvBL implements IDesadvBL
 	private final transient ISSCC18CodeBL sscc18CodeService = Services.get(ISSCC18CodeBL.class);
 	private final transient HURepository huRepository;
 	private final transient IUOMDAO uomDAO = Services.get(IUOMDAO.class);
+	private final transient IHUPackingMaterialDAO huPackingMaterialDAO = Services.get(IHUPackingMaterialDAO.class);
+	private final transient IBPartnerProductDAO partnerProductDAO = Services.get(IBPartnerProductDAO.class);
 
 	// @VisibleForTesting
 	public DesadvBL(@NonNull final HURepository huRepository)
@@ -428,6 +434,8 @@ public class DesadvBL implements IDesadvBL
 		final I_M_HU_PI_Item_Product tuPIItemProduct = extractHUPIItemProduct(orderRecord, orderLineRecord);
 		final I_C_UOM uomRecord = uomDAO.getById(qtyToAdd.getStockQty().getUomId());
 
+		final BPartnerId bpartnerId = BPartnerId.ofRepoId(orderRecord.getC_BPartner_ID());
+
 		final I_M_HU_LUTU_Configuration lutuConfigurationInStockUOM = lutuConfigurationFactory.createLUTUConfiguration(
 				tuPIItemProduct,
 				inOutLineRecord.getM_Product(),
@@ -494,9 +502,24 @@ public class DesadvBL implements IDesadvBL
 			// PackagingCodes
 			final int packagingCodeLU_ID = tuPIItemProduct.getM_HU_PackagingCode_LU_Fallback_ID();
 			packRecord.setM_HU_PackagingCode_LU_ID(packagingCodeLU_ID);
+			packRecord.setGTIN_LU_PackingMaterial(tuPIItemProduct.getGTIN_LU_PackingMaterial_Fallback());
 
 			final int packagingCodeTU_ID = tuPIItemProduct.getM_HU_PI_Item().getM_HU_PI_Version().getM_HU_PackagingCode_ID();
 			packRecord.setM_HU_PackagingCode_TU_ID(packagingCodeTU_ID);
+
+			final List<I_M_HU_PackingMaterial> huPackingMaterials = huPackingMaterialDAO.retrievePackingMaterials(tuPIItemProduct);
+			if (huPackingMaterials.size() == 1)
+			{
+				final I_C_BPartner_Product bPartnerProductRecord = partnerProductDAO
+						.retrieveBPartnerProductAssociation(Env.getCtx(),
+								bpartnerId.getRepoId(),
+								huPackingMaterials.get(0).getM_Product_ID(),
+								desadvLineRecord.getAD_Org_ID());
+				if (bPartnerProductRecord != null && Check.isNotBlank(bPartnerProductRecord.getGTIN()))
+				{
+					packRecord.setGTIN_TU_PackingMaterial(bPartnerProductRecord.getGTIN());
+				}
+			}
 
 			final StockQtyAndUOMQty qtyCUsPerCurrentLU = remainingQty.min(maxQtyCUsPerLU);
 

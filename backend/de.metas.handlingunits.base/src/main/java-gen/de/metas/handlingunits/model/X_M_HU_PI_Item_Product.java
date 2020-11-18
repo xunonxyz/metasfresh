@@ -15,7 +15,7 @@ public class X_M_HU_PI_Item_Product extends org.compiere.model.PO implements I_M
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -907493153L;
+	private static final long serialVersionUID = -798793189L;
 
     /** Standard Constructor */
     public X_M_HU_PI_Item_Product (Properties ctx, int M_HU_PI_Item_Product_ID, String trxName)
@@ -169,6 +169,25 @@ public class X_M_HU_PI_Item_Product extends org.compiere.model.PO implements I_M
 		return (java.lang.String)get_Value(COLUMNNAME_GTIN);
 	}
 
+	/** Set LU Fallback-Gebinde-GTIN.
+		@param GTIN_LU_PackingMaterial_Fallback 
+		Wird benutzt wenn die Ausgabe einer LU Gebinde-GTIN erforderlich ist, aber in metasfresh keine HU erfasst wurde.
+	  */
+	@Override
+	public void setGTIN_LU_PackingMaterial_Fallback (java.lang.String GTIN_LU_PackingMaterial_Fallback)
+	{
+		set_Value (COLUMNNAME_GTIN_LU_PackingMaterial_Fallback, GTIN_LU_PackingMaterial_Fallback);
+	}
+
+	/** Get LU Fallback-Gebinde-GTIN.
+		@return Wird benutzt wenn die Ausgabe einer LU Gebinde-GTIN erforderlich ist, aber in metasfresh keine HU erfasst wurde.
+	  */
+	@Override
+	public java.lang.String getGTIN_LU_PackingMaterial_Fallback () 
+	{
+		return (java.lang.String)get_Value(COLUMNNAME_GTIN_LU_PackingMaterial_Fallback);
+	}
+
 	/** Set Jedes Produkt erlauben.
 		@param IsAllowAnyProduct Jedes Produkt erlauben	  */
 	@Override
@@ -216,7 +235,7 @@ public class X_M_HU_PI_Item_Product extends org.compiere.model.PO implements I_M
 	}
 
 	@Override
-	public de.metas.handlingunits.model.I_M_HU_PackagingCode getM_HU_PackagingCode_LU_Fallback()
+	public de.metas.handlingunits.model.I_M_HU_PackagingCode getM_HU_PackagingCode_LU_Fallback() throws RuntimeException
 	{
 		return get_ValueAsPO(COLUMNNAME_M_HU_PackagingCode_LU_Fallback_ID, de.metas.handlingunits.model.I_M_HU_PackagingCode.class);
 	}
@@ -253,7 +272,7 @@ public class X_M_HU_PI_Item_Product extends org.compiere.model.PO implements I_M
 	}
 
 	@Override
-	public de.metas.handlingunits.model.I_M_HU_PI_Item getM_HU_PI_Item()
+	public de.metas.handlingunits.model.I_M_HU_PI_Item getM_HU_PI_Item() throws RuntimeException
 	{
 		return get_ValueAsPO(COLUMNNAME_M_HU_PI_Item_ID, de.metas.handlingunits.model.I_M_HU_PI_Item.class);
 	}
@@ -386,7 +405,7 @@ public class X_M_HU_PI_Item_Product extends org.compiere.model.PO implements I_M
 		return bd;
 	}
 
-	/** Set UPC/EAN.
+	/** Set UPC.
 		@param UPC 
 		Produktidentifikation (Barcode) durch Universal Product Code oder European Article Number)
 	  */
@@ -396,7 +415,7 @@ public class X_M_HU_PI_Item_Product extends org.compiere.model.PO implements I_M
 		set_Value (COLUMNNAME_UPC, UPC);
 	}
 
-	/** Get UPC/EAN.
+	/** Get UPC.
 		@return Produktidentifikation (Barcode) durch Universal Product Code oder European Article Number)
 	  */
 	@Override
