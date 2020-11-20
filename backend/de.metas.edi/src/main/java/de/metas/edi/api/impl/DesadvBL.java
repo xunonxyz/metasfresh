@@ -96,7 +96,7 @@ import static org.adempiere.model.InterfaceWrapperHelper.create;
 import static org.adempiere.model.InterfaceWrapperHelper.delete;
 import static org.adempiere.model.InterfaceWrapperHelper.newInstance;
 import static org.adempiere.model.InterfaceWrapperHelper.saveRecord;
-import static org.compiere.util.Util.isEmpty;
+import static org.compiere.util.Util.coalesce;
 
 @Service
 public class DesadvBL implements IDesadvBL
@@ -641,9 +641,9 @@ public class DesadvBL implements IDesadvBL
 
 		final PackagingCode tuPackagingCode = CollectionUtils.extractSingleElementOrDefault(
 				rootHU.getChildHUs(), // don't iterate all HUs; we just care for the level below our LU (aka TU level).
-				hu -> hu.getPackagingCode().orElse(null),
-				null);
-		if (tuPackagingCode != null)
+				hu -> hu.getPackagingCode().orElse(PackagingCode.NONE),
+				PackagingCode.NONE);
+		if (!tuPackagingCode.isNone())
 		{
 			packRecord.setM_HU_PackagingCode_TU_ID(tuPackagingCode.getId().getRepoId());
 		}
@@ -662,8 +662,8 @@ public class DesadvBL implements IDesadvBL
 
 		final String tuPackagingGTIN = CollectionUtils.extractSingleElementOrDefault(
 				rootHU.getChildHUs(), // don't iterate all HUs; we just care for the level below our LU (aka TU level).
-				hu -> hu.getPackagingGTINs().get(bPartnerId),
-				null);
+				hu -> coalesce(hu.getPackagingGTINs().get(bPartnerId),""),
+				"");
 		if (Check.isNotBlank(tuPackagingGTIN))
 		{
 			packRecord.setGTIN_TU_PackingMaterial(tuPackagingGTIN);

@@ -32,6 +32,15 @@ import lombok.Value;
 @Builder
 public class PackagingCode
 {
+	/**
+	 * Can be used if {@code null} doesn't work (immutable guava-collections).
+	 */
+	public static final PackagingCode NONE = PackagingCode.builder()
+			.id(PackagingCodeId.ofRepoId(Integer.MAX_VALUE))
+			.onlyForType(Optional.empty())
+			.value("NONE")
+			.build();
+
 	@NonNull
 	PackagingCodeId id;
 
@@ -40,4 +49,9 @@ public class PackagingCode
 
 	@NonNull
 	String value;
+
+	public boolean isNone()
+	{
+		return this.equals(NONE);
+	}
 }
