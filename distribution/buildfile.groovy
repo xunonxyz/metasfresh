@@ -48,6 +48,7 @@ Map build(final MvnConf mvnConf) {
 
                 artifactURLs['metasfresh-admin'] = "${mvnConf.resolveRepoURL}/de/metas/admin/metasfresh-admin/${urlEncodedMavenProps['metasfresh-admin.version']}/metasfresh-admin-${urlEncodedMavenProps['metasfresh-admin.version']}.jar"
                 artifactURLs['metasfresh-dist'] = "${mvnConf.deployRepoURL}/de/metas/dist/metasfresh-dist-dist/${urlEncodedMavenProps['metasfresh.version']}/metasfresh-dist-dist-${urlEncodedMavenProps['metasfresh.version']}-dist.tar.gz"
+                artifactURLs['metasfresh-dist-docker-compose-v1'] = "${mvnConf.resolveRepoURL}/de/metas/metasfresh-distribution/metasfresh-distribution/${urlEncodedMavenProps['metasfresh.version']}/metasfresh-distribution-${urlEncodedMavenProps['metasfresh.version']}-docker-compose-v1.tar.gz"
                 artifactURLs['metasfresh-dist-sql-only'] = "${mvnConf.deployRepoURL}/de/metas/dist/metasfresh-dist-dist/${urlEncodedMavenProps['metasfresh.version']}/metasfresh-dist-dist-${urlEncodedMavenProps['metasfresh.version']}-sql-only.tar.gz"
                 artifactURLs['metasfresh-procurement-webui'] = "${mvnConf.resolveRepoURL}/de/metas/procurement/de.metas.procurement.webui/${urlEncodedMavenProps['metasfresh-procurement-webui.version']}/de.metas.procurement.webui-${urlEncodedMavenProps['metasfresh-procurement-webui.version']}.jar"
                 artifactURLs['metasfresh-webui-api'] = "${mvnConf.resolveRepoURL}/de/metas/ui/web/metasfresh-webui-api/${urlEncodedMavenProps['metasfresh.version']}/metasfresh-webui-api-${urlEncodedMavenProps['metasfresh.version']}.jar"
@@ -78,14 +79,15 @@ Map build(final MvnConf mvnConf) {
 	  <li>metasfresh-webui-frontend: version <b>${mavenProps['metasfresh-webui-frontend.version']}</b></li>
 	  <li>metasfresh-procurement-webui: version <b>${mavenProps['metasfresh-procurement-webui.version']}</b></li>
 	  <li>metasfresh-admin webui: version <b>${mavenProps['metasfresh-admin.version']}</b></li>
-  <li>metasfresh-backend: version <b>${mavenProps['metasfresh.version']}</b></li>
+      <li>metasfresh-backend: version <b>${mavenProps['metasfresh.version']}</b></li>
 	</ul>
 	<p>
 	<h3>Uploaded maven artifacts</h3>
 	<ul>
 		<li><a href=\"${artifactURLs['metasfresh-dist']}\">dist-tar.gz</a></li>
+        <li><a href=\"${artifactURLs['metasfresh-dist-docker-compose-v1']}\">docker-compose-v1.tar.gz</a></li>
 		<li><a href=\"${artifactURLs['metasfresh-dist-sql-only']}\">sql-only-tar.gz</a></li>
-	    <li><a href=\"${mvnConf.deployRepoURL}/de/metas/dist/metasfresh-dist-swingui/${urlEncodedMavenProps['metasfresh.version']}/metasfresh-dist-swingui-${urlEncodedMavenProps['metasfresh.version']}-client.zip\">client.zip</a></li>
+	    <!-- <li><a href=\"${mvnConf.deployRepoURL}/de/metas/dist/metasfresh-dist-swingui/${urlEncodedMavenProps['metasfresh.version']}/metasfresh-dist-swingui-${urlEncodedMavenProps['metasfresh.version']}-client.zip\">client.zip</a></li> -->
 		<li><a href=\"${artifactURLs['metasfresh-webui-api']}\">metasfresh-webui-api.jar</a></li>
 		<li><a href=\"${artifactURLs['metasfresh-webui-frontend']}\">metasfresh-webui-frontend.tar.gz</a></li>
 		<li><a href=\"${artifactURLs['metasfresh-procurement-webui']}\">metasfresh-procurement-webui.jar</a></li>
