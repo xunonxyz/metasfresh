@@ -1,14 +1,32 @@
 package de.metas.product;
 
+import de.metas.organization.OrgId;
+import de.metas.util.ISingletonService;
+import de.metas.util.lang.ExternalId;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
+import org.adempiere.util.lang.ImmutablePair;
+import org.compiere.model.I_M_Product;
+import org.compiere.model.I_M_Product_Category;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import static de.metas.common.util.CoalesceUtil.coalesce;
 import static de.metas.util.Check.assume;
 import static de.metas.util.Check.isEmpty;
-import static de.metas.common.util.CoalesceUtil.coalesce;
 
 /*
  * #%L
- * de.metas.adempiere.adempiere.base
+ * de.metas.business
  * %%
- * Copyright (C) 2015 metas GmbH
+ * Copyright (C) 2020 metas GmbH
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -26,25 +44,6 @@ import static de.metas.common.util.CoalesceUtil.coalesce;
  * #L%
  */
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
-import org.compiere.model.I_M_Product;
-import org.compiere.model.I_M_Product_Category;
-
-import de.metas.organization.OrgId;
-import de.metas.util.ISingletonService;
-import de.metas.util.lang.ExternalId;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
-
 public interface IProductDAO extends ISingletonService
 {
 	<T extends I_M_Product> T getById(ProductId productId, Class<T> productClass);
@@ -61,9 +60,15 @@ public interface IProductDAO extends ISingletonService
 	@NonNull
 	ProductCategoryId getDefaultProductCategoryId();
 
+
+	/**
+	 * @return All the active products with the given product planning schema selector
+	 */
+	Set<ImmutablePair<ProductId, OrgId>> retrieveProductsAndOrgsForSchemaSelector(@NonNull ProductPlanningSchemaSelector productPlanningSchemaSelector);
+
 	/**
 	 * @return the product of the given <code>org</code> that is mapped to the given <code>product</code> or <code>null</code> if the given product references no mapping, or the mapping is not active
-	 * or if there is no pendant in the given <code>org</code>.
+	 *         or if there is no pendant in the given <code>org</code>.
 	 * task http://dewiki908/mediawiki/index.php/09700_Counter_Documents_%28100691234288%29
 	 */
 	@Nullable
@@ -79,6 +84,10 @@ public interface IProductDAO extends ISingletonService
 	@Nullable
 	I_M_Product retrieveProductByValue(String value);
 
+	/**
+	 * @deprecated assumes that different AD_Orgs always have different {@code M_Product.Value}s. Better use {@link #retrieveProductIdBy(ProductQuery)}.
+	 */
+	@Deprecated
 	@Nullable
 	ProductId retrieveProductIdByValue(String value);
 
@@ -161,4 +170,7 @@ public interface IProductDAO extends ISingletonService
 	I_M_Product createProduct(CreateProductRequest request);
 
 	void updateProduct(UpdateProductRequest request);
+
+	int getProductGuaranteeDaysMinFallbackProductCategory(@NonNull final ProductId productId);
+
 }

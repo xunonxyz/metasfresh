@@ -6,9 +6,8 @@ import {
   locationConfigRequest,
   headerPropertiesRequest,
 } from '../api';
-import { getTableId } from '../reducers/tables';
-import { getView } from '../reducers/viewHandler';
 
+import { formatFilters, populateFiltersCaptions } from '../utils/filterHelpers';
 import {
   ADD_VIEW_LOCATION_DATA,
   CREATE_VIEW,
@@ -34,6 +33,10 @@ import {
   UPDATE_VIEW_DATA_SUCCESS,
 } from '../constants/ActionTypes';
 
+import { getTableId } from '../reducers/tables';
+import { getEntityRelatedId } from '../reducers/filters';
+import { getView } from '../reducers/viewHandler';
+import { createFilter, deleteFilter } from './FiltersActions';
 import { createGridTable, updateGridTable, deleteTable } from './TableActions';
 
 /**
@@ -321,6 +324,10 @@ export function fetchDocument({
       orderBy,
     })
       .then((response) => {
+        // remove the old filter from the store
+        const entityRelatedId = getEntityRelatedId({ windowId, viewId });
+        dispatch(deleteFilter(entityRelatedId));
+
         dispatch(fetchDocumentSuccess(windowId, response.data, isModal));
 
         const tableId = getTableId({ windowId, viewId });
@@ -336,6 +343,29 @@ export function fetchDocument({
 
         const state = getState();
         const view = getView(state, windowId, isModal);
+
+        const filterId = getEntityRelatedId({ windowId, viewId });
+        const activeFiltersCaptions = populateFiltersCaptions({
+          filterData: view.layout.filters,
+          filtersActive: response.data.filters,
+        });
+        const filtersActive = formatFilters({
+          filtersData: view.layout.filters,
+          filtersActive: response.data.filters,
+        });
+
+        dispatch(
+          createFilter({
+            filterId,
+            data: {
+              filterData: view.layout.filters, // set the proper layout for the filters
+              filtersActive,
+              activeFiltersCaptions,
+            },
+          })
+        );
+
+        // set the Layout for the view
         const openIncludedViewOnSelect =
           view.layout &&
           view.layout.includedView &&
@@ -471,7 +501,6 @@ export function filterView(windowId, viewId, filters, isModal = false) {
 
         // remove table, so that we won't add filtered rows to the previous data
         const tableId = getTableId({ windowId, viewId });
-
         dispatch(deleteTable(tableId));
 
         return Promise.resolve(response.data);
@@ -504,7 +533,7 @@ export function fetchLocationConfig(windowId, isModal = false) {
 
 /**
  * @method showIncludedView
- * @summary ToDo: Describe the method.
+ * @summary Set included view in the store and toggle it's visibility
  */
 export function showIncludedView({
   id,

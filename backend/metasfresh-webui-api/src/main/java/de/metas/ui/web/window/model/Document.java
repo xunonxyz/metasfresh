@@ -18,6 +18,12 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import de.metas.document.engine.IDocument;
+import de.metas.process.ProcessInfo;
+import de.metas.ui.web.process.ProcessId;
+import de.metas.ui.web.window.datatypes.LookupValue;
+import de.metas.ui.web.window.descriptor.ButtonFieldActionDescriptor;
+import de.metas.util.lang.RepoIdAware;
 import org.adempiere.ad.callout.api.ICalloutExecutor;
 import org.adempiere.ad.callout.api.ICalloutRecord;
 import org.adempiere.ad.element.api.AdWindowId;
@@ -146,7 +152,7 @@ public final class Document
 	//
 	// Parent & children
 	private final Document _parentDocument;
-	private final Map<DetailId, IIncludedDocumentsCollection> includedDocuments;
+	private final ImmutableMap<DetailId, IIncludedDocumentsCollection> includedDocuments;
 
 	//
 	// Evaluatee
@@ -175,7 +181,7 @@ public final class Document
 		Object getValue(final DocumentFieldDescriptor fieldDescriptor);
 	}
 
-	private Document(final Builder builder)
+	private Document(@NonNull final Builder builder)
 	{
 		entityDescriptor = builder.getEntityDescriptor();
 		_parentDocument = builder.getParentDocument();
@@ -1206,12 +1212,29 @@ public final class Document
 			throw new DocumentProcessingException("Not all changes could be saved", this, docAction);
 		}
 
+		final IDocumentBL documentBL = Services.get(IDocumentBL.class);
+
 		//
 		// Actually process the document
 		// TODO: trigger the document workflow instead!
 		final String docAction = docActionField.getValueAs(StringLookupValue.class).getIdAsString();
-		final String expectedDocStatus = null; // N/A
-		Services.get(IDocumentBL.class).processEx(this, docAction, expectedDocStatus);
+		final ButtonFieldActionDescriptor buttonActionDescriptor = docActionField.getDescriptor().getButtonActionDescriptor();
+		if(buttonActionDescriptor != null)
+		{
+			final IDocument workflowDocument = documentBL.getDocument(this);
+			final ProcessId workflowStarterProcessId = buttonActionDescriptor.getProcessId();
+			ProcessInfo.builder()
+					.setAD_Process_ID(workflowStarterProcessId.toAdProcessId())
+					.setRecord(workflowDocument.toTableRecordReference())
+					.buildAndPrepareExecution()
+					.onErrorThrowException()
+					.executeSync();
+		}
+		else
+		{
+			final String expectedDocStatus = null; // N/A
+			documentBL.processEx(this, docAction, expectedDocStatus);
+		}
 
 		//
 		// Refresh it
@@ -1526,13 +1549,20 @@ public final class Document
 		return getField(fieldName).getLookupValuesForQuery(query);
 	}
 
+	public Optional<LookupValue> getLookupValueById(@NonNull final String fieldName, @NonNull final RepoIdAware id)
+	{
+		return getField(fieldName).getLookupValueById(id);
+	}
+
+
 	public Optional<Document> getIncludedDocument(final DetailId detailId, final DocumentId rowId)
 	{
 		final IIncludedDocumentsCollection includedDocuments = getIncludedDocumentsCollection(detailId);
 		return includedDocuments.getDocumentById(rowId);
 	}
 
-	public OrderedDocumentsList getIncludedDocuments(final DetailId detailId, final DocumentQueryOrderByList orderBys)
+	@NonNull
+	public OrderedDocumentsList getIncludedDocuments(@NonNull final DetailId detailId, @Nullable final DocumentQueryOrderByList orderBys)
 	{
 		final IIncludedDocumentsCollection includedDocuments = getIncludedDocumentsCollection(detailId);
 		return includedDocuments.getDocuments(orderBys);
@@ -1559,7 +1589,7 @@ public final class Document
 		final IIncludedDocumentsCollection includedDocumentsForDetailId = includedDocuments.get(detailId);
 		if (includedDocumentsForDetailId == null)
 		{
-			throw new IllegalArgumentException("detailId '" + detailId + "' not found for " + this);
+			throw new AdempiereException("detailId '" + detailId + "' not found for " + this);
 		}
 		return includedDocumentsForDetailId;
 	}

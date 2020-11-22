@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import javax.annotation.Nullable;
 
+import de.metas.common.util.time.SystemTime;
 import org.adempiere.ad.dao.QueryLimit;
 import org.compiere.util.Env;
 import org.slf4j.MDC;
@@ -21,7 +22,6 @@ import de.metas.common.manufacturing.JsonRequestManufacturingOrdersReport;
 import de.metas.common.manufacturing.JsonRequestSetOrdersExportStatusBulk;
 import de.metas.common.manufacturing.JsonResponseManufacturingOrdersBulk;
 import de.metas.common.manufacturing.JsonResponseManufacturingOrdersReport;
-import de.metas.util.time.SystemTime;
 import de.metas.util.web.MetasfreshRestAPIConstants;
 import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
@@ -94,6 +94,8 @@ public class ManufacturingOrderRestController
 	public ResponseEntity<JsonResponseManufacturingOrdersReport> report(@RequestBody @NonNull final JsonRequestManufacturingOrdersReport request)
 	{
 		final JsonResponseManufacturingOrdersReport response = manufacturingOrderAPIService.report(request);
-		return ResponseEntity.ok(response);
+		return response.isOK()
+				? ResponseEntity.ok(response)
+				: ResponseEntity.unprocessableEntity().body(response);
 	}
 }

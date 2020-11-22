@@ -9,14 +9,19 @@ import static org.adempiere.model.InterfaceWrapperHelper.saveRecord;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import de.metas.common.util.time.SystemTime;
+import de.metas.document.sequence.IDocumentNoBuilderFactory;
+import de.metas.document.sequence.impl.DocumentNoBuilderFactory;
 import org.adempiere.ad.modelvalidator.IModelInterceptorRegistry;
 import org.adempiere.mm.attributes.api.impl.ModelProductDescriptorExtractorUsingAttributeSetInstanceFactory;
 import org.adempiere.service.ClientId;
 import org.adempiere.test.AdempiereTestHelper;
 import org.adempiere.test.AdempiereTestWatcher;
 import org.adempiere.warehouse.WarehouseId;
+import org.compiere.SpringContextHolder;
 import org.compiere.model.I_AD_Org;
 import org.compiere.model.I_AD_WF_Node;
 import org.compiere.model.I_AD_Workflow;
@@ -57,11 +62,11 @@ import de.metas.material.event.pporder.PPOrderRequestedEvent;
 import de.metas.material.planning.pporder.IPPOrderBOMDAO;
 import de.metas.material.planning.pporder.PPOrderPojoConverter;
 import de.metas.material.planning.pporder.PPRoutingId;
+import de.metas.material.replenish.ReplenishInfoRepository;
 import de.metas.organization.ClientAndOrgId;
 import de.metas.organization.OrgId;
 import de.metas.product.ResourceId;
 import de.metas.util.Services;
-import de.metas.util.time.SystemTime;
 
 /*
  * #%L
@@ -196,8 +201,8 @@ public class PPOrderRequestedEventHandlerTests
 		ppOrderPojo = PPOrder.builder()
 				.clientAndOrgId(ClientAndOrgId.ofClientAndOrg(adClientId, orgId))
 				.materialDispoGroupId(PPORDER_POJO_GROUPID)
-				.datePromised(SystemTime.asInstant())
-				.dateStartSchedule(SystemTime.asInstant())
+				.datePromised(de.metas.common.util.time.SystemTime.asInstant())
+				.dateStartSchedule(de.metas.common.util.time.SystemTime.asInstant())
 				.plantId(ResourceId.ofRepoId(110))
 				.orderLineId(orderLine.getC_OrderLine_ID())
 				.productDescriptor(productDescriptor)
@@ -288,7 +293,7 @@ public class PPOrderRequestedEventHandlerTests
 
 		final PPOrderRequestedEvent ppOrderRequestedEvent = PPOrderRequestedEvent.builder()
 				.eventDescriptor(EventDescriptor.ofClientAndOrg(0, 10))
-				.dateOrdered(SystemTime.asInstant())
+				.dateOrdered(de.metas.common.util.time.SystemTime.asInstant())
 				.ppOrder(ppOrderPojo)
 				.build();
 
@@ -312,8 +317,11 @@ public class PPOrderRequestedEventHandlerTests
 
 	private void registerPP_Order_Interceptor()
 	{
+		SpringContextHolder.registerJUnitBean(IDocumentNoBuilderFactory.class, new DocumentNoBuilderFactory(Optional.empty()));
+
 		final ModelProductDescriptorExtractor productDescriptorFactory = new ModelProductDescriptorExtractorUsingAttributeSetInstanceFactory();
-		final PPOrderPojoConverter ppOrderConverter = new PPOrderPojoConverter(productDescriptorFactory);
+		final ReplenishInfoRepository replenishInfoRepository = new ReplenishInfoRepository();
+		final PPOrderPojoConverter ppOrderConverter = new PPOrderPojoConverter(productDescriptorFactory, replenishInfoRepository);
 
 		final MaterialEventConverter materialEventConverter = new MaterialEventConverter();
 		final MetasfreshEventBusService materialEventService = MetasfreshEventBusService.createLocalServiceThatIsReadyToUse(
@@ -321,7 +329,10 @@ public class PPOrderRequestedEventHandlerTests
 				PlainEventBusFactory.newInstance());
 		final PostMaterialEventService postMaterialEventService = new PostMaterialEventService(materialEventService);
 
-		Services.get(IModelInterceptorRegistry.class).addModelInterceptor(new PP_Order(ppOrderConverter, postMaterialEventService));
+		Services.get(IModelInterceptorRegistry.class).addModelInterceptor(new PP_Order(
+				ppOrderConverter,
+				postMaterialEventService,
+				new DocumentNoBuilderFactory(Optional.empty())));
 	}
 
 	private List<I_PP_Order_BOMLine> filter(final I_PP_Order ppOrder, final BOMComponentType componentType)

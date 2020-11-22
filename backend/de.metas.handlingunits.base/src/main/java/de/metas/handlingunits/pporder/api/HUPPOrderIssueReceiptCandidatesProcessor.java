@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
+import de.metas.common.util.time.SystemTime;
+import de.metas.material.planning.pporder.IPPOrderBOMBL;
 import org.adempiere.ad.trx.processor.api.FailTrxItemExceptionHandler;
 import org.adempiere.ad.trx.processor.api.ITrxItemProcessorExecutorService;
 import org.adempiere.mm.attributes.AttributeSetInstanceId;
@@ -54,16 +56,13 @@ import de.metas.handlingunits.util.HUByIdComparator;
 import de.metas.logging.LogManager;
 import de.metas.material.planning.pporder.PPOrderBOMLineId;
 import de.metas.material.planning.pporder.PPOrderId;
-import de.metas.material.planning.pporder.PPOrderUtil;
 import de.metas.materialtracking.model.I_M_Material_Tracking;
 import de.metas.product.ProductId;
 import de.metas.quantity.Quantity;
 import de.metas.uom.IUOMConversionBL;
-import de.metas.uom.IUOMDAO;
 import de.metas.uom.UOMConversionContext;
 import de.metas.util.Check;
 import de.metas.util.Services;
-import de.metas.util.time.SystemTime;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -176,7 +175,8 @@ public class HUPPOrderIssueReceiptCandidatesProcessor
 	private boolean isMaterialReceipt(final I_PP_Order_Qty candidate)
 	{
 		final org.eevolution.model.I_PP_Order_BOMLine ppOrderBOMLine = candidate.getPP_Order_BOMLine();
-		return ppOrderBOMLine == null || PPOrderUtil.isReceipt(BOMComponentType.ofCode(ppOrderBOMLine.getComponentType()));
+		return ppOrderBOMLine == null // finished goods receipt
+				|| BOMComponentType.ofCode(ppOrderBOMLine.getComponentType()).isReceipt(); // by/co product receipt
 	}
 
 	private final void markProcessedAndSave(@NonNull final I_PP_Order_Qty candidate, @NonNull final I_PP_Cost_Collector cc)
@@ -460,7 +460,7 @@ public class HUPPOrderIssueReceiptCandidatesProcessor
 
 			//
 			// Make sure it's a issue line (shall not happen)
-			if (!PPOrderUtil.isIssue(BOMComponentType.ofCode(ppOrderBOMLine.getComponentType())))
+			if (!BOMComponentType.ofCode(ppOrderBOMLine.getComponentType()).isIssue())
 			{
 				throw new HUException("BOM line does not allow issuing materials."
 						+ "\n @PP_Order_BOMLine_ID@: " + ppOrderBOMLine);
@@ -587,8 +587,8 @@ public class HUPPOrderIssueReceiptCandidatesProcessor
 		{
 			this.orderBOMLine = ppOrderBOMLine;
 
-			final IUOMDAO uomsRepo = Services.get(IUOMDAO.class);
-			final I_C_UOM uom = uomsRepo.getById(ppOrderBOMLine.getC_UOM_ID());
+			final IPPOrderBOMBL orderBOMBL = Services.get(IPPOrderBOMBL.class);
+			final I_C_UOM uom = orderBOMBL.getBOMLineUOM(ppOrderBOMLine);
 			qtyToIssue = Quantity.zero(uom);
 		}
 
