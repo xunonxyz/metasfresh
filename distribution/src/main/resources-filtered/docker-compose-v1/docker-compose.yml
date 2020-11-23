@@ -22,6 +22,8 @@ app:
     - "8282"
     - "61616"
     - "8788"
+  ports:
+    - ${APP_RESTAPI_PORT}:8282
   restart: always
   volumes:
     - ./volumes/app/log:/opt/metasfresh/log:rw
