@@ -59,7 +59,6 @@ import de.metas.util.lang.Percent;
 import lombok.NonNull;
 
 import org.adempiere.ad.trx.api.ITrx;
-import org.adempiere.bpartner.service.IBPartnerDAO;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.mm.attributes.AttributeSetInstanceId;
 import org.adempiere.mm.attributes.api.AttributeConstants;
@@ -113,7 +112,6 @@ public class DesadvBL implements IDesadvBL
 	private final transient IHUAssignmentDAO huAssignmentDAO = Services.get(IHUAssignmentDAO.class);
 	private final transient IDesadvDAO desadvDAO = Services.get(IDesadvDAO.class);
 	private final transient IProductDAO productDAO = Services.get(IProductDAO.class);
-	private final transient IBPartnerDAO bpartnerDAO = Services.get(IBPartnerDAO.class);
 	private final transient IBPartnerProductDAO bPartnerProductDAO = Services.get(IBPartnerProductDAO.class);
 	private final transient IHUPIItemProductDAO hupiItemProductDAO = Services.get(IHUPIItemProductDAO.class);
 	private final transient IOrderDAO orderDAO = Services.get(IOrderDAO.class);
