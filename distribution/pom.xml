@@ -23,7 +23,7 @@
         <!-- 10.0.0 is the version that is build and installed to our local repo bei eclipse or if we run maven from the command line -->
         <metasfresh.version>[1,10.0.0]</metasfresh.version>
         <metasfresh-procurement-webui.version>[1,10.0.0]</metasfresh-procurement-webui.version>
-        <metasfresh-admin.version>[1,10.0.0]</metasfresh-admin.version>
+        <!-- <metasfresh-admin.version>[1,10.0.0]</metasfresh-admin.version> -->
         <metasfresh-webui-frontend.version>[1,10.0.0]</metasfresh-webui-frontend.version>
     </properties>
 
@@ -56,14 +56,16 @@
         </dependency>
 
         <!-- https://github.com/metasfresh/metasfresh/issues/1471 -->
+        <!-- we need this dependency here to update the version property-->
+        <!--
         <dependency>
             <groupId>de.metas.admin</groupId>
             <artifactId>metasfresh-admin</artifactId>
             <version>${metasfresh-admin.version}</version>
             <type>jar</type>
-            <scope>provided</scope> <!-- we need this dependency here to update the version property-->
+            <scope>provided</scope>
         </dependency>
-
+        -->
     </dependencies>
 
     <build>
@@ -107,12 +109,14 @@
                             <searchReactor>false</searchReactor>
                             <autoLinkDependencies>true</autoLinkDependencies>
                         </property>
+                        <!-- metasfresh/metasfresh#1471 -->
+                        <!--
                         <property>
-                            <!-- metasfresh/metasfresh#1471 -->
                             <name>metasfresh-admin.version</name>
                             <searchReactor>false</searchReactor>
                             <autoLinkDependencies>true</autoLinkDependencies>
                         </property>
+                        -->
                     </properties>
                 </configuration>
             </plugin>

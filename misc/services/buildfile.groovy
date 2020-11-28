@@ -13,7 +13,7 @@ def build(final MvnConf mvnConf, final Map scmVars, final boolean forceBuild=fal
     {
 		currentBuild.description= """${currentBuild.description}<p/>
 			<h2>misc services</h2>
-		"""
+		"""sh-admin
 		if (forceSkip) {
 			currentBuild.description = """${currentBuild.description}<p/>
             Forced to skip.
@@ -47,3 +47,4 @@ def build(final MvnConf mvnConf, final Map scmVars, final boolean forceBuild=fal
 } 
 
 return this
+sh-admin
