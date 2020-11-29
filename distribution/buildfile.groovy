@@ -21,8 +21,6 @@ Map build(final MvnConf mvnConf) {
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshUpdatePropertyParam} ${VERSIONS_PLUGIN}:update-property"
 
                 // gh #968 also update the metasfresh-webui-frontend.version, metasfresh-webui-api.versions and procurement versions.
-                // final String metasfreshAdminPropertyParam = '-Dproperty=metasfresh-admin.version -DallowDowngrade=true'
-                //sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshAdminPropertyParam} ${VERSIONS_PLUGIN}:update-property"
                 final String metasfreshWebFrontEndUpdatePropertyParam = '-Dproperty=metasfresh-webui-frontend.version -DallowDowngrade=true'
                 sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} --batch-mode ${mvnConf.resolveParams} ${metasfreshWebFrontEndUpdatePropertyParam} ${VERSIONS_PLUGIN}:update-property"
                 final String metasfreshWebApiUpdatePropertyParam = '-Dproperty=metasfresh-webui-api.version -DallowDowngrade=true'
@@ -78,8 +76,7 @@ Map build(final MvnConf mvnConf) {
 	<ul>
 	  <li>metasfresh-webui-frontend: version <b>${mavenProps['metasfresh-webui-frontend.version']}</b></li>
 	  <li>metasfresh-procurement-webui: version <b>${mavenProps['metasfresh-procurement-webui.version']}</b></li>
-	  <!-- <li>metasfresh-admin webui: version <b>${mavenProps['metasfresh-admin.version']}</b></li> -->
-      <li>metasfresh-backend: version <b>${mavenProps['metasfresh.version']}</b></li>
+	  <li>metasfresh-backend: version <b>${mavenProps['metasfresh.version']}</b></li>
 	</ul>
 	<p>
 	<h3>Uploaded maven artifacts</h3>
@@ -91,7 +88,6 @@ Map build(final MvnConf mvnConf) {
 		<li><a href=\"${artifactURLs['metasfresh-webui-api']}\">metasfresh-webui-api.jar</a></li>
 		<li><a href=\"${artifactURLs['metasfresh-webui-frontend']}\">metasfresh-webui-frontend.tar.gz</a></li>
 		<li><a href=\"${artifactURLs['metasfresh-procurement-webui']}\">metasfresh-procurement-webui.jar</a></li>
-		<!-- <li><a href=\"${artifactURLs['metasfresh-admin']}\">metasfresh-admin.jar</a></li> -->
 	</ul>
 	Note: all the separately listed artifacts are also included in the dist-tar.gz
 	<p>

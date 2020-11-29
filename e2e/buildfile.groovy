@@ -69,18 +69,18 @@ def build(final Map scmVars,
 	You can run the docker image like this:<br>
 	<code>
 	hostname=yourinstance.metasfresh.com<br/>
-	docker run --ipc=host --rm\\<br/>
-	-e "FRONTEND_URL=https://\${hostname}:443"\\<br/>
-	-e "API_URL=https://\${hostname}:443/rest/api"\\<br/>
-	-e "WS_URL=https://\${hostname}:443/stomp"\\<br/>
-	-e "USERNAME=dev"\\<br/>
-	-e "PASSWORD=password"\\<br/>
-	-e "CYPRESS_SPEC=NOT_SET"\\<br/>
-	-e "CYPRESS_RECORD_KEY=NOT_SET"\\<br/>
-	-e "CYPRESS_BROWSER=chrome"\\<br/>
-	-e "DEBUG_CYPRESS_OUTPUT=n"\\<br/>
-	-e "DEBUG_PRINT_BASH_CMDS=n"\\<br/>
-	-e "DEBUG_SLEEP_AFTER_FAIL=n"\\<br/>
+	docker run --ipc=host --rm \\<br/>
+	-e "FRONTEND_URL=https://\${hostname}:443" \\<br/>
+	-e "API_URL=https://\${hostname}:443/rest/api" \\<br/>
+	-e "WS_URL=https://\${hostname}:443/stomp" \\<br/>
+	-e "USERNAME=dev" \\<br/>
+	-e "PASSWORD=password" \\<br/>
+	-e "CYPRESS_SPEC=NOT_SET" \\<br/>
+	-e "CYPRESS_RECORD_KEY=NOT_SET" \\<br/>
+	-e "CYPRESS_BROWSER=chrome" \\<br/>
+	-e "DEBUG_CYPRESS_OUTPUT=n" \\<br/>
+	-e "DEBUG_PRINT_BASH_CMDS=n" \\<br/>
+	-e "DEBUG_SLEEP_AFTER_FAIL=n" \\<br/>
 	${publishedE2eDockerImageName}
 	</code>
 	<p/>
