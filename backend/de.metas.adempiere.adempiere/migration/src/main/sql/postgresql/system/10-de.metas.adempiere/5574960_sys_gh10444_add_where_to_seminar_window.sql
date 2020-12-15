@@ -1,0 +1,5 @@
+-- 2020-12-15T12:26:37.486Z
+-- URL zum Konzept
+UPDATE AD_Tab SET WhereClause='C_ProjectType_ID=540003',Updated=TO_TIMESTAMP('2020-12-15 13:26:37','YYYY-MM-DD HH24:MI:SS'),UpdatedBy=100 WHERE AD_Tab_ID=541865
+;
+
