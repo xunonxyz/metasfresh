@@ -24,6 +24,7 @@
         <metasfresh.version>[1,10.0.0]</metasfresh.version>
         <metasfresh-procurement-webui.version>[1,10.0.0]</metasfresh-procurement-webui.version>
         <metasfresh-webui-frontend.version>[1,10.0.0]</metasfresh-webui-frontend.version>
+		<procurement-webui-backend.version>[1,10.0.0]</procurement-webui-backend.version>
     </properties>
 
     <dependencies>
@@ -53,6 +54,13 @@
             <version>${metasfresh-procurement-webui.version}</version>
             <type>jar</type>
         </dependency>
+
+		<dependency>
+			<groupId>de.metas.procurement</groupId>
+			<artifactId>procurement-webui-backend</artifactId>
+			<version>${procurement-webui-backend.version}</version>
+			<type>jar</type>
+		</dependency>
 
         <!-- https://github.com/metasfresh/metasfresh/issues/1471 -->
         <!-- we need this dependency here to update the version property-->

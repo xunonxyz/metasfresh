@@ -3,7 +3,7 @@ import { reduce, cloneDeep, get, find } from 'lodash';
 import { createCollapsedMap, flattenRows } from '../utils/documentListHelper';
 import * as types from '../constants/ActionTypes';
 
-import { getTableActions } from '../actions/Actions';
+import { fetchQuickActions } from '../actions/Actions';
 import { showIncludedView } from '../actions/ViewActions';
 
 import { getView } from '../reducers/viewHandler';
@@ -557,11 +557,14 @@ export function updateTableSelection({
     });
 
     if (viewId) {
-      // update quick actions
-      dispatch(getTableActions({ tableId: id, windowId, viewId, isModal }));
-      // show included view
-      dispatch(
-        handleToggleIncludedView({ windowId, tableId: id, selection, isModal })
+      return dispatch(
+        handleToggleIncludedView({
+          windowId,
+          viewId,
+          tableId: id,
+          selection,
+          isModal,
+        })
       );
     }
 
@@ -593,11 +596,18 @@ export function deselectTableRows({
     });
 
     if (viewId) {
-      dispatch(getTableActions({ tableId: id, windowId, viewId, isModal }));
-      dispatch(
-        handleToggleIncludedView({ windowId, tableId: id, selection, isModal })
+      return dispatch(
+        handleToggleIncludedView({
+          windowId,
+          viewId,
+          tableId: id,
+          selection,
+          isModal,
+        })
       );
     }
+
+    return Promise.resolve(selection);
   };
 }
 
@@ -607,11 +617,18 @@ export function deselectTableRows({
  * the included view.
  *
  * @param {number} windowId
+ * @param {string} viewId
  * @param {string} tableId
  * @param {array} selection - array of selected/deselected items
  * @param {boolean} isModal
  */
-function handleToggleIncludedView({ windowId, tableId, selection, isModal }) {
+function handleToggleIncludedView({
+  windowId,
+  viewId,
+  tableId,
+  selection,
+  isModal,
+}) {
   return (dispatch, getState) => {
     const state = getState();
     const includedView = state.viewHandler.includedView;
@@ -660,6 +677,10 @@ function handleToggleIncludedView({ windowId, tableId, selection, isModal }) {
           isModal,
         })
       );
+    } else {
+      dispatch(fetchQuickActions({ windowId, viewId, isModal }));
     }
+
+    return Promise.resolve(openIncludedViewOnSelect);
   };
 }

@@ -33,7 +33,7 @@ import {
   UPDATE_VIEW_DATA_SUCCESS,
 } from '../constants/ActionTypes';
 
-import { getTableId, getTable } from '../reducers/tables';
+import { getTableId } from '../reducers/tables';
 import { getEntityRelatedId } from '../reducers/filters';
 import { getView } from '../reducers/viewHandler';
 import { createGridTable, updateGridTable, deleteTable } from './TableActions';
@@ -64,12 +64,17 @@ export function deleteView(id, isModal) {
 
 /**
  * @method fetchDocumentPending
- * @summary
+ * @summary request data for the document and set the pending flag to true
+ *
+ * @param {string} id - viewId
+ * @param {boolean} isModal
+ * @param {boolean} websocketRefresh - in case of data fetches caused by
+ * ws we won't set the pending flag to true
  */
-function fetchDocumentPending(id, isModal) {
+function fetchDocumentPending(id, isModal, websocketRefresh) {
   return {
     type: FETCH_DOCUMENT_PENDING,
-    payload: { id, isModal },
+    payload: { id, isModal, websocketRefresh },
   };
 }
 
@@ -314,9 +319,10 @@ export function fetchDocument({
   pageLength,
   orderBy,
   isModal = false,
+  websocketRefresh = false,
 }) {
   return (dispatch, getState) => {
-    dispatch(fetchDocumentPending(windowId, isModal));
+    dispatch(fetchDocumentPending(windowId, isModal, websocketRefresh));
 
     return browseViewRequest({
       windowId,
@@ -327,8 +333,10 @@ export function fetchDocument({
     })
       .then((response) => {
         // remove the old filter from the store
-        const entityRelatedId = getEntityRelatedId({ windowId, viewId });
-        dispatch(deleteFilter(entityRelatedId));
+        if (!websocketRefresh) {
+          const entityRelatedId = getEntityRelatedId({ windowId, viewId });
+          dispatch(deleteFilter(entityRelatedId));
+        }
 
         dispatch(fetchDocumentSuccess(windowId, response.data, isModal));
 
@@ -345,28 +353,30 @@ export function fetchDocument({
 
         const state = getState();
         const view = getView(state, windowId, isModal);
-        const filterId = getEntityRelatedId({ windowId, viewId });
-        const activeFiltersCaptions = populateFiltersCaptions({
-          filterData: view.layout.filters,
-          filtersActive: response.data.filters,
-        });
-        const filtersActive = formatFilters({
-          filtersData: view.layout.filters,
-          filtersActive: response.data.filters,
-        });
 
-        dispatch(
-          createFilter({
-            filterId,
-            data: {
-              filterData: view.layout.filters, // set the proper layout for the filters
-              filtersActive,
-              activeFiltersCaptions,
-            },
-          })
-        );
+        if (!websocketRefresh) {
+          const filterId = getEntityRelatedId({ windowId, viewId });
+          const activeFiltersCaptions = populateFiltersCaptions({
+            filterData: view.layout.filters,
+            filtersActive: response.data.filters,
+          });
+          const filtersActive = formatFilters({
+            filtersData: view.layout.filters,
+            filtersActive: response.data.filters,
+          });
 
-        const table = getTable(state, tableId);
+          dispatch(
+            createFilter({
+              filterId,
+              data: {
+                filterData: view.layout.filters, // set the proper layout for the filters
+                filtersActive,
+                activeFiltersCaptions,
+              },
+            })
+          );
+        }
+
         let shouldFetchQuickActions = true;
         let viewProfileId = null;
 
@@ -408,8 +418,10 @@ export function fetchDocument({
             })
           );
 
-          // modals without included views shouldn't fetch quick actions on init
-          if (isModal && !(includedWindowId && includedViewId)) {
+          // don't fetch quick actions for parent view as we don't have
+          // the included view in the store yet. They will be fetched with the
+          // included view.
+          if (includedWindowId) {
             shouldFetchQuickActions = false;
           }
         }
@@ -420,7 +432,7 @@ export function fetchDocument({
             fetchQuickActions({
               windowId,
               viewId,
-              selectedIds: table.selected,
+              isModal,
               viewProfileId,
             })
           );

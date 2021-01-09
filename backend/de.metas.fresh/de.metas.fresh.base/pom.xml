@@ -215,12 +215,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>de.metas.handlingunits</groupId>
-			<artifactId>de.metas.handlingunits.client</artifactId>
-			<version>${metasfresh.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>de.metas.material</groupId>
 			<artifactId>metasfresh-material-cockpit</artifactId>
 			<version>${metasfresh.version}</version>
@@ -235,12 +229,6 @@
 		<dependency>
 			<groupId>de.metas.util</groupId>
 			<artifactId>de.metas.util</artifactId>
-			<version>${metasfresh.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>de.metas.jax.rs</groupId>
-			<artifactId>de.metas.jax.rs</artifactId>
 			<version>${metasfresh.version}</version>
 		</dependency>
 

@@ -10,7 +10,6 @@ Map build(final MvnConf mvnConf,
           final boolean forceBuild = false,
           final boolean forceSkip = false,
           final String multithreadParam = "-T 2C") {
-
     final dockerImages = [:]
     final def misc = new de.metas.jenkins.Misc()
 
@@ -110,30 +109,46 @@ Map build(final MvnConf mvnConf,
 					<li><code>${dockerImages['msv3Server']}</code></li>
 					</ul>
 					"""
+
+                dir('de.metas.cucumber') {
+                    def distributionBuildFile = load('buildfile.groovy')
+                    distributionBuildFile.build(mvnConf)
+                }
+
+                final String metasfreshDistSQLOnlyURL = "${mvnConf.deployRepoURL}/de/metas/dist/metasfresh-dist-dist/${misc.urlEncode(env.MF_VERSION)}/metasfresh-dist-dist-${misc.urlEncode(env.MF_VERSION)}-sql-only.tar.gz"
+                testSQLMigrationScripts(
+                        params.MF_SQL_SEED_DUMP_URL,
+                        metasfreshDistSQLOnlyURL,
+                        publishedDBInitDockerImageName,
+                        scmVars,
+                        forceBuild)
+
             } // stage build Backend
 
     return dockerImages
 }
 
 String applySQLMigrationScripts(
-        final String sqlSeedDumpURL,
-        final String metasfreshDistSQLOnlyURL) {
+		final String sqlSeedDumpURL,
+		final String metasfreshDistSQLOnlyURL) {
 
-    final def misc = new de.metas.jenkins.Misc()
-    final String specificBuildTag = misc.mkDockerTag("${env.BRANCH_NAME}-${env.MF_VERSION}")
-    final String latestBuildTag = misc.mkDockerTag("${env.BRANCH_NAME}_LATEST")
+	// TODO: check if any *.sql file was changed?
 
-    docker.withRegistry("https://${DockerConf.PUSH_REGISTRY}/v2/", DockerConf.PUSH_REGISTRY_CREDENTIALS_ID)
-            {
-                sh """bash -x metasfresh-dist/dist/target/docker/build_db.sh \
+	final def misc = new de.metas.jenkins.Misc()
+	final String specificBuildTag = misc.mkDockerTag("${env.BRANCH_NAME}-${env.MF_VERSION}")
+	final String latestBuildTag = misc.mkDockerTag("${env.BRANCH_NAME}_LATEST")
+
+	docker.withRegistry("https://${DockerConf.PUSH_REGISTRY}/v2/", DockerConf.PUSH_REGISTRY_CREDENTIALS_ID)
+			{
+				sh """bash -x metasfresh-dist/dist/target/docker/build_db.sh \
 ${DockerConf.PUSH_REGISTRY} \
 ${specificBuildTag} \
 ${latestBuildTag} \
 ${sqlSeedDumpURL} \
 ${metasfreshDistSQLOnlyURL}"""
-            }
-    def props = readProperties file: 'metasfresh-dist/dist/target/docker/build_sb_result_dockerimages.properties'
-    return props['build_image']
+			}
+	def props = readProperties file: 'metasfresh-dist/dist/target/docker/build_sb_result_dockerimages.properties'
+	return props['build_image']
 }
 
 return this;

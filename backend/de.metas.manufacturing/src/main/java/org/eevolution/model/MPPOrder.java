@@ -52,9 +52,9 @@ import de.metas.material.planning.pporder.PPOrderPojoConverter;
 import de.metas.material.planning.pporder.PPOrderQuantities;
 import de.metas.report.DocumentReportService;
 import de.metas.report.ReportResultData;
+import de.metas.report.StandardDocumentReportType;
 import de.metas.util.Services;
 import org.adempiere.exceptions.AdempiereException;
-import org.compiere.Adempiere;
 import org.compiere.SpringContextHolder;
 import org.compiere.model.I_C_DocType;
 import org.compiere.model.MDocType;
@@ -62,7 +62,6 @@ import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.Query;
 import org.compiere.model.X_C_DocType;
-import de.metas.report.StandardDocumentReportType;
 import org.compiere.util.DB;
 import org.compiere.util.TimeUtil;
 import org.eevolution.api.ActivityControlCreateRequest;
@@ -421,7 +420,7 @@ public class MPPOrder extends X_PP_Order implements IDocument
 		final PPOrderChangedEvent changeEvent = eventFactory
 				.inspectPPOrderAfterChange();
 
-		final PostMaterialEventService materialEventService = Adempiere.getBean(PostMaterialEventService.class);
+		final PostMaterialEventService materialEventService = SpringContextHolder.instance.getBean(PostMaterialEventService.class);
 		materialEventService.postEventAfterNextCommit(changeEvent);
 
 		return true;
