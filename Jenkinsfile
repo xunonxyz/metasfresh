@@ -48,7 +48,7 @@ properties([
         ]),
         pipelineTriggers([]),
         buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: numberOfBuildsToKeepStr)) // keep the last $numberOfBuildsToKeepStr builds
-])
+])private/bm115/Controlling_Report_nur_ausgangsr_mit_RM_2.xlsx
 
 currentBuild.description = currentBuild.description ?: ''
 

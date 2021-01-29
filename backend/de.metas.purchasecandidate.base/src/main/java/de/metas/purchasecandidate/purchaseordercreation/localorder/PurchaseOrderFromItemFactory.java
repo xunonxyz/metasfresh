@@ -87,27 +87,27 @@ import java.util.Set;
 		final BPartnerId vendorId = orderAggregationKey.getVendorId();
 
 		this.orderFactory = OrderFactory.newPurchaseOrder()
-				.orgId(orderAggregationKey.getOrgId().getRepoId())
-				.warehouseId(orderAggregationKey.getWarehouseId().getRepoId())
+				.orgId(orderAggregationKey.getOrgId())
+				.warehouseId(orderAggregationKey.getWarehouseId())
 				.shipBPartner(vendorId)
 				.datePromised(orderAggregationKey.getDatePromised());
 
 		this.userNotifications = userNotifications;
 	}
 
-	public void addCandidate(final PurchaseOrderItem pruchaseOrderItem)
+	public void addCandidate(final PurchaseOrderItem purchaseOrderItem)
 	{
 		final OrderLineBuilder orderLineBuilder = orderFactory
 				.orderLineByProductAndUom(
-						pruchaseOrderItem.getProductId(),
-						UomId.ofRepoId(pruchaseOrderItem.getUomId()))
+						purchaseOrderItem.getProductId(),
+						UomId.ofRepoId(purchaseOrderItem.getUomId()))
 				.orElseGet(() -> orderFactory
 						.newOrderLine()
-						.productId(pruchaseOrderItem.getProductId()));
+						.productId(purchaseOrderItem.getProductId()));
 
-		orderLineBuilder.addQty(pruchaseOrderItem.getPurchasedQty());
+		orderLineBuilder.addQty(purchaseOrderItem.getPurchasedQty());
 
-		purchaseItem2OrderLine.put(pruchaseOrderItem, orderLineBuilder);
+		purchaseItem2OrderLine.put(purchaseOrderItem, orderLineBuilder);
 	}
 
 	public I_C_Order createAndComplete()
@@ -137,10 +137,10 @@ import java.util.Set;
 	}
 
 	private void updatePurchaseCandidateFromOrderLineBuilder(
-			@NonNull final PurchaseOrderItem pruchaseOrderItem,
+			@NonNull final PurchaseOrderItem purchaseOrderItem,
 			@NonNull final OrderLineBuilder orderLineBuilder)
 	{
-		pruchaseOrderItem.setPurchaseOrderLineIdAndMarkProcessed(orderLineBuilder.getCreatedOrderAndLineId());
+		purchaseOrderItem.setPurchaseOrderLineIdAndMarkProcessed(orderLineBuilder.getCreatedOrderAndLineId());
 	}
 
 	@Nullable
