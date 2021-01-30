@@ -20,7 +20,7 @@ Map build(final MvnConf mvnConf,
 				"""
                 if (forceSkip) {
                     currentBuild.description = """${currentBuild.description}<p/>
-            Forced to skip.
+            Forced to skip.metasfreshDistSQLOnlyURL
             """
                     echo "forced to skip backend";
                     return;
@@ -114,15 +114,6 @@ Map build(final MvnConf mvnConf,
                     def distributionBuildFile = load('buildfile.groovy')
                     distributionBuildFile.build(mvnConf)
                 }
-
-                final String metasfreshDistSQLOnlyURL = "${mvnConf.deployRepoURL}/de/metas/dist/metasfresh-dist-dist/${misc.urlEncode(env.MF_VERSION)}/metasfresh-dist-dist-${misc.urlEncode(env.MF_VERSION)}-sql-only.tar.gz"
-                testSQLMigrationScripts(
-                        params.MF_SQL_SEED_DUMP_URL,
-                        metasfreshDistSQLOnlyURL,
-                        publishedDBInitDockerImageName,
-                        scmVars,
-                        forceBuild)
-
             } // stage build Backend
 
     return dockerImages
