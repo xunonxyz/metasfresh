@@ -4,6 +4,7 @@ import de.metas.bpartner.BPartnerId;
 import de.metas.bpartner_product.IBPartnerProductBL;
 import de.metas.i18n.AdMessageKey;
 import de.metas.interfaces.I_C_OrderLine;
+import de.metas.lang.SOTrx;
 import de.metas.logging.LogManager;
 import de.metas.order.IOrderBL;
 import de.metas.order.IOrderLineBL;
@@ -321,33 +322,6 @@ public class C_OrderLine
 		final ProductId productId = ProductId.ofRepoId(orderLine.getM_Product_ID());
 		final BPartnerId partnerId = BPartnerId.ofRepoId(orderLine.getC_BPartner_ID());
 		partnerProductBL.assertNotExcludedFromSaleToCustomer(productId, partnerId);
-	}
-
-	@ModelChange(timings = { ModelValidator.TYPE_BEFORE_NEW, ModelValidator.TYPE_BEFORE_CHANGE }, //
-			ifColumnsChanged = { I_C_OrderLine.COLUMNNAME_QtyEntered, I_C_OrderLine.COLUMNNAME_M_DiscountSchemaBreak_ID })
-	public void updatePricesOverrideExistingDiscounts(final I_C_OrderLine orderLine)
-	{
-		if (isCopy(orderLine))
-		{
-			return;
-		}
-		if (orderLine.isProcessed())
-		{
-			return;
-		}
-
-		// make the BL revalidate the discounts..the new QtyEntered might also mean a new discount schema break
-		orderLine.setM_DiscountSchemaBreak(null);
-
-		orderLineBL.updatePrices(OrderLinePriceUpdateRequest.builder()
-				.orderLine(orderLine)
-				.resultUOM(ResultUOM.PRICE_UOM)
-				.updatePriceEnteredAndDiscountOnlyIfNotAlreadySet(false) // i.e. always update them
-				.updateLineNetAmt(true)
-				.build());
-
-		logger.debug("Setting TaxAmtInfo for {}", orderLine);
-		orderLineBL.setTaxAmtInfo(orderLine);
 	}
 
 	@ModelChange(timings = { ModelValidator.TYPE_BEFORE_NEW, ModelValidator.TYPE_BEFORE_CHANGE })
