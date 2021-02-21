@@ -52,6 +52,7 @@ public class CountryCodeFactory implements ICountryCodeFactory
 		this.countryCodesByAlpha2 = countryCodesByAlpha2.build();
 	}
 
+	@Override
 	public CountryCode getCountryCodeByAlpha2(@NonNull final String countryCodeAlpha2)
 	{
 		final CountryCode countryCode = countryCodesByAlpha2.get(countryCodeAlpha2);
