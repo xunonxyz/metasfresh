@@ -1,7 +1,16 @@
 package de.metas.location.impl;
 
-import java.util.Properties;
-
+import de.metas.location.CountryId;
+import de.metas.location.ICountryDAO;
+import de.metas.location.ILocationBL;
+import de.metas.location.ILocationDAO;
+import de.metas.location.LocationCreateRequest;
+import de.metas.location.LocationId;
+import de.metas.logging.LogManager;
+import de.metas.organization.OrgId;
+import de.metas.util.Check;
+import de.metas.util.Services;
+import lombok.NonNull;
 import org.adempiere.ad.dao.IQueryBL;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.InterfaceWrapperHelper;
@@ -12,18 +21,19 @@ import org.compiere.model.I_C_Postal;
 import org.compiere.util.Env;
 import org.slf4j.Logger;
 
-import de.metas.location.CountryId;
-import de.metas.location.ICountryDAO;
-import de.metas.location.ILocationBL;
-import de.metas.logging.LogManager;
-import de.metas.organization.OrgId;
-import de.metas.util.Check;
-import de.metas.util.Services;
-import lombok.NonNull;
+import javax.annotation.Nullable;
+import java.util.Properties;
 
 public class LocationBL implements ILocationBL
 {
 	private static final Logger logger = LogManager.getLogger(LocationBL.class);
+	private final ILocationDAO locationDAO = Services.get(ILocationDAO.class);
+
+	@Override
+	public I_C_Location getById(@NonNull final LocationId locationId)
+	{
+		return locationDAO.getById(locationId);
+	}
 
 	@Override
 	public void validatePostal(final I_C_Location location)
@@ -94,7 +104,7 @@ public class LocationBL implements ILocationBL
 	}
 
 	@Override
-	public String toString(I_C_Location location)
+	public String toString(final I_C_Location location)
 	{
 		return location.toString();
 	}
@@ -109,23 +119,26 @@ public class LocationBL implements ILocationBL
 	}
 
 	@Override
-	public String mkAddress(final I_C_Location location, final I_C_BPartner bPartner, String bPartnerBlock, String userBlock)
+	public String mkAddress(
+			final I_C_Location location,
+			@Nullable final I_C_BPartner bPartner,
+			@Nullable final String bPartnerBlock,
+			@Nullable final String userBlock)
 	{
 		final Properties ctx = Env.getCtx();
 
 		final I_C_Country countryLocal = Services.get(ICountryDAO.class).getDefault(ctx);
 		final boolean isLocalAddress = location.getC_Country_ID() == countryLocal.getC_Country_ID();
 
-		final String addr = mkAddress(location, isLocalAddress, bPartner, bPartnerBlock, userBlock);
-		return addr;
+		return mkAddress(location, isLocalAddress, bPartner, bPartnerBlock, userBlock);
 	}
 
 	public String mkAddress(
-			I_C_Location location,
-			boolean isLocalAddress,
-			final I_C_BPartner bPartner,
-			String bPartnerBlock,
-			String userBlock)
+			final I_C_Location location,
+			final boolean isLocalAddress,
+			@Nullable final I_C_BPartner bPartner,
+			@Nullable final String bPartnerBlock,
+			@Nullable final String userBlock)
 	{
 		final String adLanguage;
 		final OrgId orgId;
@@ -152,8 +165,13 @@ public class LocationBL implements ILocationBL
 	{
 		final I_C_Location locationNew = InterfaceWrapperHelper.newInstance(I_C_Location.class, location);
 		InterfaceWrapperHelper.copyValues(location, locationNew);
-		InterfaceWrapperHelper.save(locationNew);
+		locationDAO.save(locationNew);
 		return locationNew;
 	}
 
+	@Override
+	public LocationId createLocation(@NonNull final LocationCreateRequest request)
+	{
+		return locationDAO.createLocation(request);
+	}
 }

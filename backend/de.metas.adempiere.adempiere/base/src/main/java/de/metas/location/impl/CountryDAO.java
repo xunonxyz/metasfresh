@@ -1,16 +1,24 @@
-/**
- *
- */
 package de.metas.location.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Properties;
-
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import de.metas.cache.CCache;
+import de.metas.cache.annotation.CacheCtx;
+import de.metas.i18n.ILanguageDAO;
+import de.metas.i18n.ITranslatableString;
+import de.metas.i18n.TranslatableStrings;
+import de.metas.location.CountryCustomInfo;
+import de.metas.location.CountryId;
+import de.metas.location.CountrySequences;
+import de.metas.location.ICountryDAO;
+import de.metas.money.CurrencyId;
+import de.metas.organization.OrgId;
+import de.metas.util.Check;
+import de.metas.util.GuavaCollectors;
+import de.metas.util.Services;
+import lombok.NonNull;
 import org.adempiere.ad.dao.IQueryBL;
 import org.adempiere.ad.dao.IQueryOrderBy.Direction;
 import org.adempiere.ad.dao.IQueryOrderBy.Nulls;
@@ -28,38 +36,27 @@ import org.compiere.model.I_C_Region;
 import org.compiere.model.MCountry;
 import org.compiere.util.Env;
 
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
-import de.metas.cache.CCache;
-import de.metas.cache.annotation.CacheCtx;
-import de.metas.i18n.ILanguageDAO;
-import de.metas.i18n.ITranslatableString;
-import de.metas.i18n.TranslatableStrings;
-import de.metas.location.CountryCustomInfo;
-import de.metas.location.CountryId;
-import de.metas.location.CountrySequences;
-import de.metas.location.ICountryDAO;
-import de.metas.money.CurrencyId;
-import de.metas.organization.OrgId;
-import de.metas.util.Check;
-import de.metas.util.GuavaCollectors;
-import de.metas.util.Services;
-import lombok.NonNull;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author cg
- *
  */
 public class CountryDAO implements ICountryDAO
 {
 
-	/** Country Cache */
+	/**
+	 * Country Cache
+	 */
 	private final CCache<Integer, IndexedCountries> countriesCache = CCache.newCache(I_C_Country.Table_Name + "_AllIndexed", 1, CCache.EXPIREMINUTES_Never);
-	/** C_Country_ID by AD_Client_ID */
-	private final CCache<Integer, String> countryCodeByADClientId = CCache.<Integer, String> builder()
+	/**
+	 * C_Country_ID by AD_Client_ID
+	 */
+	private final CCache<Integer, String> countryCodeByADClientId = CCache.<Integer, String>builder()
 			.cacheName(I_C_Country.Table_Name + "#CountryCodeByAD_Client_ID")
 			.tableName(I_C_Country.Table_Name)
 			.initialCapacity(3)
@@ -70,7 +67,7 @@ public class CountryDAO implements ICountryDAO
 
 	private static final ImmutableBiMap<String, String> alpha2to3CountryCodes = buildAlpha2to3CountryCodes();
 
-	private static final ImmutableBiMap<String, String> buildAlpha2to3CountryCodes()
+	private static ImmutableBiMap<String, String> buildAlpha2to3CountryCodes()
 	{
 		final ImmutableBiMap.Builder<String, String> alpha2to3CountryCodesBuilder = ImmutableBiMap.builder();
 		for (final String countryCodeAlpha2 : Locale.getISOCountries())
@@ -139,10 +136,10 @@ public class CountryDAO implements ICountryDAO
 	@Override
 	public List<I_C_Country> getCountries(final Properties ctx)
 	{
-		final List<I_C_Country> countries = new ArrayList<>(getIndexedCountries().getAll());
+		final ArrayList<I_C_Country> countries = new ArrayList<>(getIndexedCountries().getAll());
 
 		final Comparator<Object> cmp = new MCountry(ctx, 0, null);
-		Collections.sort(countries, cmp);
+		countries.sort(cmp);
 
 		return countries;
 	} // getCountries
@@ -169,7 +166,7 @@ public class CountryDAO implements ICountryDAO
 		return countryCodeByADClientId.getOrLoad(adClientId, () -> retrieveCountryCodeIdByADClientId(adClientId));
 	}
 
-	private static final String retrieveCountryCodeIdByADClientId(final int adClientId)
+	private static String retrieveCountryCodeIdByADClientId(final int adClientId)
 	{
 		final Properties ctx = Env.getCtx();
 		final I_AD_Client client = Services.get(IClientDAO.class).retriveClient(ctx, adClientId);
@@ -218,12 +215,9 @@ public class CountryDAO implements ICountryDAO
 		}
 
 		final String countrySequenceLanguage = sequence.getAdLanguage();
-		if (!Check.isEmpty(countrySequenceLanguage, true) && !countrySequenceLanguage.equals(adLanguage))
-		{
-			return false;
-		}
-
-		return true;
+		return countrySequenceLanguage == null
+				|| Check.isBlank(countrySequenceLanguage)
+				|| countrySequenceLanguage.equals(adLanguage);
 	}
 
 	@Cached(cacheName = I_C_Country_Sequence.Table_Name + "#by#C_Country_ID")
@@ -316,7 +310,7 @@ public class CountryDAO implements ICountryDAO
 			this.countries = ImmutableList.copyOf(countries);
 			countriesById = Maps.uniqueIndex(countries, c -> CountryId.ofRepoId(c.getC_Country_ID()));
 			countriesByCountryCode = countries.stream()
-					.filter(country -> !Check.isEmpty(country.getCountryCode(), true)) // NOTE: in DB the CountryCode is mandatory but not in some unit tests
+					.filter(country -> Check.isNotBlank(country.getCountryCode())) // NOTE: in DB the CountryCode is mandatory but not in some unit tests
 					.collect(GuavaCollectors.toImmutableMapByKey(I_C_Country::getCountryCode));
 		}
 

@@ -1,6 +1,3 @@
-/**
- *
- */
 package de.metas.location;
 
 /*
@@ -38,6 +35,8 @@ import de.metas.money.CurrencyId;
 import de.metas.organization.OrgId;
 import de.metas.util.ISingletonService;
 
+import javax.annotation.Nullable;
+
 /**
  * @author cg
  *
@@ -46,22 +45,9 @@ public interface ICountryDAO extends ISingletonService
 {
 	I_C_Country getById(CountryId id);
 
-	/**
-	 * retrieve custom user info
-	 *
-	 * @param ctx
-	 * @param trxName
-	 * @return
-	 */
+	@Nullable
 	CountryCustomInfo retriveCountryCustomInfo(Properties ctx, String trxName);
 
-	/**
-	 * Get Default Country
-	 *
-	 * @param ctx
-	 *            context
-	 * @return Country
-	 */
 	I_C_Country getDefault(Properties ctx);
 
 	default CountryId getDefaultCountryId()
@@ -70,16 +56,9 @@ public interface ICountryDAO extends ISingletonService
 	}
 
 	@Deprecated
-	public I_C_Country get(Properties ctx, int C_Country_ID);
+	I_C_Country get(Properties ctx, int C_Country_ID);
 
-	/**
-	 * Return Countries as Array
-	 *
-	 * @param ctx
-	 *            context
-	 * @return countries
-	 */
-	public List<I_C_Country> getCountries(Properties ctx);
+	List<I_C_Country> getCountries(Properties ctx);
 
 	List<I_C_Region> retrieveRegions(Properties ctx, int countryId);
 
