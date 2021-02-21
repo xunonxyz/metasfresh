@@ -3,27 +3,7 @@
  */
 package de.metas.currency.impl;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
-import org.adempiere.ad.dao.IQueryBL;
-import org.adempiere.ad.dao.IQueryBuilder;
-import org.adempiere.ad.dao.IQueryOrderBy.Direction;
-import org.adempiere.ad.dao.IQueryOrderBy.Nulls;
-import org.adempiere.ad.dao.QueryLimit;
-import org.adempiere.ad.dao.impl.CompareQueryFilter.Operator;
-import org.adempiere.model.InterfaceWrapperHelper;
-import org.adempiere.service.ClientId;
-import org.compiere.model.I_C_ConversionType;
-import org.compiere.model.I_C_ConversionType_Default;
-import org.compiere.model.I_C_Conversion_Rate;
-import org.compiere.model.I_C_Currency;
-import org.compiere.util.TimeUtil;
-
 import com.google.common.collect.ImmutableList;
-
 import de.metas.cache.CCache;
 import de.metas.currency.ConversionTypeMethod;
 import de.metas.currency.Currency;
@@ -38,8 +18,25 @@ import de.metas.money.CurrencyId;
 import de.metas.organization.OrgId;
 import de.metas.util.Services;
 import lombok.NonNull;
+import org.adempiere.ad.dao.IQueryBL;
+import org.adempiere.ad.dao.IQueryBuilder;
+import org.adempiere.ad.dao.IQueryOrderBy.Direction;
+import org.adempiere.ad.dao.IQueryOrderBy.Nulls;
+import org.adempiere.ad.dao.QueryLimit;
+import org.adempiere.ad.dao.impl.CompareQueryFilter.Operator;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.adempiere.service.ClientId;
+import org.compiere.model.I_C_ConversionType;
+import org.compiere.model.I_C_ConversionType_Default;
+import org.compiere.model.I_C_Conversion_Rate;
+import org.compiere.model.I_C_Currency;
+import org.compiere.util.TimeUtil;
 
 import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 /*
  * #%L
@@ -70,11 +67,11 @@ import javax.annotation.Nullable;
 @Deprecated
 public class CurrencyDAO implements ICurrencyDAO
 {
-	private final CCache<Integer, CurrenciesMap> currenciesCache = CCache.<Integer, CurrenciesMap> builder()
+	private final CCache<Integer, CurrenciesMap> currenciesCache = CCache.<Integer, CurrenciesMap>builder()
 			.tableName(I_C_Currency.Table_Name)
 			.build();
 
-	private final CCache<Integer, CurrencyConversionTypesMap> conversionTypesCache = CCache.<Integer, CurrencyConversionTypesMap> builder()
+	private final CCache<Integer, CurrencyConversionTypesMap> conversionTypesCache = CCache.<Integer, CurrencyConversionTypesMap>builder()
 			.tableName(I_C_ConversionType.Table_Name)
 			.tableName(I_C_ConversionType_Default.Table_Name)
 			.build();
@@ -103,7 +100,7 @@ public class CurrencyDAO implements ICurrencyDAO
 		return new CurrenciesMap(currencies);
 	}
 
-	public static final Currency toCurrency(@NonNull final I_C_Currency record)
+	public static Currency toCurrency(@NonNull final I_C_Currency record)
 	{
 		final IModelTranslationMap trlMap = InterfaceWrapperHelper.getModelTranslationMap(record);
 		return Currency.builder()
@@ -211,6 +208,7 @@ public class CurrencyDAO implements ICurrencyDAO
 	{
 		return getConversionTypesMap().getById(id).getMethod();
 	}
+
 	/**
 	 * @return query which is finding the best matching {@link I_C_Conversion_Rate} for given parameters.
 	 */
@@ -244,7 +242,8 @@ public class CurrencyDAO implements ICurrencyDAO
 	}
 
 	@Override
-	public @Nullable BigDecimal retrieveRateOrNull(
+	public @Nullable
+	BigDecimal retrieveRateOrNull(
 			final CurrencyConversionContext conversionCtx,
 			final CurrencyId currencyFromId,
 			final CurrencyId currencyToId)

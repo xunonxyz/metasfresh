@@ -105,10 +105,6 @@ public class PlainCurrencyDAO extends CurrencyDAO
 	 * <li>ConversionType: default
 	 * <li>Client/Org: from {@link Env#getCtx()}
 	 * </ul>
-	 *
-	 * @param currencyFrom
-	 * @param currencyTo
-	 * @param rate
 	 */
 	public void setRate(
 			@NonNull final CurrencyId currencyFromId,
