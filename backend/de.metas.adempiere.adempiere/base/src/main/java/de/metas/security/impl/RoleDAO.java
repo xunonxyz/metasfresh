@@ -35,7 +35,6 @@ import de.metas.security.Role;
 import de.metas.security.RoleId;
 import de.metas.security.RoleInclude;
 import de.metas.security.TableAccessLevel;
-import de.metas.security.permissions.Access;
 import de.metas.security.permissions.Constraints;
 import de.metas.security.permissions.DocumentApprovalConstraint;
 import de.metas.security.permissions.GenericPermissions;
@@ -51,7 +50,7 @@ import lombok.NonNull;
 
 public class RoleDAO implements IRoleDAO
 {
-	private CCache<RoleId, Role> rolesCache = CCache.<RoleId, Role> builder()
+	private final CCache<RoleId, Role> rolesCache = CCache.<RoleId, Role> builder()
 			.tableName(I_AD_Role.Table_Name)
 			.build();
 
@@ -158,7 +157,7 @@ public class RoleDAO implements IRoleDAO
 		return rolePermissions.build();
 	}
 
-	private static final Constraints extractConstraints(final I_AD_Role record)
+	private static Constraints extractConstraints(final I_AD_Role record)
 	{
 		return Constraints.builder()
 				.addConstraint(UserPreferenceLevelConstraint.forPreferenceType(record.getPreferenceType()))
@@ -170,7 +169,7 @@ public class RoleDAO implements IRoleDAO
 				.build();
 	}
 
-	private static final LoginOrgConstraint extractLoginOrgConstraint(final I_AD_Role record)
+	private static LoginOrgConstraint extractLoginOrgConstraint(final I_AD_Role record)
 	{
 		final OrgId loginOrgId = record.getLogin_Org_ID() > 0
 				? OrgId.ofRepoIdOrNull(record.getLogin_Org_ID())
@@ -260,7 +259,7 @@ public class RoleDAO implements IRoleDAO
 	}
 
 	@Override
-	public IRolesTreeNode retrieveRolesTree(final RoleId adRoleId, UserId substituteForUserId, LocalDate substituteDate)
+	public IRolesTreeNode retrieveRolesTree(final RoleId adRoleId, final UserId substituteForUserId, final LocalDate substituteDate)
 	{
 		return RolesTreeNode.of(adRoleId, substituteForUserId, substituteDate);
 	}
@@ -273,20 +272,6 @@ public class RoleDAO implements IRoleDAO
 				.addEqualsFilter(I_AD_Role.COLUMNNAME_IsManual, false)
 				.addOnlyActiveRecordsFilter()
 				.create()
-				.listIds(RoleId::ofRepoId);
-
-		return getByIds(roleIds);
-	}
-
-	@Override
-	public Collection<Role> retrieveAllRolesWithUserAccess()
-	{
-		final Set<RoleId> roleIds = Services.get(IQueryBL.class)
-				.createQueryBuilderOutOfTrx(I_AD_Role.class)
-				.addEqualsFilter(I_AD_Role.COLUMNNAME_IsManual, false)
-				.addOnlyActiveRecordsFilter()
-				.create()
-				.setRequiredAccess(Access.READ)
 				.listIds(RoleId::ofRepoId);
 
 		return getByIds(roleIds);

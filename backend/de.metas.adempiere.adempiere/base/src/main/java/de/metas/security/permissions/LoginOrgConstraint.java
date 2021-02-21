@@ -35,7 +35,7 @@ import de.metas.organization.OrgId;
 @Immutable
 public final class LoginOrgConstraint extends Constraint
 {
-	public static final LoginOrgConstraint of(final OrgId loginOrgId, final boolean orgLoginMandatory)
+	public static LoginOrgConstraint of(@Nullable final OrgId loginOrgId, final boolean orgLoginMandatory)
 	{
 		return new LoginOrgConstraint(loginOrgId, orgLoginMandatory);
 	}
@@ -54,7 +54,7 @@ public final class LoginOrgConstraint extends Constraint
 		this.orgLoginMandatory = false;
 	}
 
-	private LoginOrgConstraint(@Nullable final OrgId loginOrgId, boolean orgLoginMandatory)
+	private LoginOrgConstraint(@Nullable final OrgId loginOrgId, final boolean orgLoginMandatory)
 	{
 		this.loginOrgId = loginOrgId;
 		this.orgLoginMandatory = orgLoginMandatory;
@@ -67,14 +67,14 @@ public final class LoginOrgConstraint extends Constraint
 
 		if (loginOrgId != null)
 		{
-			sb.append("@Login_Org_ID@=" + loginOrgId.getRepoId());
+			sb.append("@Login_Org_ID@=").append(loginOrgId.getRepoId());
 		}
 
 		if (sb.length() > 0)
 		{
 			sb.append(", ");
 		}
-		sb.append("@IsOrgLoginMandatory@=@" + (orgLoginMandatory ? "Y" : "N") + "@");
+		sb.append("@IsOrgLoginMandatory@=@").append(orgLoginMandatory ? "Y" : "N").append("@");
 
 		return sb.insert(0, getClass().getSimpleName() + "[")
 				.append("]")
@@ -87,6 +87,7 @@ public final class LoginOrgConstraint extends Constraint
 		return false;
 	}
 
+	@Nullable
 	private OrgId getLoginOrgId()
 	{
 		return loginOrgId;

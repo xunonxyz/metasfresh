@@ -1,15 +1,14 @@
 package de.metas.security;
 
-import java.util.Objects;
-
-import javax.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import de.metas.util.Check;
 import de.metas.util.lang.RepoIdAware;
 import lombok.Value;
+import org.adempiere.exceptions.AdempiereException;
+
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 /*
  * #%L
@@ -38,16 +37,25 @@ public class RoleId implements RepoIdAware
 {
 	public static final RoleId SYSTEM = new RoleId(0);
 
-	/** Used by the reports service when it accesses the REST-API */
+	public static final RoleId WEBUI_ADMIN = new RoleId(540024);
+
+	/**
+	 * Used by the reports service when it accesses the REST-API
+	 */
 	public static final RoleId JSON_REPORTS = new RoleId(540078);
 
 	@JsonCreator
 	public static RoleId ofRepoId(final int repoId)
 	{
 		final RoleId roleId = ofRepoIdOrNull(repoId);
-		return Check.assumeNotNull(roleId, "Unable to create a roleId for repoId={}", repoId);
+		if (roleId == null)
+		{
+			throw new AdempiereException("Invalid AD_Role_ID: " + repoId);
+		}
+		return roleId;
 	}
 
+	@Nullable
 	public static RoleId ofRepoIdOrNull(final int repoId)
 	{
 		if (repoId == SYSTEM.getRepoId())
@@ -57,6 +65,10 @@ public class RoleId implements RepoIdAware
 		else if (repoId == JSON_REPORTS.getRepoId())
 		{
 			return JSON_REPORTS;
+		}
+		else if (repoId == WEBUI_ADMIN.getRepoId())
+		{
+			return WEBUI_ADMIN;
 		}
 		else
 		{
@@ -74,7 +86,7 @@ public class RoleId implements RepoIdAware
 		return id != null ? id.getRepoId() : defaultValue;
 	}
 
-	public static boolean equals(final RoleId id1, final RoleId id2)
+	public static boolean equals(@Nullable final RoleId id1, @Nullable final RoleId id2)
 	{
 		return Objects.equals(id1, id2);
 	}

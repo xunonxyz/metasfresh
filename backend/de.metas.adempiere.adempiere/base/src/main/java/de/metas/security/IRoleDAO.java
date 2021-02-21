@@ -9,6 +9,8 @@ import de.metas.adempiere.model.I_AD_Role;
 import de.metas.user.UserId;
 import de.metas.util.ISingletonService;
 
+import javax.annotation.Nullable;
+
 /**
  * {@link I_AD_Role} related DAO.
  * 
@@ -35,17 +37,13 @@ public interface IRoleDAO extends ISingletonService
 	Collection<Role> retrieveAllRolesWithAutoMaintenance();
 
 	/**
-	 * @return all roles on which current user has access
-	 */
-	Collection<Role> retrieveAllRolesWithUserAccess();
-
-	/**
 	 * Convenient method to retrieve the role's name.
 	 */
 	String getRoleName(RoleId adRoleId);
 
 	Set<UserId> retrieveUserIdsForRoleId(RoleId adRoleId);
 
+	@Nullable
 	RoleId retrieveFirstRoleIdForUserId(UserId adUserId);
 
 	void createUserRoleAssignmentIfMissing(UserId adUserId, RoleId adRoleId);
