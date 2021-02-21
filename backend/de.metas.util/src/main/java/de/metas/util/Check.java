@@ -583,6 +583,7 @@ public final class Check
 	 * @param str             string
 	 * @param trimWhitespaces trim whitespaces
 	 * @return true if >= 1 char
+	 * @deprecated Please use {@link #isBlank(String)}
 	 */
 	public static boolean isEmpty(@Nullable final String str, final boolean trimWhitespaces)
 	{
