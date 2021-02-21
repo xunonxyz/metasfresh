@@ -21,23 +21,21 @@
  */
 package de.metas.ui.web.session;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.Properties;
-
-import org.adempiere.ad.dao.IQueryBL;
-import org.adempiere.ad.trx.api.ITrx;
-import org.adempiere.model.InterfaceWrapperHelper;
-import org.compiere.model.I_AD_Preference;
-import org.compiere.util.DisplayType;
-import org.compiere.util.Env;
-
 import com.google.common.base.MoreObjects;
-
 import de.metas.i18n.Language;
 import de.metas.util.Check;
 import de.metas.util.GuavaCollectors;
 import de.metas.util.Services;
+import de.metas.util.StringUtils;
+import org.adempiere.ad.dao.IQueryBL;
+import org.adempiere.ad.trx.api.ITrx;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.compiere.model.I_AD_Preference;
+import org.compiere.util.Env;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -68,9 +66,6 @@ public final class UserPreference implements Serializable
 	/** Auto Commit */
 	public static final String P_AUTO_COMMIT = "AutoCommit";
 	private static final String DEFAULT_AUTO_COMMIT = "Y";
-
-	/** Language Name Context **/
-	public static final String LANGUAGE_NAME = "#LanguageName";
 
 	/** window tab placement **/
 	public static final String P_WINDOW_TAB_PLACEMENT = "WindowTabPlacement";
@@ -127,9 +122,6 @@ public final class UserPreference implements Serializable
 				.toString();
 	}
 
-	/**
-	 * save user preference
-	 */
 	public void savePreference()
 	{
 		if (m_AD_User_ID < 0)
@@ -166,7 +158,7 @@ public final class UserPreference implements Serializable
 		}
 	}
 
-	private static final Properties createDAOCtx()
+	private static Properties createDAOCtx()
 	{
 		final Properties ctx = Env.deriveCtx(Env.getCtx());
 		Env.setContext(ctx, Env.CTXNAME_AD_Client_ID, Env.CTXVALUE_AD_Client_ID_System);
@@ -174,7 +166,7 @@ public final class UserPreference implements Serializable
 		return ctx;
 	}
 
-	private static final Map<String, I_AD_Preference> retrievePreferencesMap(final Properties ctx, final int adUserId)
+	private static Map<String, I_AD_Preference> retrievePreferencesMap(final Properties ctx, final int adUserId)
 	{
 		return Services.get(IQueryBL.class)
 				.createQueryBuilder(I_AD_Preference.class, ctx, ITrx.TRXNAME_ThreadInherited)
@@ -196,11 +188,6 @@ public final class UserPreference implements Serializable
 				.collect(GuavaCollectors.toImmutableMapByKey(I_AD_Preference::getAttribute));
 	}
 
-	/**
-	 * load user preference
-	 *
-	 * @param adUserId
-	 */
 	private void loadPreference(final int adUserId)
 	{
 		if (adUserId < 0)
@@ -236,12 +223,6 @@ public final class UserPreference implements Serializable
 		loadPreference(adUserId);
 	}
 
-	/**
-	 * Set Property
-	 *
-	 * @param key Key
-	 * @param value Value
-	 */
 	public void setProperty(final String key, final String value)
 	{
 		if (props == null)
@@ -258,34 +239,11 @@ public final class UserPreference implements Serializable
 		}
 	}
 
-	/**
-	 * Set Property
-	 *
-	 * @param key Key
-	 * @param value Value
-	 */
-	public void setProperty(final String key, final Boolean value)
-	{
-		setProperty(key, DisplayType.toBooleanString(value));
-	}
-
-	/**
-	 * Set Property
-	 *
-	 * @param key Key
-	 * @param value Value
-	 */
 	public void setProperty(final String key, final int value)
 	{
 		setProperty(key, String.valueOf(value));
 	}
 
-	/**
-	 * Get Property
-	 *
-	 * @param key Key
-	 * @return Value
-	 */
 	public String getProperty(final String key)
 	{
 		if (key == null)
@@ -307,16 +265,10 @@ public final class UserPreference implements Serializable
 		return value;
 	}
 
-	/**
-	 * Get Property as Boolean
-	 *
-	 * @param key Key
-	 * @return Value
-	 */
 	public boolean isPropertyBool(final String key)
 	{
 		final String value = getProperty(key);
-		return DisplayType.toBoolean(value, false);
+		return StringUtils.toBoolean(value);
 	}
 
 	public void updateContext(final Properties ctx)
