@@ -47,6 +47,8 @@ import lombok.NonNull;
 
 public class ClientDAO implements IClientDAO
 {
+	private final IQueryBL queryBL = Services.get(IQueryBL.class);
+
 	@Override
 	public I_AD_Client getById(@NonNull final ClientId adClientId)
 	{
@@ -54,7 +56,13 @@ public class ClientDAO implements IClientDAO
 	}
 
 	@Override
-	public I_AD_Client retriveClient(Properties ctx, int adClientId)
+	public I_AD_Client getByIdInTrx(@NonNull final ClientId adClientId)
+	{
+		return InterfaceWrapperHelper.load(adClientId, I_AD_Client.class);
+	}
+
+	@Override
+	public I_AD_Client retriveClient(final Properties ctx, final int adClientId)
 	{
 		// NOTE: we assume table level caching is configured for AD_Client table
 		// see org.adempiere.model.validator.AdempiereBaseValidator.setupCaching(IModelCacheService)
@@ -69,9 +77,9 @@ public class ClientDAO implements IClientDAO
 	}
 
 	@Override
-	public List<I_AD_Client> retrieveAllClients(Properties ctx)
+	public List<I_AD_Client> retrieveAllClients(final Properties ctx)
 	{
-		final IQueryBuilder<I_AD_Client> queryBuilder = Services.get(IQueryBL.class)
+		final IQueryBuilder<I_AD_Client> queryBuilder = queryBL
 				.createQueryBuilder(I_AD_Client.class, ctx, ITrx.TRXNAME_None)
 				.addOnlyActiveRecordsFilter() // metas-ts: only return active clients (note that we have an inactive "trash" client with AD_Client_ID=99)
 		// .addOnlyContextClient() // NO! we want all of them
@@ -88,12 +96,24 @@ public class ClientDAO implements IClientDAO
 	@Cached(cacheName = I_AD_ClientInfo.Table_Name)
 	public I_AD_ClientInfo retrieveClientInfo(@CacheCtx final Properties ctx, final int adClientId)
 	{
-		return Services.get(IQueryBL.class)
+		return queryBL
 				.createQueryBuilder(I_AD_ClientInfo.class, ctx, ITrx.TRXNAME_None)
 				.addEqualsFilter(I_AD_ClientInfo.COLUMN_AD_Client_ID, adClientId)
 				.create()
 				.firstOnlyNotNull(I_AD_ClientInfo.class);
 	}	// get
+
+	@Override
+	// do not cache
+	public I_AD_ClientInfo retrieveClientInfoInTrx(@NonNull final ClientId adClientId)
+	{
+		return queryBL
+				.createQueryBuilder(I_AD_ClientInfo.class)
+				.addEqualsFilter(I_AD_ClientInfo.COLUMN_AD_Client_ID, adClientId)
+				.create()
+				.firstOnlyNotNull(I_AD_ClientInfo.class);
+	}	// get
+
 
 	@Override
 	public I_AD_ClientInfo retrieveClientInfo(final Properties ctx)

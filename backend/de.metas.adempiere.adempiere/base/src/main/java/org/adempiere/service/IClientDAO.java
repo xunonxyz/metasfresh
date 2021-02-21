@@ -22,15 +22,14 @@ package org.adempiere.service;
  * #L%
  */
 
-import java.util.List;
-import java.util.Properties;
-
-import org.compiere.model.I_AD_Client;
-import org.compiere.model.I_AD_ClientInfo;
-import org.compiere.util.Env;
-
 import de.metas.email.mailboxes.ClientEMailConfig;
 import de.metas.util.ISingletonService;
+import lombok.NonNull;
+import org.compiere.model.I_AD_Client;
+import org.compiere.model.I_AD_ClientInfo;
+
+import java.util.List;
+import java.util.Properties;
 
 public interface IClientDAO extends ISingletonService
 {
@@ -41,24 +40,26 @@ public interface IClientDAO extends ISingletonService
 
 	I_AD_Client getById(ClientId adClientId);
 
-	default I_AD_Client getById(int adClientId)
+	default I_AD_Client getById(final int adClientId)
 	{
 		return getById(ClientId.ofRepoId(adClientId));
 	}
+
+	I_AD_Client getByIdInTrx(@NonNull ClientId adClientId);
 
 	@Deprecated
 	I_AD_Client retriveClient(Properties ctx, int adClientId);
 
 	/**
 	 * Retrieves currently login {@link I_AD_Client}.
-	 *
-	 * @param ctx
-	 * @return context client
-	 * @see Env#getAD_Client_ID(Properties)
 	 */
 	I_AD_Client retriveClient(Properties ctx);
 
 	List<I_AD_Client> retrieveAllClients(Properties ctx);
+
+	// no cache
+	I_AD_ClientInfo retrieveClientInfoInTrx(@NonNull ClientId adClientId)    // get
+	;
 
 	/** @return client/tenant info for context AD_Client_ID; never returns null */
 	I_AD_ClientInfo retrieveClientInfo(Properties ctx);

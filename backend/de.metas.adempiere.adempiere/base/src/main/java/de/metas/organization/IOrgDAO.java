@@ -46,17 +46,17 @@ public interface IOrgDAO extends ISingletonService
 
 	Optional<OrgId> retrieveOrgIdBy(OrgQuery orgQuery);
 
-	@Deprecated
-	I_AD_Org retrieveOrg(Properties ctx, int adOrgId);
+	I_AD_Org retrieveOrgInTrx(OrgId adOrgId);
 
 	default I_AD_Org getById(@NonNull final OrgId orgId)
 	{
-		return retrieveOrg(Env.getCtx(), orgId.getRepoId());
+		// we can't use TRXNAME_None because we don't know if the record already exists outside of the current trx!
+		return retrieveOrgInTrx(orgId);
 	}
 
-	default I_AD_Org getById(int adOrgId)
+	default I_AD_Org getById(final int adOrgId)
 	{
-		return retrieveOrg(Env.getCtx(), adOrgId);
+		return getById(OrgId.ofRepoId(adOrgId));
 	}
 
 	default String retrieveOrgName(final int adOrgId)
@@ -121,6 +121,7 @@ public interface IOrgDAO extends ISingletonService
 	 *
 	 * @return AD_Org Object if the organization was found, null otherwise.
 	 */
+	@Nullable
 	I_AD_Org retrieveOrganizationByValue(Properties ctx, String value);
 
 	List<I_AD_Org> retrieveClientOrgs(Properties ctx, int adClientId);

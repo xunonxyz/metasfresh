@@ -22,12 +22,13 @@ package de.metas.edi.model;
  * #L%
  */
 
+import javax.annotation.Nullable;
 
 public interface I_C_BPartner_Location extends org.compiere.model.I_C_BPartner_Location
 {
 	// @formatter:off
 	String COLUMNNAME_GLN = "GLN";
-	String getGLN();
-	void setGLN(String GLN);
+	@Override String getGLN();
+	@Override void setGLN(@Nullable String GLN);
 	// @formatter:on
 }

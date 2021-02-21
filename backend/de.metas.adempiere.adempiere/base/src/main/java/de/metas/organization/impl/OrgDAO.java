@@ -22,7 +22,6 @@ import de.metas.util.StringUtils;
 import de.metas.workflow.WFResponsibleId;
 import lombok.NonNull;
 import org.adempiere.ad.dao.IQueryBL;
-import org.adempiere.ad.dao.IQueryBuilder;
 import org.adempiere.ad.trx.api.ITrx;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.InterfaceWrapperHelper;
@@ -33,6 +32,7 @@ import org.compiere.model.I_AD_Org;
 import org.compiere.model.I_AD_OrgInfo;
 import org.compiere.util.Env;
 
+import javax.annotation.Nullable;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,9 @@ import static org.adempiere.model.InterfaceWrapperHelper.saveRecord;
 
 public class OrgDAO implements IOrgDAO
 {
-	private final CCache<OrgId, OrgInfo> orgInfosCache = CCache.<OrgId, OrgInfo> builder()
+	private final IQueryBL queryBL = Services.get(IQueryBL.class);
+
+	private final CCache<OrgId, OrgInfo> orgInfosCache = CCache.<OrgId, OrgInfo>builder()
 			.tableName(I_AD_OrgInfo.Table_Name)
 			.build();
 
@@ -64,7 +66,7 @@ public class OrgDAO implements IOrgDAO
 	@Cached(cacheName = I_AD_Org.Table_Name + "#by#" + I_AD_Org.COLUMNNAME_AD_Client_ID)
 	public List<I_AD_Org> retrieveClientOrgs(@CacheCtx final Properties ctx, final int adClientId)
 	{
-		return Services.get(IQueryBL.class)
+		return queryBL
 				.createQueryBuilder(I_AD_Org.class, ctx, ITrx.TRXNAME_None)
 				.addEqualsFilter(I_AD_Org.COLUMNNAME_AD_Client_ID, adClientId)
 				.create()
@@ -72,16 +74,16 @@ public class OrgDAO implements IOrgDAO
 	}
 
 	@Override
-	public I_AD_Org retrieveOrg(final Properties ctx, final int adOrgId)
+	public I_AD_Org retrieveOrgInTrx(@NonNull final OrgId adOrgId)
 	{
-		// we can't use TRXNAME_None because we don't know if the record already exists outside of the current trx!
-		return Services.get(IQueryBL.class)
-				.createQueryBuilder(I_AD_Org.class, ctx, ITrx.TRXNAME_ThreadInherited)
+		return queryBL
+				.createQueryBuilder(I_AD_Org.class)
 				.addEqualsFilter(I_AD_Org.COLUMNNAME_AD_Org_ID, adOrgId)
 				.create()
-				.firstOnly(I_AD_Org.class);
+				.firstOnlyNotNull(I_AD_Org.class);
 	}
 
+	@SuppressWarnings("OptionalAssignedToNull")
 	@Override
 	public OrgInfo createOrUpdateOrgInfo(@NonNull final OrgInfoUpdateRequest request)
 	{
@@ -132,7 +134,7 @@ public class OrgDAO implements IOrgDAO
 		return retrieveOrgInfo(adOrgId, ITrx.TRXNAME_ThreadInherited);
 	}
 
-	private OrgInfo retrieveOrgInfo(@NonNull final OrgId orgId, final String trxName)
+	private OrgInfo retrieveOrgInfo(@NonNull final OrgId orgId, @Nullable final String trxName)
 	{
 		final I_AD_OrgInfo record = retrieveOrgInfoRecordOrNull(orgId, trxName);
 		if (record == null)
@@ -143,9 +145,10 @@ public class OrgDAO implements IOrgDAO
 		return toOrgInfo(record);
 	}
 
-	private I_AD_OrgInfo retrieveOrgInfoRecordOrNull(final OrgId adOrgId, final String trxName)
+	@Nullable
+	private I_AD_OrgInfo retrieveOrgInfoRecordOrNull(@NonNull final OrgId adOrgId, @Nullable final String trxName)
 	{
-		return Services.get(IQueryBL.class)
+		return queryBL
 				.createQueryBuilder(I_AD_OrgInfo.class, Env.getCtx(), trxName)
 				.addEqualsFilter(I_AD_OrgInfo.COLUMNNAME_AD_Org_ID, adOrgId)
 				.create()
@@ -216,7 +219,7 @@ public class OrgDAO implements IOrgDAO
 
 		final String valueFixed = value.trim();
 
-		return Services.get(IQueryBL.class)
+		return queryBL
 				.createQueryBuilder(I_AD_Org.class, ctx, ITrx.TRXNAME_None)
 				.addEqualsFilter(I_AD_Org.COLUMNNAME_Value, valueFixed)
 				.create()
@@ -227,9 +230,8 @@ public class OrgDAO implements IOrgDAO
 	@Override
 	public Optional<OrgId> retrieveOrgIdBy(@NonNull final OrgQuery orgQuery)
 	{
-		final IQueryBuilder<I_AD_Org> queryBuilder = createQueryBuilder();
-
-		final int orgId = queryBuilder
+		final int orgId = queryBL.createQueryBuilderOutOfTrx(I_AD_Org.class)
+				.addOnlyActiveRecordsFilter()
 				.addEqualsFilter(I_AD_Org.COLUMNNAME_Value, orgQuery.getOrgValue())
 				.create()
 				.setRequiredAccess(Access.READ)
@@ -242,14 +244,6 @@ public class OrgDAO implements IOrgDAO
 		}
 
 		return Optional.ofNullable(OrgId.ofRepoIdOrNull(orgId));
-	}
-
-	private IQueryBuilder<I_AD_Org> createQueryBuilder()
-	{
-		final IQueryBuilder<I_AD_Org> queryBuilder = Services.get(IQueryBL.class)
-				.createQueryBuilderOutOfTrx(I_AD_Org.class);
-
-		return queryBuilder.addOnlyActiveRecordsFilter();
 	}
 
 	@Override

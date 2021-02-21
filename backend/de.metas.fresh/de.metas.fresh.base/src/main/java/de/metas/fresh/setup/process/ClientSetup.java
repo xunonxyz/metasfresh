@@ -1,28 +1,5 @@
 package de.metas.fresh.setup.process;
 
-import java.util.OptionalInt;
-import java.util.Properties;
-
-import org.adempiere.ad.trx.api.ITrx;
-import org.adempiere.ad.trx.api.ITrxManager;
-import org.adempiere.ad.trx.api.OnTrxMissingPolicy;
-import org.adempiere.model.InterfaceWrapperHelper;
-import org.adempiere.service.IClientDAO;
-import org.adempiere.util.lang.IAutoCloseable;
-import org.compiere.model.I_AD_Client;
-import org.compiere.model.I_AD_ClientInfo;
-import org.compiere.model.I_AD_Image;
-import org.compiere.model.I_AD_Org;
-import org.compiere.model.I_C_AcctSchema;
-import org.compiere.model.I_C_BP_BankAccount;
-import org.compiere.model.I_C_BPartner;
-import org.compiere.model.I_C_BPartner_Location;
-import org.compiere.model.I_C_Location;
-import org.compiere.model.I_M_PriceList;
-import org.compiere.model.X_C_BP_BankAccount;
-import org.compiere.util.Env;
-import org.compiere.util.TrxRunnable;
-
 import de.metas.acct.api.AcctSchemaId;
 import de.metas.acct.api.IAcctSchemaDAO;
 import de.metas.adempiere.model.I_AD_User;
@@ -43,7 +20,32 @@ import de.metas.organization.OrgInfoUpdateRequest;
 import de.metas.pricing.service.IPriceListDAO;
 import de.metas.util.Check;
 import de.metas.util.Services;
+import de.metas.util.StringUtils;
 import lombok.NonNull;
+import org.adempiere.ad.trx.api.ITrx;
+import org.adempiere.ad.trx.api.ITrxManager;
+import org.adempiere.ad.trx.api.OnTrxMissingPolicy;
+import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.adempiere.service.ClientId;
+import org.adempiere.service.IClientDAO;
+import org.adempiere.util.lang.IAutoCloseable;
+import org.compiere.model.I_AD_Client;
+import org.compiere.model.I_AD_ClientInfo;
+import org.compiere.model.I_AD_Image;
+import org.compiere.model.I_AD_Org;
+import org.compiere.model.I_C_AcctSchema;
+import org.compiere.model.I_C_BP_BankAccount;
+import org.compiere.model.I_C_BPartner;
+import org.compiere.model.I_C_BPartner_Location;
+import org.compiere.model.I_C_Location;
+import org.compiere.model.I_M_PriceList;
+import org.compiere.model.X_C_BP_BankAccount;
+import org.compiere.util.Env;
+
+import javax.annotation.Nullable;
+import java.util.OptionalInt;
+import java.util.Properties;
 
 /*
  * #%L
@@ -75,28 +77,29 @@ import lombok.NonNull;
  * <li>save everything: {@link #save()}
  * <li>when a getter is called, it will fetch the value directly from the loaded database record
  * </ul>
- *
+ * <p>
  * This shall be a short living object.
  *
  * @author metas-dev <dev@metasfresh.com>
- *
  */
-class ClientSetup
+@SuppressWarnings({ "UnusedReturnValue", "FieldCanBeLocal" })
+public class ClientSetup
 {
-	public static final ClientSetup newInstance(final Properties ctx)
-	{
-		return new ClientSetup(ctx);
-	}
+	public static ClientSetup newInstance() { return new ClientSetup(Env.getCtx()); }
+
+	public static ClientSetup newInstance(final Properties ctx) { return new ClientSetup(ctx); }
 
 	// services
-	private final transient ITrxManager trxManager = Services.get(ITrxManager.class);
-	private final transient IClientDAO clientDAO = Services.get(IClientDAO.class);
-	private final transient IOrgDAO orgDAO = Services.get(IOrgDAO.class);
-	private final transient IBPartnerOrgBL partnerOrgBL = Services.get(IBPartnerOrgBL.class);
-	private final transient IBPartnerBL bpartnerBL = Services.get(IBPartnerBL.class);
-	private final transient IBPartnerDAO bpartnerDAO = Services.get(IBPartnerDAO.class);
-	private final transient IBPBankAccountDAO bankAccountDAO = Services.get(IBPBankAccountDAO.class);
-	private final transient ILocationBL locationBL = Services.get(ILocationBL.class);
+	private final ITrxManager trxManager = Services.get(ITrxManager.class);
+	private final IClientDAO clientDAO = Services.get(IClientDAO.class);
+	private final IOrgDAO orgDAO = Services.get(IOrgDAO.class);
+	private final IBPartnerOrgBL partnerOrgBL = Services.get(IBPartnerOrgBL.class);
+	private final IBPartnerBL bpartnerBL = Services.get(IBPartnerBL.class);
+	private final IBPartnerDAO bpartnerDAO = Services.get(IBPartnerDAO.class);
+	private final IBPBankAccountDAO bankAccountDAO = Services.get(IBPBankAccountDAO.class);
+	private final ILocationBL locationBL = Services.get(ILocationBL.class);
+	private final IAcctSchemaDAO acctSchemaDAO = Services.get(IAcctSchemaDAO.class);
+	private final ICurrencyDAO currencyDAO = Services.get(ICurrencyDAO.class);
 
 	private static final OrgId AD_Org_ID_Main = OrgId.ofRepoId(1000000);
 
@@ -119,18 +122,11 @@ class ClientSetup
 
 		//
 		// Load
-		try (IAutoCloseable cacheFlagRestorer = CacheInterceptor.temporaryDisableCaching())
+		try (final IAutoCloseable ignored = CacheInterceptor.temporaryDisableCaching())
 		{
-			final int adClientId = Env.getAD_Client_ID(getCtx());
-			adClient = clientDAO.retriveClient(getCtx(), adClientId);
-			InterfaceWrapperHelper.setTrxName(adClient, ITrx.TRXNAME_ThreadInherited);
-			//
-			adClientInfo = clientDAO.retrieveClientInfo(getCtx(), adClient.getAD_Client_ID());
-			InterfaceWrapperHelper.setTrxName(adClientInfo, ITrx.TRXNAME_ThreadInherited);
-			//
-			adOrg = orgDAO.getById(AD_Org_ID_Main);
-			InterfaceWrapperHelper.setTrxName(adOrg, ITrx.TRXNAME_ThreadInherited);
-			//
+			adClient = clientDAO.getByIdInTrx(ClientId.METASFRESH);
+			adClientInfo = clientDAO.retrieveClientInfoInTrx(ClientId.METASFRESH);
+			adOrg = orgDAO.retrieveOrgInTrx(AD_Org_ID_Main);
 			final OrgInfo adOrgInfo = orgDAO.getOrgInfoByIdInTrx(AD_Org_ID_Main);
 			adOrgInfoChangeRequest = OrgInfoUpdateRequest.builder()
 					.orgId(OrgId.ofRepoId(adOrg.getAD_Org_ID()));
@@ -138,16 +134,26 @@ class ClientSetup
 			orgBPartner = partnerOrgBL.retrieveLinkedBPartner(adOrg);
 			orgBPartnerLocation = bpartnerDAO.getBPartnerLocationById(adOrgInfo.getOrgBPartnerLocationId());
 			orgContact = bpartnerDAO.retrieveDefaultContactOrNull(orgBPartner, I_AD_User.class);
-			Check.assumeNotNull(orgContact, "orgContact not null"); // TODO: create if does not exist
-			
+			if (orgContact == null)
+			{
+				// shall not happen
+				// TODO: create if does not exist
+				throw new AdempiereException("No organization contact defined");
+			}
+
 			final BPartnerId orgBPartnerId = BPartnerId.ofRepoId(orgBPartner.getC_BPartner_ID());
 			orgBankAccount = bankAccountDAO.retrieveDefaultBankAccountInTrx(orgBPartnerId).orElse(null);
-			Check.assumeNotNull(orgBankAccount, "orgBankAccount not null"); // TODO create one if does not exists
-			
+			if (orgBankAccount == null)
+			{
+				// shall not happen
+				// TODO create one if does not exists
+				throw new AdempiereException("No organization bank account defined");
+			}
+
 			//
 			final AcctSchemaId primaryAcctSchemaId = AcctSchemaId.ofRepoId(adClientInfo.getC_AcctSchema1_ID());
-			acctSchema = Services.get(IAcctSchemaDAO.class).getRecordById(primaryAcctSchemaId);
-			
+			acctSchema = acctSchemaDAO.getRecordById(primaryAcctSchemaId);
+
 			priceList_None = InterfaceWrapperHelper.create(getCtx(), IPriceListDAO.M_PriceList_ID_None, I_M_PriceList.class, ITrx.TRXNAME_ThreadInherited);
 		}
 	}
@@ -155,11 +161,10 @@ class ClientSetup
 	public void save()
 	{
 		final String trxName = trxManager.getThreadInheritedTrxName(OnTrxMissingPolicy.ReturnTrxNone);
-		trxManager.run(trxName, (TrxRunnable)localTrxName -> saveInTrx());
-
+		trxManager.run(trxName, this::saveInTrx);
 	}
 
-	private final void saveInTrx()
+	private void saveInTrx()
 	{
 		setOtherDefaults();
 
@@ -228,29 +233,29 @@ class ClientSetup
 		return _ctx;
 	}
 
-	public ClientSetup setCompanyName(String companyName)
+	public ClientSetup setCompanyName(@Nullable final String companyNameParam)
 	{
-		if (Check.isEmpty(companyName, true))
+		final String companyNameNorm = StringUtils.trimBlankToNull(companyNameParam);
+		if (companyNameNorm == null)
 		{
 			return this;
 		}
 
-		companyName = companyName.trim();
+		adClient.setValue(companyNameNorm);
+		adClient.setName(companyNameNorm);
 
-		adClient.setValue(companyName);
-		adClient.setName(companyName);
+		adOrg.setValue(companyNameNorm);
+		adOrg.setName(companyNameNorm);
 
-		adOrg.setValue(companyName);
-		adOrg.setName(companyName);
-
-		orgBPartner.setValue(companyName);
-		orgBPartner.setName(companyName);
-		orgBPartner.setCompanyName(companyName);
+		orgBPartner.setValue(companyNameNorm);
+		orgBPartner.setName(companyNameNorm);
+		orgBPartner.setCompanyName(companyNameNorm);
 		orgBPartner.setIsCompany(true);
 
 		return this;
 	}
 
+	@Nullable
 	public String getCompanyName()
 	{
 		return orgBPartner.getCompanyName();
@@ -262,9 +267,9 @@ class ClientSetup
 		{
 			return this;
 		}
-		
+
 		final CurrencyId acctCurrencyId = CurrencyId.ofRepoId(acctSchema.getC_Currency_ID());
-		final CurrencyCode acctCurrencyCode = Services.get(ICurrencyDAO.class).getCurrencyCodeById(acctCurrencyId);
+		final CurrencyCode acctCurrencyCode = currencyDAO.getCurrencyCodeById(acctCurrencyId);
 
 		orgBankAccount.setC_Currency_ID(currencyId.getRepoId());
 		acctSchema.setC_Currency_ID(currencyId.getRepoId());
@@ -280,9 +285,9 @@ class ClientSetup
 		return acctSchema.getC_Currency_ID();
 	}
 
-	public ClientSetup setAD_Language(final String adLanguage)
+	public ClientSetup setAD_Language(@Nullable final String adLanguage)
 	{
-		if (Check.isEmpty(adLanguage, true))
+		if (adLanguage == null || Check.isBlank(adLanguage))
 		{
 			return this;
 		}
@@ -293,11 +298,13 @@ class ClientSetup
 		return this;
 	}
 
+	@Nullable
 	public String getAD_Language()
 	{
 		return orgBPartner.getAD_Language();
 	}
 
+	@Nullable
 	public final I_C_Location getCompanyAddress()
 	{
 		final I_C_Location orgLocation = orgBPartnerLocation.getC_Location();
@@ -309,11 +316,11 @@ class ClientSetup
 		//
 		// Return a copy of org location, to make sure nobody is changing it
 		// NOTE: C_Location shall be handled as a value object!
-		final I_C_Location companyAddress = copy(orgLocation);
-		return companyAddress;
+		return copy(orgLocation);
 	}
 
-	private final I_C_Location copy(final I_C_Location location)
+	@Nullable
+	private I_C_Location copy(final I_C_Location location)
 	{
 		if (location == null)
 		{
@@ -331,11 +338,7 @@ class ClientSetup
 			return 0;
 		}
 		final int locationId = companyAddress.getC_Location_ID();
-		if (locationId <= 0)
-		{
-			return 0;
-		}
-		return locationId;
+		return Math.max(locationId, 0);
 	}
 
 	public ClientSetup setCompanyAddress(final I_C_Location companyAddress)
@@ -397,6 +400,7 @@ class ClientSetup
 		return setCompanyLogo(companyLogo);
 	}
 
+	@Nullable
 	public final I_AD_Image getCompanyLogo()
 	{
 		final I_AD_Image logo = orgBPartner.getLogo();
@@ -421,19 +425,18 @@ class ClientSetup
 		return logo.getAD_Image_ID();
 	}
 
-	public ClientSetup setCompanyTaxID(String companyTaxID)
+	public ClientSetup setCompanyTaxID(@Nullable final String companyTaxIDParam)
 	{
-		if (Check.isEmpty(companyTaxID, true))
+		final String companyTaxID = StringUtils.trimBlankToNull(companyTaxIDParam);
+		if (companyTaxID != null)
 		{
-			return this;
+			orgBPartner.setVATaxID(companyTaxID);
 		}
-
-		companyTaxID = companyTaxID.trim();
-		orgBPartner.setVATaxID(companyTaxID);
 
 		return this;
 	}
 
+	@Nullable
 	public final String getCompanyTaxID()
 	{
 		return orgBPartner.getVATaxID();
@@ -444,9 +447,9 @@ class ClientSetup
 		return orgContact.getFirstname();
 	}
 
-	public ClientSetup setContactFirstName(final String contactFirstName)
+	public ClientSetup setContactFirstName(@Nullable final String contactFirstName)
 	{
-		if (!Check.isEmpty(contactFirstName, true))
+		if (contactFirstName != null && !Check.isBlank(contactFirstName))
 		{
 			orgContact.setFirstname(contactFirstName.trim());
 		}
@@ -458,18 +461,18 @@ class ClientSetup
 		return orgContact.getLastname();
 	}
 
-	public ClientSetup setContactLastName(final String contactLastName)
+	public ClientSetup setContactLastName(@Nullable final String contactLastName)
 	{
-		if (!Check.isEmpty(contactLastName, true))
+		if (contactLastName != null && !Check.isBlank(contactLastName))
 		{
 			orgContact.setLastname(contactLastName.trim());
 		}
 		return this;
 	}
 
-	public ClientSetup setAccountNo(final String accountNo)
+	public ClientSetup setAccountNo(@Nullable final String accountNo)
 	{
-		if (!Check.isEmpty(accountNo, true))
+		if (accountNo != null && !Check.isBlank(accountNo))
 		{
 			orgBankAccount.setAccountNo(accountNo.trim());
 		}
@@ -486,9 +489,9 @@ class ClientSetup
 		return orgBankAccount.getIBAN();
 	}
 
-	public ClientSetup setIBAN(final String iban)
+	public ClientSetup setIBAN(@Nullable final String iban)
 	{
-		if (!Check.isEmpty(iban, true))
+		if (iban != null && !Check.isBlank(iban))
 		{
 			orgBankAccount.setIBAN(iban.trim());
 		}
@@ -509,9 +512,9 @@ class ClientSetup
 		return orgBankAccount.getC_Bank_ID();
 	}
 
-	public ClientSetup setPhone(final String phone)
+	public ClientSetup setPhone(@Nullable final String phone)
 	{
-		if (!Check.isEmpty(phone, true))
+		if (phone != null && !Check.isBlank(phone))
 		{
 			// NOTE: we are not setting the Phone, Fax, EMail on C_BPartner_Location because those fields are hidden in BPartner window
 			orgContact.setPhone(phone.trim());
@@ -525,9 +528,9 @@ class ClientSetup
 		return orgContact.getPhone();
 	}
 
-	public ClientSetup setFax(final String fax)
+	public ClientSetup setFax(@Nullable final String fax)
 	{
-		if (!Check.isEmpty(fax, true))
+		if (fax != null && !Check.isBlank(fax))
 		{
 			// NOTE: we are not setting the Phone, Fax, EMail on C_BPartner_Location because those fields are hidden in BPartner window
 			orgContact.setFax(fax.trim());
@@ -540,9 +543,9 @@ class ClientSetup
 		return orgContact.getFax();
 	}
 
-	public ClientSetup setEMail(final String email)
+	public ClientSetup setEMail(@Nullable final String email)
 	{
-		if (!Check.isEmpty(email, true))
+		if (email != null && !Check.isBlank(email))
 		{
 			// NOTE: we are not setting the Phone, Fax, EMail on C_BPartner_Location because those fields are hidden in BPartner window
 			orgContact.setEMail(email.trim());
@@ -555,9 +558,9 @@ class ClientSetup
 		return orgContact.getEMail();
 	}
 
-	public ClientSetup setBPartnerDescription(final String bpartnerDescription)
+	public ClientSetup setBPartnerDescription(@Nullable final String bpartnerDescription)
 	{
-		if (Check.isEmpty(bpartnerDescription, true))
+		if (bpartnerDescription == null || Check.isBlank(bpartnerDescription))
 		{
 			return this;
 		}
@@ -566,6 +569,7 @@ class ClientSetup
 		return this;
 	}
 
+	@Nullable
 	public String getBPartnerDescription()
 	{
 		return orgBPartner.getDescription();

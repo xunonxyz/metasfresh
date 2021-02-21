@@ -15,7 +15,8 @@ import de.metas.process.ProcessInfoParameter;
  * Process used to quick setup the metas Fresh installation.
  *
  * @author tsa
- * @task 09250
+ *
+ * Task 09250
  */
 public class AD_Client_Setup extends JavaProcess implements IProcessDefaultParametersProvider
 {
@@ -123,7 +124,7 @@ public class AD_Client_Setup extends JavaProcess implements IProcessDefaultParam
 		}
 	}
 
-	private final ClientSetup getClientSetup()
+	private ClientSetup getClientSetup()
 	{
 		if (_clientSetup == null)
 		{
@@ -135,7 +136,7 @@ public class AD_Client_Setup extends JavaProcess implements IProcessDefaultParam
 	@Override
 	protected void prepare()
 	{
-		try (final IAutoCloseable cacheFlagRestorer = CacheInterceptor.temporaryDisableCaching())
+		try (final IAutoCloseable ignored = CacheInterceptor.temporaryDisableCaching())
 		{
 			final ClientSetup clientSetup = getClientSetup();
 
@@ -220,9 +221,9 @@ public class AD_Client_Setup extends JavaProcess implements IProcessDefaultParam
 	}
 
 	@Override
-	protected String doIt() throws Exception
+	protected String doIt()
 	{
-		try (final IAutoCloseable cacheFlagRestorer = CacheInterceptor.temporaryDisableCaching())
+		try (final IAutoCloseable ignored = CacheInterceptor.temporaryDisableCaching())
 		{
 			final ClientSetup clientSetup = getClientSetup();
 			clientSetup.save();
