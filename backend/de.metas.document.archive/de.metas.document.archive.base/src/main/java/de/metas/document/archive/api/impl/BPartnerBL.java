@@ -10,6 +10,8 @@ import de.metas.document.archive.model.I_AD_User;
 import de.metas.document.archive.model.I_C_BPartner;
 import de.metas.util.Check;
 
+import javax.annotation.Nullable;
+
 /*
  * #%L
  * de.metas.document.archive.base
@@ -40,7 +42,7 @@ public class BPartnerBL implements IBPartnerBL
 {
 
 	@Override
-	public boolean isInvoiceEmailEnabled(final I_C_BPartner bpartner, final I_AD_User user)
+	public boolean isInvoiceEmailEnabled(@Nullable final I_C_BPartner bpartner, final I_AD_User user)
 	{
 		if (bpartner == null)
 		{

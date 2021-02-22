@@ -22,22 +22,12 @@
 
 package de.metas.async.spi.impl;
 
-import java.util.Properties;
-
-import org.adempiere.ad.table.api.IADTableDAO;
-import org.adempiere.ad.trx.api.ITrx;
-import org.adempiere.model.InterfaceWrapperHelper;
-import org.adempiere.service.IClientDAO;
-import org.adempiere.util.lang.impl.TableRecordReference;
-import org.compiere.model.I_AD_Client;
-import org.compiere.model.I_C_BPartner;
-import org.compiere.util.Env;
-import org.slf4j.Logger;
-
 import de.metas.adempiere.model.I_AD_User;
 import de.metas.async.api.IAsyncBatchListeners;
 import de.metas.async.model.I_C_Async_Batch;
 import de.metas.async.model.I_C_Async_Batch_Type;
+import de.metas.bpartner.BPartnerId;
+import de.metas.bpartner.service.IBPartnerDAO;
 import de.metas.email.EMail;
 import de.metas.letters.model.IEMailEditor;
 import de.metas.letters.model.MADBoilerPlate;
@@ -50,6 +40,17 @@ import de.metas.notification.UserNotificationRequest.TargetRecordAction;
 import de.metas.user.UserId;
 import de.metas.util.Check;
 import de.metas.util.Services;
+import org.adempiere.ad.table.api.IADTableDAO;
+import org.adempiere.ad.trx.api.ITrx;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.adempiere.service.IClientDAO;
+import org.adempiere.util.lang.impl.TableRecordReference;
+import org.compiere.model.I_AD_Client;
+import org.compiere.model.I_C_BPartner;
+import org.compiere.util.Env;
+import org.slf4j.Logger;
+
+import java.util.Properties;
 
 public class NotifyAsyncBatch implements INotifyAsyncBatch
 {
@@ -68,7 +69,7 @@ public class NotifyAsyncBatch implements INotifyAsyncBatch
 	/***
 	 * Send mail to the user who created the async batch with the result based the on boiler plate the ID of which is defined by {@value #AD_SYSCONFIG_ASYNC_BOILERPLATE_ID}. If there is no such
 	 * AS_SysConfig or no <code>AD_BoilerPlate</code> record, then the method does nothing.
-	 * 
+	 *
 	 * @param asyncBatch
 	 * @see de.metas.letters.model.MADBoilerPlate#sendEMail(de.metas.letters.model.IEMailEditor, boolean)
 	 */
@@ -128,7 +129,10 @@ public class NotifyAsyncBatch implements INotifyAsyncBatch
 
 						// try to set language; take first from partner; if does not exists, take it from client
 						final I_AD_User user = InterfaceWrapperHelper.create(ctx, asyncBatch.getCreatedBy(), I_AD_User.class, ITrx.TRXNAME_None);
-						final I_C_BPartner partner = user.getC_BPartner();
+						final BPartnerId bpartnerId = BPartnerId.ofRepoIdOrNull(user.getC_BPartner_ID());
+						final I_C_BPartner partner = bpartnerId != null
+								? Services.get(IBPartnerDAO.class).getById(bpartnerId)
+								: null;
 						String adLanguage = "";
 						if (partner != null && partner.getC_BPartner_ID() > 0)
 						{
@@ -139,16 +143,16 @@ public class NotifyAsyncBatch implements INotifyAsyncBatch
 							adLanguage = client.getAD_Language();
 						}
 						attributesBuilder.setAD_Language(adLanguage);
-						
+
 						attributesEffective = attributesBuilder.build();
 					}
 					//
 					final String message = text.getTextSnippetParsed(attributesEffective);
 					//
 					if (Check.isEmpty(message, true))
-					 {
+					{
 						return null;
-					//
+						//
 					}
 
 					Check.assume(asyncBatch.getCreatedBy() > 0, "CreatedBy > 0");
@@ -187,7 +191,7 @@ public class NotifyAsyncBatch implements INotifyAsyncBatch
 
 	/**
 	 * Send note to the user who created the async batch with the result
-	 * 
+	 *
 	 * @param asyncBatch
 	 */
 	public void sendNote(final I_C_Async_Batch asyncBatch)

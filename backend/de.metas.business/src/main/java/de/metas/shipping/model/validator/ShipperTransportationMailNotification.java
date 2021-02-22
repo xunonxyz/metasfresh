@@ -111,7 +111,7 @@ public class ShipperTransportationMailNotification implements ModelValidator
 						orderUser = user;
 					}
 					//
-					I_C_BPartner partnerPO = InterfaceWrapperHelper.create(user.getC_BPartner(), I_C_BPartner.class);
+					I_C_BPartner partnerPO = Services.get(IBPartnerDAO.class).getById(user.getC_BPartner_ID(), I_C_BPartner.class);
 					if (partnerPO.isShippingNotificationEmail() && user.isDefaultContact())
 					{
 						String message = sendEMail(text, (MInOut)sp.getM_InOut(), orderUser);

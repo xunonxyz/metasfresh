@@ -1540,15 +1540,15 @@ public class BPartnerDAO implements IBPartnerDAO
 				.createQueryBuilder(I_AD_User.class)
 				.addOnlyActiveRecordsFilter()
 				.addOnlyContextClient()
-				.addInArrayFilter(I_AD_User.COLUMN_AD_Org_ID, Env.getOrgId(), OrgId.ANY);
+				.addInArrayFilter(I_AD_User.COLUMNNAME_AD_Org_ID, Env.getOrgId(), OrgId.ANY);
 
 		if (contactQuery.getBPartnerId() != null)
 		{
-			queryBuilder.addEqualsFilter(I_AD_User.COLUMN_C_BPartner_ID, contactQuery.getBPartnerId());
+			queryBuilder.addEqualsFilter(I_AD_User.COLUMNNAME_C_BPartner_ID, contactQuery.getBPartnerId());
 		}
 		else
 		{ // we don't know which one, but is has to be some C_BPartner_ID
-			queryBuilder.addNotEqualsFilter(I_AD_User.COLUMN_C_BPartner_ID, null);
+			queryBuilder.addNotEqualsFilter(I_AD_User.COLUMNNAME_C_BPartner_ID, null);
 		}
 
 		if (contactQuery.getUserId() != null)

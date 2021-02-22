@@ -10,10 +10,15 @@ import de.metas.util.ISingletonService;
 import de.metas.util.hash.HashableString;
 import lombok.NonNull;
 
+import javax.annotation.Nullable;
+
 public interface IUserBL extends ISingletonService
 {
+	void save(@NonNull I_AD_User user);
+
 	HashableString getUserPassword(I_AD_User user);
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	boolean isPasswordMatching(I_AD_User user, HashableString password);
 
 	void createResetPasswordByEMailRequest(String userId);
@@ -26,6 +31,10 @@ public interface IUserBL extends ISingletonService
 	void changePassword(ChangeUserPasswordRequest request);
 
 	void changePasswordAndSave(I_AD_User user, String newPassword);
+
+	void changePasswordNoSave(I_AD_User user, @Nullable String newPassword);
+
+	int getMinPasswordLength();
 
 	String buildContactName(final String firstName, final String lastName);
 
@@ -41,6 +50,7 @@ public interface IUserBL extends ISingletonService
 	 *
 	 * @return <code>null</code> if OK, error message if not ok
 	 */
+	@Nullable
 	ITranslatableString checkCanSendEMail(UserEMailConfig userEmailConfig);
 
 	void assertCanSendEMail(@NonNull final UserId adUserId);

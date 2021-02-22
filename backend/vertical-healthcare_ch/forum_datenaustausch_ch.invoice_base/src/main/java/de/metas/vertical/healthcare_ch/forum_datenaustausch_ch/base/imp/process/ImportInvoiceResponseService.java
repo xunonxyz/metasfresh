@@ -150,7 +150,7 @@ class ImportInvoiceResponseService
 		final List<Integer> bpartnerIds = queryBL
 				.createQueryBuilder(I_C_BPartner_Location.class)
 				.addOnlyActiveRecordsFilter()
-				.addEqualsFilter(I_C_BPartner_Location.COLUMN_GLN, gln)
+				.addEqualsFilter(I_C_BPartner_Location.COLUMNNAME_GLN, gln)
 				.orderBy(I_C_BPartner.COLUMNNAME_C_BPartner_ID) // just to have an predictable order
 				.create()
 				.listDistinct(I_C_BPartner_Location.COLUMNNAME_C_BPartner_ID, Integer.class);
@@ -158,9 +158,9 @@ class ImportInvoiceResponseService
 		return queryBL
 				.createQueryBuilder(I_AD_User.class)
 				.addOnlyActiveRecordsFilter()
-				.addInArrayFilter(I_AD_User.COLUMN_C_BPartner_ID, bpartnerIds)
-				.addEqualsFilter(I_AD_User.COLUMN_IsSubjectMatterContact, true)
-				.orderBy(I_AD_User.COLUMN_AD_User_ID)
+				.addInArrayFilter(I_AD_User.COLUMNNAME_C_BPartner_ID, bpartnerIds)
+				.addEqualsFilter(I_AD_User.COLUMNNAME_IsSubjectMatterContact, true)
+				.orderBy(I_AD_User.COLUMNNAME_AD_User_ID)
 				.create()
 				.listIds().stream().map(UserId::ofRepoId)
 				.collect(ImmutableList.toImmutableList());

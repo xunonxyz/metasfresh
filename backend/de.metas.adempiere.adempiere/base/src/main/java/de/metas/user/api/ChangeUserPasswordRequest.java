@@ -41,28 +41,21 @@ import lombok.Value;
 public class ChangeUserPasswordRequest
 {
 	/** The user of which password we are changing */
-	@NonNull
-	final UserId userId;
+	@NonNull UserId userId;
 
 	/** Old password entered by user */
-	@Nullable
-	final HashableString oldPassword;
+	@Nullable HashableString oldPassword;
 
 	/** New password entered by user */
-	@Nullable
-	final String newPassword;
+	@Nullable String newPassword;
 
 	/** New password retyped by user */
-	@Nullable
-	final String newPasswordRetype;
+	@Nullable String newPasswordRetype;
 
 	//
 	// Context
-	@NonNull
-	final ClientId contextClientId;
+	@NonNull ClientId contextClientId;
 	/** i.e. logged in user */
-	@NonNull
-	final UserId contextUserId;
-	@NonNull
-	final LocalDate contextDate;
+	@NonNull UserId contextUserId;
+	@NonNull LocalDate contextDate;
 }

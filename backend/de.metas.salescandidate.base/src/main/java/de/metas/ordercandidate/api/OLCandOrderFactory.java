@@ -474,7 +474,9 @@ class OLCandOrderFactory
 				.map(OLCand::getId)
 				.map(String::valueOf)
 				.collect(Collectors.joining(", "));
-		final String adLanguage = user.getC_BPartner().getAD_Language();
+
+		final I_C_BPartner bpartner = bpartnerDAO.getById(user.getC_BPartner_ID());
+		final String adLanguage = bpartner.getAD_Language();
 
 		final MNote note = new MNote(ctx, IOLCandBL.MSG_OL_CAND_PROCESSOR_PROCESSING_ERROR_0P, userInChargeId.getRepoId(), ITrx.TRXNAME_None);
 		note.setClientOrg(user.getAD_Client_ID(), user.getAD_Org_ID());

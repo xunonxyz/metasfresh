@@ -39,6 +39,8 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
 
+import javax.annotation.Nullable;
+
 /*
  * #%L
  * de.metas.adempiere.adempiere.base
@@ -76,7 +78,7 @@ public class FlatrateTermDataFactory
 	public static I_AD_User createADUser(@NonNull final I_C_BPartner bpartner, final String lastName, final String firstName, final boolean isBillToContact_Default, final boolean isShipToContact_Default)
 	{
 		final I_AD_User user = newInstance(I_AD_User.class, bpartner);
-		user.setC_BPartner(bpartner);
+		user.setC_BPartner_ID(bpartner.getC_BPartner_ID());
 		user.setLastname(lastName);
 		user.setFirstname(firstName);
 		user.setIsBillToContact_Default(isBillToContact_Default);
@@ -119,7 +121,7 @@ public class FlatrateTermDataFactory
 			@NonNull final I_M_PricingSystem pricingSystem, final String extensionType, final boolean isCreateNoInvoice)
 	{
 		final I_C_Flatrate_Conditions conditions = newInstance(I_C_Flatrate_Conditions.class);
-		conditions.setM_PricingSystem_ID(pricingSystem == null ? null : pricingSystem.getM_PricingSystem_ID());
+		conditions.setM_PricingSystem_ID(pricingSystem == null ? -1 : pricingSystem.getM_PricingSystem_ID());
 		conditions.setInvoiceRule(invoiceRule);
 		conditions.setType_Conditions(typeConditions);
 		conditions.setOnFlatrateTermExtend(onFlatrateTermExtend);
@@ -190,6 +192,7 @@ public class FlatrateTermDataFactory
 		I_C_TaxCategory taxCategory;
 		I_C_Tax tax;
 
+		@Nullable
 		public ProductAndCategoryId getProductAndCategoryId()
 		{
 			return product != null

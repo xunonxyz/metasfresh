@@ -27,27 +27,12 @@ import com.google.common.collect.ImmutableList;
 import de.metas.util.Check;
 import de.metas.util.StringUtils;
 import lombok.NonNull;
-import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.mm.attributes.AttributeCode;
 import org.adempiere.mm.attributes.api.AttributeConstants;
 import org.adempiere.mm.attributes.api.ImmutableAttributeSet;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
-/**
- * Borrowed from: https://mkyong.com/java/java-password-generator-example/
- */
 public class PasswordGenerator implements IComponentGenerator
 {
-	@SuppressWarnings("SpellCheckingInspection")
-	private static final String CHAR_LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
-	private static final String CHAR_UPPERCASE = CHAR_LOWERCASE.toUpperCase();
-	private static final String DIGIT = "0123456789";
-	private static final String PUNCTUATION = "+.,?!()=";
-
 	@VisibleForTesting
 	static final String PARAM_TOTAL_LENGTH = "totalLength";
 	@VisibleForTesting
@@ -72,8 +57,6 @@ public class PasswordGenerator implements IComponentGenerator
 			.parameter(PARAM_GROUP_SEPARATOR, "-")
 			.parameter(PARAM_GROUP_SIZE, "4")
 			.build();
-
-	private final Random random = new Random();
 
 	@Override
 	public ImmutableAttributeSet generate(@NonNull final ComponentGeneratorContext context)
@@ -117,84 +100,15 @@ public class PasswordGenerator implements IComponentGenerator
 			final boolean useDigit,
 			final boolean usePunctuation,
 			final String groupSeparator,
-			final int groupSize
-	)
+			final int groupSize)
 	{
-		if ((totalLength < 1))
-		{
-			throw new AdempiereException("Password length must be > 0");
-		}
-
-		String FILL_CHARACTERS = "";
-		final StringBuilder result = new StringBuilder(totalLength);
-
-		if (useLowercase)
-		{
-			// guaranteed 2 chars (lowercase)
-			result.append(generateRandomString(CHAR_LOWERCASE, 2));
-
-			FILL_CHARACTERS += CHAR_LOWERCASE;
-		}
-
-		if (useUppercase)
-		{
-			// guaranteed 2 chars (uppercase)
-			result.append(generateRandomString(CHAR_UPPERCASE, 2));
-
-			FILL_CHARACTERS += CHAR_UPPERCASE;
-		}
-
-		if (useDigit)
-		{
-			// guaranteed 2 digits
-			result.append(generateRandomString(DIGIT, 2));
-
-			FILL_CHARACTERS += DIGIT;
-		}
-
-		if (usePunctuation)
-		{
-			// guaranteed 2 punctuation
-			result.append(generateRandomString(PUNCTUATION, 2));
-
-			// don't fill with punctuation
-			// FILL_CHARACTERS += PUNCTUATION;
-		}
-
-		{
-			// remaining until length: random
-			result.append(generateRandomString(FILL_CHARACTERS, totalLength - result.length()));
-		}
-
-		final String shuffledString = shuffleString(result.toString());
-
-		return StringUtils.insertSeparatorEveryNCharacters(shuffledString, groupSeparator, groupSize).substring(0, totalLength);
-	}
-
-	@NonNull
-	private String generateRandomString(@NonNull final String input, final int size)
-	{
-		if (size < 1)
-		{
-			return "";
-		}
-
-		final StringBuilder result = new StringBuilder(size);
-		for (int i = 0; i < size; i++)
-		{
-			// produce a random order
-			final int index = random.nextInt(input.length());
-			result.append(input.charAt(index));
-		}
-		return result.toString();
-	}
-
-	@NonNull
-	private static String shuffleString(@NonNull final String input)
-	{
-		final List<String> result = Arrays.asList(input.split(""));
-		Collections.shuffle(result);
-
-		return String.join("", result);
+		return StringUtils.newPasswordGenerator(totalLength)
+				.useLowercase(useLowercase)
+				.useUppercase(useUppercase)
+				.useDigit(useDigit)
+				.usePunctuation(usePunctuation)
+				.groupSize(groupSize)
+				.groupSeparator(groupSeparator)
+				.generate();
 	}
 }

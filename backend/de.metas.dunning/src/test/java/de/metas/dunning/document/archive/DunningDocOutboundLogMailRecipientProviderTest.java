@@ -119,7 +119,7 @@ public class DunningDocOutboundLogMailRecipientProviderTest
 		final I_AD_User bPartnerUserRecord = newInstance(I_AD_User.class);
 		bPartnerUserRecord.setName("bPartnerUserRecord");
 		bPartnerUserRecord.setEMail("bPartnerUserRecord.EMail");
-		bPartnerUserRecord.setC_BPartner(bPartnerRecord);
+		bPartnerUserRecord.setC_BPartner_ID(bPartnerRecord.getC_BPartner_ID());
 		saveRecord(bPartnerUserRecord);
 
 		final I_C_Invoice invoiceRecord1 = createInvoiceRecord(invoiceUserRecord);
@@ -151,7 +151,7 @@ public class DunningDocOutboundLogMailRecipientProviderTest
 		final I_AD_User userRecord = newInstance(I_AD_User.class);
 		userRecord.setName("userRecord");
 		userRecord.setEMail(eMail);
-		userRecord.setC_BPartner(bPartnerRecord);
+		userRecord.setC_BPartner_ID(bPartnerRecord.getC_BPartner_ID());
 		saveRecord(userRecord);
 		return userRecord;
 	}

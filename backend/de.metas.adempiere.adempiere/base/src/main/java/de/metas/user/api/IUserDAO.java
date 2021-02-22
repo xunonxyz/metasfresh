@@ -47,8 +47,7 @@ public interface IUserDAO extends ISingletonService
 
 	I_AD_User getByPasswordResetCode(String passwordResetCode);
 
-	List<I_AD_User> retrieveUsersSubstitudedBy(Properties ctx, int adUserId, Timestamp date, String trxName);
-
+	@Nullable
 	I_AD_User retrieveUserOrNull(Properties ctx, int adUserId);
 
 	/**
@@ -71,6 +70,8 @@ public interface IUserDAO extends ISingletonService
 
 	I_AD_User getByIdInTrx(int adUserId);
 
+	void save(org.compiere.model.I_AD_User user);
+
 	/**
 	 * @return user's full name or <code>?</code> if no found
 	 */
@@ -78,6 +79,7 @@ public interface IUserDAO extends ISingletonService
 
 	String retrieveUserFullname(UserId userId);
 
+	@Nullable
 	UserId retrieveUserIdByEMail(String email, ClientId adClientId);
 
 	/**
@@ -87,6 +89,7 @@ public interface IUserDAO extends ISingletonService
 
 	boolean isSystemUser(UserId userId);
 
+	@Nullable
 	BPartnerId getBPartnerIdByUserId(final UserId userId);
 
 	Set<UserId> getUserIdsByBPartnerId(BPartnerId bpartnerId);

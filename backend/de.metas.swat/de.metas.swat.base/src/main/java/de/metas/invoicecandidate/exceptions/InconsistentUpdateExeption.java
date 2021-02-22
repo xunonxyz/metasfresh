@@ -24,9 +24,12 @@ package de.metas.invoicecandidate.exceptions;
 
 import java.util.Properties;
 
+import de.metas.bpartner.service.IBPartnerDAO;
+import de.metas.util.Services;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.model.InterfaceWrapperHelper;
 import org.compiere.model.I_AD_User;
+import org.compiere.model.I_C_BPartner;
 import org.compiere.util.Env;
 
 import de.metas.i18n.AdMessageKey;
@@ -70,7 +73,9 @@ public class InconsistentUpdateExeption extends AdempiereException
 		String lang = null;
 		if (userToNotify.getC_BPartner_ID() > 0)
 		{
-			lang = userToNotify.getC_BPartner().getAD_Language();
+			final IBPartnerDAO bpartnerDAO = Services.get(IBPartnerDAO.class);
+			final I_C_BPartner bpartner = bpartnerDAO.getById(userToNotify.getC_BPartner_ID());
+			lang = bpartner.getAD_Language();
 		}
 		if (lang == null)
 		{

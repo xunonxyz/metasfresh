@@ -50,9 +50,12 @@ import lombok.NonNull;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, isGetterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE)
 public final class EMailAddress
 {
+	@Nullable
 	public static EMailAddress ofNullableString(@Nullable final String emailStr)
 	{
-		return !Check.isEmpty(emailStr, true) ? new EMailAddress(emailStr) : null;
+		return emailStr != null && !Check.isBlank(emailStr)
+				? new EMailAddress(emailStr)
+				: null;
 	}
 
 	@JsonCreator
@@ -61,9 +64,9 @@ public final class EMailAddress
 		return new EMailAddress(emailStr);
 	}
 
-	public static List<EMailAddress> ofSemicolonSeparatedList(final String emailsListStr)
+	public static List<EMailAddress> ofSemicolonSeparatedList(@Nullable final String emailsListStr)
 	{
-		if (Check.isEmpty(emailsListStr, true))
+		if (emailsListStr == null || Check.isBlank(emailsListStr))
 		{
 			return ImmutableList.of();
 		}
@@ -78,6 +81,7 @@ public final class EMailAddress
 				.collect(ImmutableList.toImmutableList());
 	}
 
+	@Nullable
 	public static ITranslatableString checkEMailValid(@Nullable final EMailAddress email)
 	{
 		if (email == null)
@@ -87,9 +91,10 @@ public final class EMailAddress
 		return checkEMailValid(email.getAsString());
 	}
 
+	@Nullable
 	public static ITranslatableString checkEMailValid(@Nullable final String email)
 	{
-		if (Check.isEmpty(email, true))
+		if (email == null || Check.isBlank(email))
 		{
 			return TranslatableStrings.constant("no email");
 		}
@@ -105,7 +110,7 @@ public final class EMailAddress
 
 			return null; // OK
 		}
-		catch (AddressException ex)
+		catch (final AddressException ex)
 		{
 			logger.warn("Invalid email address: {}", email, ex);
 			return TranslatableStrings.constant(ex.getLocalizedMessage());
@@ -131,6 +136,7 @@ public final class EMailAddress
 		return emailStr;
 	}
 
+	@Nullable
 	public static String toStringOrNull(@Nullable final EMailAddress emailAddress)
 	{
 		return emailAddress != null ? emailAddress.getAsString() : null;

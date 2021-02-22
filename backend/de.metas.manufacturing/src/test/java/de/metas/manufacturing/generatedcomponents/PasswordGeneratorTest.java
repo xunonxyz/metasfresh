@@ -205,7 +205,7 @@ class PasswordGeneratorTest
 			InterfaceWrapperHelper.save(param);
 		}
 
-	private 	void mkAttribute(final AttributeCode attributeCode)
+	private void mkAttribute(final AttributeCode attributeCode)
 		{
 			final I_M_Attribute po = InterfaceWrapperHelper.newInstance(I_M_Attribute.class);
 			po.setName(attributeCode.getCode());

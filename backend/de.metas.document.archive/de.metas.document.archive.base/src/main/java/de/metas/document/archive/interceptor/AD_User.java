@@ -1,5 +1,7 @@
 package de.metas.document.archive.interceptor;
 
+import de.metas.bpartner.BPartnerId;
+import de.metas.bpartner.service.IBPartnerDAO;
 import org.adempiere.ad.modelvalidator.annotations.Interceptor;
 import org.adempiere.ad.modelvalidator.annotations.ModelChange;
 import org.adempiere.ad.table.api.IADTableDAO;
@@ -27,8 +29,11 @@ class AD_User
 	@ModelChange(timings = { ModelValidator.TYPE_AFTER_NEW, ModelValidator.TYPE_AFTER_CHANGE }, ifColumnsChanged = { I_AD_User.COLUMNNAME_IsInvoiceEmailEnabled, I_AD_User.COLUMNNAME_C_BPartner_ID })
 	public void updateFlag(final I_AD_User user)
 	{
-		final I_C_BPartner bpartner = InterfaceWrapperHelper.create(user.getC_BPartner(), I_C_BPartner.class);
-		final boolean isInvoiceEmailEnabled = Services.get(IBPartnerBL.class).isInvoiceEmailEnabled(bpartner, user);
+		final IBPartnerBL bpartnerBL = Services.get(IBPartnerBL.class);
+		final IBPartnerDAO bpartnerDAO = Services.get(IBPartnerDAO.class);
+		final BPartnerId bpartnerId = BPartnerId.ofRepoIdOrNull(user.getC_BPartner_ID());
+		final I_C_BPartner bpartner = bpartnerId != null ? bpartnerDAO.getById(bpartnerId, I_C_BPartner.class) : null;
+		final boolean isInvoiceEmailEnabled = bpartnerBL.isInvoiceEmailEnabled(bpartner, user);
 
 		//
 		// retrieve latest log
@@ -38,7 +43,7 @@ class AD_User
 
 		final I_C_Doc_Outbound_Log docOutboundLogRecord = docOutboundDAO.retrieveLog(
 				PlainContextAware.newOutOfTrx(),
-				user.getC_BPartner_ID(),
+				BPartnerId.toRepoId(bpartnerId),
 				AD_Table_ID);
 		if (docOutboundLogRecord == null)
 		{

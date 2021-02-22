@@ -7,6 +7,8 @@ import de.metas.document.archive.model.I_AD_User;
 import de.metas.document.archive.model.I_C_BPartner;
 import de.metas.util.ISingletonService;
 
+import javax.annotation.Nullable;
+
 /*
  * #%L
  * de.metas.document.archive.base
@@ -40,9 +42,6 @@ public interface IBPartnerBL extends ISingletonService
 	 * The priority is: check first partner, than user<br>
 	 * flag <code>IsInvoiceEmailEnabled</code> is a list with values : empty, Yes, No <br>
 	 * If  the flag <code>IsInvoiceEmailEnabled</code> is empty, this will return TRUE
-	 * @param bpartner
-	 * @param user
-	 * @return
 	 */
-	boolean isInvoiceEmailEnabled(final I_C_BPartner bpartner, final I_AD_User user);
+	boolean isInvoiceEmailEnabled(@Nullable final I_C_BPartner bpartner, final I_AD_User user);
 }

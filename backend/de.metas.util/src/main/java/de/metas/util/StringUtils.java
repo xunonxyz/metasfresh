@@ -54,7 +54,7 @@ public final class StringUtils
 	@Nullable
 	public static IPair<String, String> splitStreetAndHouseNumberOrNull(@Nullable final String streetAndNumber)
 	{
-		if (EmptyUtil.isBlank(streetAndNumber))
+		if (streetAndNumber == null || EmptyUtil.isBlank(streetAndNumber))
 		{
 			return null;
 		}
@@ -102,10 +102,11 @@ public final class StringUtils
 	 */
 	public static ImmutableList<Integer> tokenizeStringToIntegers(@Nullable final String str)
 	{
-		if (Check.isBlank(str))
+		if (str == null || Check.isBlank(str))
 		{
 			return ImmutableList.of();
 		}
+
 		final ImmutableList.Builder<Integer> result = ImmutableList.builder();
 		final String[] integerStrings = str.split("[^0-9]");
 		for (final String integerString : integerStrings)
@@ -168,7 +169,7 @@ public final class StringUtils
 	 */
 	public static int toIntegerOrZero(final String str)
 	{
-		if (Check.isEmpty(str, true))
+		if (Check.isBlank(str))
 		{
 			return 0;
 		}
@@ -218,7 +219,7 @@ public final class StringUtils
 	@Nullable
 	public static Boolean toBooleanOrNull(@Nullable final String strBoolean)
 	{
-		if (Check.isEmpty(strBoolean, true))
+		if (strBoolean == null || Check.isBlank(strBoolean))
 		{
 			return null;
 		}
@@ -296,6 +297,7 @@ public final class StringUtils
 	public static boolean toBoolean(final Object value)
 	{
 		final Boolean defaultValue = Boolean.FALSE;
+		//noinspection ConstantConditions
 		return toBoolean(value, defaultValue);
 	}
 
@@ -393,10 +395,7 @@ public final class StringUtils
 			catch (final Exception e)
 			{
 				// In case message formating failed, we have a fallback format to use
-				messageFormated = new StringBuilder()
-						.append(message)
-						.append(" (").append(Arrays.toString(params)).append(")")
-						.toString();
+				messageFormated = message + " (" + Arrays.toString(params) + ")";
 			}
 		}
 		else
@@ -406,7 +405,6 @@ public final class StringUtils
 		return messageFormated;
 	}
 
-	@SafeVarargs
 	@Nullable
 	private static Object[] invokeSuppliers(final Object... params)
 	{
@@ -628,32 +626,6 @@ public final class StringUtils
 	}
 
 	/**
-	 * Fetch only the text from a given string <br>
-	 * E.g. text= '9000 St. Gallen'<br>
-	 * This method will return test St. Gallen
-	 *
-	 * @return string which contains all letters not digits, or null if text is null
-	 */
-	@Nullable
-	public static String stripDigits(final String text)
-	{
-		if (text == null)
-		{
-			return null;
-		}
-		final char[] inArray = text.toCharArray();
-		final StringBuilder out = new StringBuilder(inArray.length);
-		for (final char ch : inArray)
-		{
-			if (Character.isLetter(ch) || !Character.isDigit(ch))
-			{
-				out.append(ch);
-			}
-		}
-		return out.toString();
-	}
-
-	/**
 	 * Clean - Remove all white spaces
 	 *
 	 * @param in in
@@ -749,6 +721,7 @@ public final class StringUtils
 	 * @return masked content
 	 * @see #maskHTML(String, boolean)
 	 */
+	@Nullable
 	public static String maskHTML(final String content)
 	{
 		return maskHTML(content, false);
@@ -823,7 +796,7 @@ public final class StringUtils
 	 * @param countChar to be counted character
 	 * @return number of occurances
 	 */
-	public static int getCount(String string, char countChar)
+	public static int getCount(final String string, final char countChar)
 	{
 		if (string == null || string.length() == 0)
 		{
@@ -848,7 +821,7 @@ public final class StringUtils
 	 * @param search search character
 	 * @return index or -1 if not found
 	 */
-	public static int findIndexOf(String str, char search)
+	public static int findIndexOf(final String str, final char search)
 	{
 		return findIndexOf(str, search, search);
 	}   // findIndexOf
@@ -861,7 +834,7 @@ public final class StringUtils
 	 * @param search2 second search character (or)
 	 * @return index or -1 if not found
 	 */
-	public static int findIndexOf(String str, char search1, char search2)
+	public static int findIndexOf(final String str, final char search1, final char search2)
 	{
 		if (str == null)
 		{
@@ -905,7 +878,7 @@ public final class StringUtils
 	 * @param search search character
 	 * @return index or -1 if not found
 	 */
-	public static int findIndexOf(String str, String search)
+	public static int findIndexOf(final String str, final String search)
 	{
 		if (str == null || search == null || search.length() == 0)
 		{
@@ -951,9 +924,9 @@ public final class StringUtils
 	 * @param b byte
 	 * @return Hex
 	 */
-	static public String toHex(byte b)
+	static public String toHex(final byte b)
 	{
-		final char hexDigit[] = {
+		final char[] hexDigit = {
 				'0', '1', '2', '3', '4', '5', '6', '7',
 				'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 		};
@@ -962,57 +935,9 @@ public final class StringUtils
 	}
 
 	/**
-	 * Return Hex String representation of char c
-	 *
-	 * @param c character
-	 * @return Hex
-	 */
-	static public String toHex(char c)
-	{
-		final byte hi = (byte)(c >>> 8);
-		final byte lo = (byte)(c & 0xff);
-		return toHex(hi) + toHex(lo);
-	}   // toHex
-
-	/**************************************************************************
-	 * Init Cap Words With Spaces
-	 *
-	 * @param in string
-	 * @return init cap
-	 */
-	public static String initCap(String in)
-	{
-		if (in == null || in.length() == 0)
-		{
-			return in;
-		}
-		//
-		boolean capitalize = true;
-		final char[] data = in.toCharArray();
-		for (int i = 0; i < data.length; i++)
-		{
-			if (data[i] == ' ' || Character.isWhitespace(data[i]))
-			{
-				capitalize = true;
-			}
-			else if (capitalize)
-			{
-				data[i] = Character.toUpperCase(data[i]);
-				capitalize = false;
-			}
-			else
-			{
-				data[i] = Character.toLowerCase(data[i]);
-			}
-		}
-		return new String(data);
-	}    // initCap
-
-	/**
 	 * @param in input {@link String}
 	 * @return {@param in} if != null, empty string otherwise
 	 */
-	@Nullable
 	public static String nullToEmpty(@Nullable final String in)
 	{
 		return in != null ? in : "";
@@ -1052,5 +977,10 @@ public final class StringUtils
 			insertPosition += groupSize + groupSeparator.length();
 		}
 		return result.toString();
+	}
+
+	public static PasswordGenerator.PasswordGeneratorBuilder newPasswordGenerator(final int totalLength)
+	{
+		return PasswordGenerator.builder(totalLength);
 	}
 }
