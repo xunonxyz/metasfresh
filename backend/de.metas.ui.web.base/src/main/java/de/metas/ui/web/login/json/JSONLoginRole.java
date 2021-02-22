@@ -45,13 +45,14 @@ public class JSONLoginRole
 			final String caption,
 			final int roleId,
 			final int tenantId,
-			final int orgId)
+			final int orgId,
+			final String key)
 	{
 		this.caption = caption;
 		this.roleId = roleId;
 		this.tenantId = tenantId;
 		this.orgId = orgId;
-		this.key = roleId + "_" + tenantId + "_" + orgId;
+		this.key = key != null ? key : roleId + "_" + tenantId + "_" + orgId;
 	}
 
 	@JsonPOJOBuilder(withPrefix = "")
