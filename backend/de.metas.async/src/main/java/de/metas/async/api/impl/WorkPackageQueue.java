@@ -22,30 +22,6 @@ package de.metas.async.api.impl;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
-
-import de.metas.common.util.time.SystemTime;
-import org.adempiere.ad.trx.api.ITrx;
-import org.adempiere.ad.trx.api.ITrxListenerManager;
-import org.adempiere.ad.trx.api.ITrxListenerManager.TrxEventTiming;
-import org.adempiere.ad.trx.api.ITrxManager;
-import org.adempiere.ad.trx.api.OnTrxMissingPolicy;
-import org.adempiere.exceptions.AdempiereException;
-import org.adempiere.model.InterfaceWrapperHelper;
-import org.adempiere.service.ClientId;
-import org.adempiere.service.ISysConfigBL;
-import org.adempiere.util.lang.impl.TableRecordReference;
-import org.compiere.model.IQuery;
-import org.compiere.util.Env;
-import org.slf4j.Logger;
-import org.slf4j.MDC.MDCCloseable;
-
 import de.metas.async.AsyncBatchId;
 import de.metas.async.Async_Constants;
 import de.metas.async.api.IAsyncBatchBL;
@@ -68,6 +44,7 @@ import de.metas.async.processor.NullQueueProcessorListener;
 import de.metas.async.processor.impl.SyncQueueProcessorListener;
 import de.metas.async.spi.IWorkpackagePrioStrategy;
 import de.metas.async.spi.NullWorkpackagePrio;
+import de.metas.common.util.time.SystemTime;
 import de.metas.lock.api.ILockManager;
 import de.metas.lock.exceptions.UnlockFailedException;
 import de.metas.logging.LogManager;
@@ -80,6 +57,29 @@ import de.metas.user.UserId;
 import de.metas.util.Check;
 import de.metas.util.Services;
 import lombok.NonNull;
+import org.adempiere.ad.trx.api.ITrx;
+import org.adempiere.ad.trx.api.ITrxListenerManager;
+import org.adempiere.ad.trx.api.ITrxListenerManager.TrxEventTiming;
+import org.adempiere.ad.trx.api.ITrxManager;
+import org.adempiere.ad.trx.api.OnTrxMissingPolicy;
+import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.model.InterfaceWrapperHelper;
+import org.adempiere.service.ClientId;
+import org.adempiere.service.ISysConfigBL;
+import org.adempiere.util.lang.impl.TableRecordReference;
+import org.compiere.model.IQuery;
+import org.compiere.util.Env;
+import org.slf4j.Logger;
+import org.slf4j.MDC.MDCCloseable;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WorkPackageQueue implements IWorkPackageQueue
 {
@@ -103,7 +103,7 @@ public class WorkPackageQueue implements IWorkPackageQueue
 	private final int enquingPackageProcessorId;
 
 	/**
-	 * @task http://dewiki908/mediawiki/index.php/09049_Priorit%C3%A4ten_Strategie_asynch_%28105016248827%29
+	 * Task http://dewiki908/mediawiki/index.php/09049_Priorit%C3%A4ten_Strategie_asynch_%28105016248827%29
 	 */
 	private final String enquingPackageProcessorInternalName;
 
@@ -118,8 +118,8 @@ public class WorkPackageQueue implements IWorkPackageQueue
 
 	private WorkPackageQueue(@NonNull final Properties ctx,
 			@NonNull final List<Integer> packageProcessorIds,
-			final String enquingPackageProcessorInternalName,
-			final String priorityFrom,
+			@Nullable final String enquingPackageProcessorInternalName,
+			@Nullable final String priorityFrom,
 			final boolean forEnqueing)
 	{
 		Check.assume(!packageProcessorIds.isEmpty(), "packageProcessorIds not empty");
@@ -211,13 +211,14 @@ public class WorkPackageQueue implements IWorkPackageQueue
 		}
 	}
 
+	@Nullable
 	private I_C_Queue_WorkPackage pollAndLock0(final long timeoutMillis)
 	{
 		final Properties workPackageCtx = Env.newTemporaryCtx();
 
 		final IQuery<I_C_Queue_WorkPackage> query = createQuery(workPackageCtx);
 
-		final long startTS = de.metas.common.util.time.SystemTime.millis();
+		final long startTS = SystemTime.millis();
 		I_C_Queue_WorkPackage workPackage = retrieveAndLock(query);
 		if (timeoutMillis == TIMEOUT_OneTimeOnly && workPackage == null)
 		{
@@ -321,7 +322,7 @@ public class WorkPackageQueue implements IWorkPackageQueue
 							orgId,
 							userId,
 							Env.getLocalDate(workPackageCtx))
-					.orNull();
+					.orElse(null);
 			roleId = role == null ? null : role.getRoleId();
 		}
 		Env.setContext(workPackageCtx, Env.CTXNAME_AD_Role_ID, RoleId.toRepoId(roleId, Env.CTXVALUE_AD_Role_ID_NONE));

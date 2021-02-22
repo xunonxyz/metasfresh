@@ -22,6 +22,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
 
+import javax.annotation.Nullable;
+
 /*
  * #%L
  * de.metas.adempiere.adempiere.base
@@ -44,7 +46,6 @@ import lombok.ToString;
  * #L%
  */
 
-@SuppressWarnings("serial")
 @EqualsAndHashCode
 @ToString(exclude = "_permissionsKeyStr")
 public final class UserRolePermissionsKey implements Serializable
@@ -52,7 +53,7 @@ public final class UserRolePermissionsKey implements Serializable
 	public static UserRolePermissionsKey of(
 			final RoleId adRoleId,
 			final UserId adUserId,
-			final ClientId adClientId,
+			@Nullable final ClientId adClientId,
 			final LocalDate date)
 	{
 		return new UserRolePermissionsKey(adRoleId, adUserId, adClientId, date);
@@ -72,6 +73,7 @@ public final class UserRolePermissionsKey implements Serializable
 		return new UserRolePermissionsKey(roleId, userId, adClientId, date);
 	}
 
+	@Nullable
 	public static UserRolePermissionsKey fromContextOrNull(@NonNull final Properties ctx)
 	{
 		final RoleId roleId = Env.getLoggedRoleId(ctx);
@@ -88,7 +90,6 @@ public final class UserRolePermissionsKey implements Serializable
 
 	/**
 	 * @see #toPermissionsKeyString()
-	 * @see #toPermissionsKeyString(int, int, int, long)
 	 */
 	public static UserRolePermissionsKey fromString(final String permissionsKeyStr)
 	{
@@ -153,7 +154,7 @@ public final class UserRolePermissionsKey implements Serializable
 	private UserRolePermissionsKey(
 			@NonNull final RoleId roleId,
 			@NonNull final UserId userId,
-			final ClientId clientId,
+			@Nullable final ClientId clientId,
 			@NonNull final LocalDate date)
 	{
 		this.roleId = roleId;

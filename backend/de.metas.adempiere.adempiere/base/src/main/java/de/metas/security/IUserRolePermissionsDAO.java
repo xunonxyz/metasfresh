@@ -1,16 +1,5 @@
 package de.metas.security;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Predicate;
-
-import org.adempiere.service.ClientId;
-import org.compiere.model.I_AD_Role;
-import org.compiere.model.I_AD_Role_OrgAccess;
-
-import com.google.common.base.Optional;
-
 import de.metas.organization.OrgId;
 import de.metas.security.impl.RolePermissionsNotFoundException;
 import de.metas.security.requests.CreateDocActionAccessRequest;
@@ -29,6 +18,16 @@ import de.metas.security.requests.RemoveWindowAccessRequest;
 import de.metas.security.requests.RemoveWorkflowAccessRequest;
 import de.metas.user.UserId;
 import de.metas.util.ISingletonService;
+import org.adempiere.service.ClientId;
+import org.compiere.model.I_AD_Role;
+import org.compiere.model.I_AD_Role_OrgAccess;
+
+import javax.annotation.Nullable;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * {@link IUserRolePermissions} retrieval DAO.
@@ -65,14 +64,14 @@ public interface IUserRolePermissionsDAO extends ISingletonService
 	/**
 	 * Retrieves user/role permissions.
 	 *
-	 * @param adRoleId
-	 * @param adUserId
-	 * @param adClientId
 	 * @param date date when permissions shall be effective
-	 * @return user/role permissions
 	 * @throws RolePermissionsNotFoundException if permissions could not be loaded
 	 */
-	IUserRolePermissions getUserRolePermissions(RoleId adRoleId, UserId adUserId, ClientId adClientId, LocalDate date);
+	IUserRolePermissions getUserRolePermissions(
+			RoleId adRoleId,
+			UserId adUserId,
+			@Nullable ClientId adClientId,
+			LocalDate date);
 
 	IUserRolePermissions getUserRolePermissions(UserRolePermissionsKey key);
 

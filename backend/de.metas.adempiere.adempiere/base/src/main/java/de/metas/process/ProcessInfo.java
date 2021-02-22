@@ -59,6 +59,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -861,7 +862,7 @@ public final class ProcessInfo implements Serializable
 								adOrgId,
 								adUserId,
 								Env.getLocalDate(processCtx))
-						.orNull();
+						.orElse(null);
 				adRoleId = role == null ? null : role.getRoleId();
 			}
 			Env.setContext(processCtx, Env.CTXNAME_AD_Role_ID, RoleId.toRepoId(adRoleId, Env.CTXVALUE_AD_Role_ID_NONE));
@@ -1078,7 +1079,7 @@ public final class ProcessInfo implements Serializable
 			return adProcessId;
 		}
 
-		public ProcessInfoBuilder setAD_Process(final org.compiere.model.I_AD_Process adProcess)
+		public ProcessInfoBuilder setAD_Process(final I_AD_Process adProcess)
 		{
 			this._adProcess = InterfaceWrapperHelper.create(adProcess, I_AD_Process.class);
 
@@ -1650,7 +1651,7 @@ public final class ProcessInfo implements Serializable
 			return this;
 		}
 
-		public ProcessInfoBuilder addParameter(final String parameterName, final java.util.Date parameterValue)
+		public ProcessInfoBuilder addParameter(final String parameterName, final Date parameterValue)
 		{
 			addParameter(ProcessInfoParameter.of(parameterName, parameterValue));
 			return this;

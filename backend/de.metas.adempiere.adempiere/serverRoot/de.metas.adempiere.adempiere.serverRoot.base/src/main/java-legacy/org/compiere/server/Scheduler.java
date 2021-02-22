@@ -80,6 +80,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -343,7 +344,7 @@ public class Scheduler extends AdempiereServer
 							orgId,
 							adUserId,
 							Env.getLocalDate(schedulerCtx))
-					.orNull();
+					.orElse(null);
 
 			// gh #2092: without a role, we won't be able to run the process, because ProcessExecutor.assertPermissions() will fail.
 			Check.errorIf(role == null,
@@ -604,9 +605,9 @@ public class Scheduler extends AdempiereServer
 			else if (DisplayType.isDate(displayType))
 			{
 				final Timestamp ts;
-				if (value instanceof java.util.Date)
+				if (value instanceof Date)
 				{
-					ts = TimeUtil.asTimestamp((java.util.Date)value);
+					ts = TimeUtil.asTimestamp((Date)value);
 				}
 				else
 				{

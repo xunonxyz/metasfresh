@@ -15,6 +15,8 @@ import de.metas.security.RoleId;
 import de.metas.security.TableAccessLevel;
 import de.metas.user.UserId;
 
+import javax.annotation.Nullable;
+
 /*
  * #%L
  * de.metas.adempiere.adempiere.base
@@ -62,7 +64,7 @@ public class LoginContext
 		_ctx = ctx;
 	}
 
-	private final Properties getCtx()
+	private Properties getCtx()
 	{
 		return _ctx;
 	}
@@ -72,7 +74,7 @@ public class LoginContext
 		return getCtx();
 	}
 
-	public void setProperty(final String name, final String value)
+	public void setProperty(final String name, @Nullable final String value)
 	{
 		Env.setContext(getCtx(), name, value);
 	}
@@ -87,13 +89,13 @@ public class LoginContext
 		Env.setContext(getCtx(), name, valueInt);
 	}
 
-	private final int getMandatoryPropertyAsInt(final String name)
+	private int getMandatoryPropertyAsInt(final String name)
 	{
 		return getOptionalPropertyAsInt(name)
 				.orElseThrow(() -> new UnsupportedOperationException("Missing Context: " + name));
 	}
 
-	private final Optional<Integer> getOptionalPropertyAsInt(final String name)
+	private Optional<Integer> getOptionalPropertyAsInt(final String name)
 	{
 		final Properties ctx = getCtx();
 		if (Env.getContext(ctx, name).length() == 0)   	// could be number 0
@@ -109,16 +111,19 @@ public class LoginContext
 		return Env.getContextAsInt(getCtx(), name);
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void setProperty(final String name, final LocalDate valueDate)
 	{
 		Env.setContext(getCtx(), name, TimeUtil.asDate(valueDate));
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private LocalDate getPropertyAsLocalDate(final String name)
 	{
 		return TimeUtil.asLocalDate(Env.getContextAsDate(getCtx(), name));
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private boolean getPropertyAsBoolean(final String name)
 	{
 		return DisplayType.toBoolean(Env.getContext(getCtx(), name));
@@ -247,6 +252,7 @@ public class LoginContext
 		Ini.setProperty(Ini.P_WAREHOUSE, warehouseName);
 	}
 
+	@Nullable
 	public WarehouseId getWarehouseId()
 	{
 		return WarehouseId.ofRepoIdOrNull(getPropertyAsInt(Env.CTXNAME_M_Warehouse_ID));
@@ -266,6 +272,7 @@ public class LoginContext
 		setProperty("$HasAlias", acctSchema.getValidCombinationOptions().isUseAccountAlias());
 	}
 
+	@Nullable
 	public AcctSchemaId getAcctSchemaId()
 	{
 		return AcctSchemaId.ofRepoIdOrNull(getPropertyAsInt("$C_AcctSchema_ID"));

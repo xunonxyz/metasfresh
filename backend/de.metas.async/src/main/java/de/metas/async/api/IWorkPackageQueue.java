@@ -42,6 +42,8 @@ import de.metas.async.spi.IWorkpackageProcessor;
 import de.metas.async.spi.impl.SizeBasedWorkpackagePrio;
 import de.metas.lock.exceptions.UnlockFailedException;
 
+import javax.annotation.Nullable;
+
 /**
  * Use {@link IWorkPackageQueueFactory} to get an instance.
  *
@@ -84,6 +86,7 @@ public interface IWorkPackageQueue
 	 * @return {@link I_C_Queue_WorkPackage} or <code>null</code> if there either is no package or the calling process is too slow (compared with other concurrent processes also looking for work with
 	 *         the same adProcessId) to select and then lock an available package after *many* tries.
 	 */
+	@Nullable
 	I_C_Queue_WorkPackage pollAndLock(long timeoutMillis);
 
 	/**

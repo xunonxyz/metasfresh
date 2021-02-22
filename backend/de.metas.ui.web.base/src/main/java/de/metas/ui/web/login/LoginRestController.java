@@ -6,10 +6,8 @@ import de.metas.error.AdIssueId;
 import de.metas.error.IErrorManager;
 import de.metas.i18n.AdMessageKey;
 import de.metas.i18n.ILanguageBL;
-import de.metas.logging.LogManager;
 import de.metas.organization.OrgId;
 import de.metas.security.RoleId;
-import de.metas.ui.web.session.UserPreference;
 import de.metas.ui.web.config.WebConfig;
 import de.metas.ui.web.login.exceptions.NotAuthenticatedException;
 import de.metas.ui.web.login.json.JSONLoginAuthRequest;
@@ -19,6 +17,7 @@ import de.metas.ui.web.login.json.JSONResetPassword;
 import de.metas.ui.web.login.json.JSONResetPasswordCompleteRequest;
 import de.metas.ui.web.login.json.JSONResetPasswordRequest;
 import de.metas.ui.web.notification.UserNotificationsService;
+import de.metas.ui.web.session.UserPreference;
 import de.metas.ui.web.session.UserSession;
 import de.metas.ui.web.session.UserSessionRepository;
 import de.metas.ui.web.upload.WebuiImageId;
@@ -32,6 +31,7 @@ import de.metas.user.api.IUserDAO;
 import de.metas.util.Check;
 import de.metas.util.Services;
 import de.metas.util.hash.HashableString;
+import lombok.NonNull;
 import org.adempiere.ad.session.ISessionBL;
 import org.adempiere.ad.session.MFSession;
 import org.adempiere.exceptions.AdempiereException;
@@ -43,8 +43,6 @@ import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Login;
 import org.compiere.util.LoginContext;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -89,23 +87,25 @@ public class LoginRestController
 {
 	public static final String ENDPOINT = WebConfig.ENDPOINT_ROOT + "/login";
 
-	private final static transient Logger logger = LogManager.getLogger(LoginRestController.class);
-
 	private final static AdMessageKey MSG_UserLoginInternalError = AdMessageKey.of("UserLoginInternalError");
 
 	private final IErrorManager errorManager = Services.get(IErrorManager.class);
+	private final UserSession userSession;
+	private final UserSessionRepository userSessionRepo;
+	private final UserNotificationsService userNotificationsService;
+	private final WebuiImageService imageService;
 
-	@Autowired
-	private UserSession userSession;
-
-	@Autowired
-	private UserSessionRepository userSessionRepo;
-
-	@Autowired
-	private UserNotificationsService userNotificationsService;
-
-	@Autowired
-	private WebuiImageService imageService;
+	public LoginRestController(
+			@NonNull final UserSession userSession,
+			@NonNull final UserSessionRepository userSessionRepo,
+			@NonNull final UserNotificationsService userNotificationsService,
+			@NonNull final WebuiImageService imageService)
+	{
+		this.userSession = userSession;
+		this.userSessionRepo = userSessionRepo;
+		this.userNotificationsService = userNotificationsService;
+		this.imageService = imageService;
+	}
 
 	private Login getLoginService()
 	{
@@ -119,17 +119,17 @@ public class LoginRestController
 		getLoginService()
 				.getCtx()
 				.getUserIdIfExists()
-				.orElseThrow(() -> new NotAuthenticatedException());
+				.orElseThrow(NotAuthenticatedException::new);
 	}
 
 	@PostMapping("/authenticate")
 	public JSONLoginAuthResponse authenticate(@RequestBody final JSONLoginAuthRequest request)
 	{
-		if (Check.isEmpty(request.getUsername(), true))
+		if (Check.isBlank(request.getUsername()))
 		{
 			throw new FillMandatoryException("Username");
 		}
-		if (Check.isEmpty(request.getPassword(), true))
+		if (Check.isBlank(request.getPassword()))
 		{
 			throw new FillMandatoryException("Password");
 		}
@@ -222,7 +222,7 @@ public class LoginRestController
 		return jsonRoles.build();
 	}
 
-	private static MFSession startMFSession(final Login loginService)
+	private static void startMFSession(final Login loginService)
 	{
 		final HttpServletRequest httpRequest = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
 		final HttpSession httpSess = httpRequest.getSession();
@@ -253,7 +253,6 @@ public class LoginRestController
 		loginService.setRemoteHost(remoteHost);
 		loginService.setWebSession(webSessionId);
 
-		return session;
 	}
 
 	private static void destroyMFSession(final Login loginService)
@@ -304,7 +303,7 @@ public class LoginRestController
 		// Validate login: fires login complete model interceptors
 		{
 			final String msg = loginService.validateLogin(org);
-			if (!Check.isEmpty(msg, true))
+			if (!Check.isBlank(msg))
 			{
 				throw new AdempiereException(msg);
 			}
@@ -313,9 +312,8 @@ public class LoginRestController
 		//
 		// Load preferences
 		{
-			final java.sql.Timestamp date = null;
-			final String msg = loginService.loadPreferences(org, date);
-			if (!Check.isEmpty(msg, true))
+			final String msg = loginService.loadPreferences(org, null);
+			if (!Check.isBlank(msg))
 			{
 				throw new AdempiereException(msg);
 			}
@@ -364,7 +362,7 @@ public class LoginRestController
 	}
 
 	@GetMapping("/logout")
-	public void logout(final HttpServletRequest request)
+	public void logout()
 	{
 		userSession.assertLoggedIn();
 
@@ -397,7 +395,7 @@ public class LoginRestController
 		final I_AD_User user = usersRepo.getByPasswordResetCode(token);
 
 		final String userADLanguage = user.getAD_Language();
-		if (!Check.isEmpty(userADLanguage, true))
+		if (!Check.isBlank(userADLanguage))
 		{
 			userSession.setAD_Language(userADLanguage);
 		}

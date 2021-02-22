@@ -490,7 +490,7 @@ public final class Ini
 	 *              <b>Important:</b> if the given key is included in {@link #PROPERTIES_CLIENT}, but we currently aren't in the client, then the property is set in {@link Env} instead.
 	 * @param value Value
 	 */
-	public static void setProperty(final String key, final String value)
+	public static void setProperty(final String key, @Nullable final String value)
 	{
 		// If it's a client property and we are in server mode, update the context instead of Ini file
 		if (!Ini.isSwingClient() && PROPERTIES_CLIENT.contains(key))
