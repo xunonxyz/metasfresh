@@ -450,7 +450,7 @@ public class LoginRestController
 		{
 			throw new AdempiereException("@Invalid@ @PasswordResetCode@ (2)");
 		}
-		
+
 		final HashableString password = usersService.getUserPassword(user);
 		return authenticate(username, password);
 	}
