@@ -10,14 +10,20 @@ import de.metas.bpartner.service.IBPartnerDAO;
 import de.metas.bpartner.service.IBPartnerOrgBL;
 import de.metas.cache.interceptor.CacheInterceptor;
 import de.metas.currency.CurrencyCode;
-import de.metas.currency.ICurrencyDAO;
+import de.metas.currency.CurrencyRepository;
 import de.metas.location.ILocationBL;
+import de.metas.location.LocationCreateRequest;
+import de.metas.location.LocationId;
 import de.metas.money.CurrencyId;
 import de.metas.organization.IOrgDAO;
 import de.metas.organization.OrgId;
 import de.metas.organization.OrgInfo;
 import de.metas.organization.OrgInfoUpdateRequest;
 import de.metas.pricing.service.IPriceListDAO;
+import de.metas.security.IRoleDAO;
+import de.metas.security.RoleId;
+import de.metas.user.UserId;
+import de.metas.user.api.IUserBL;
 import de.metas.util.Check;
 import de.metas.util.Services;
 import de.metas.util.StringUtils;
@@ -30,6 +36,7 @@ import org.adempiere.model.InterfaceWrapperHelper;
 import org.adempiere.service.ClientId;
 import org.adempiere.service.IClientDAO;
 import org.adempiere.util.lang.IAutoCloseable;
+import org.compiere.SpringContextHolder;
 import org.compiere.model.I_AD_Client;
 import org.compiere.model.I_AD_ClientInfo;
 import org.compiere.model.I_AD_Image;
@@ -44,6 +51,9 @@ import org.compiere.model.X_C_BP_BankAccount;
 import org.compiere.util.Env;
 
 import javax.annotation.Nullable;
+import java.time.ZoneId;
+import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Properties;
 
@@ -99,9 +109,11 @@ public class ClientSetup
 	private final IBPBankAccountDAO bankAccountDAO = Services.get(IBPBankAccountDAO.class);
 	private final ILocationBL locationBL = Services.get(ILocationBL.class);
 	private final IAcctSchemaDAO acctSchemaDAO = Services.get(IAcctSchemaDAO.class);
-	private final ICurrencyDAO currencyDAO = Services.get(ICurrencyDAO.class);
+	private final IRoleDAO roleDAO = Services.get(IRoleDAO.class);
+	private final IUserBL userBL = Services.get(IUserBL.class);
+	private final CurrencyRepository currencyRepository = SpringContextHolder.instance.getBean(CurrencyRepository.class);
 
-	private static final OrgId AD_Org_ID_Main = OrgId.ofRepoId(1000000);
+	public static final OrgId AD_Org_ID_Main = OrgId.ofRepoId(1000000);
 
 	// Parameters
 	private final Properties _ctx;
@@ -115,6 +127,7 @@ public class ClientSetup
 	private final I_C_BP_BankAccount orgBankAccount;
 	private final I_C_AcctSchema acctSchema;
 	private final I_M_PriceList priceList_None;
+	private final LinkedHashSet<RoleId> roleIdsToAssign = new LinkedHashSet<>();
 
 	private ClientSetup(@NonNull final Properties ctx)
 	{
@@ -140,6 +153,7 @@ public class ClientSetup
 				// TODO: create if does not exist
 				throw new AdempiereException("No organization contact defined");
 			}
+			InterfaceWrapperHelper.setThreadInheritedTrxName(orgContact);
 
 			final BPartnerId orgBPartnerId = BPartnerId.ofRepoId(orgBPartner.getC_BPartner_ID());
 			orgBankAccount = bankAccountDAO.retrieveDefaultBankAccountInTrx(orgBPartnerId).orElse(null);
@@ -179,13 +193,18 @@ public class ClientSetup
 		orgBPartnerLocation.setAD_Org_ID(adOrg.getAD_Org_ID()); // FRESH-211
 		InterfaceWrapperHelper.save(orgBPartnerLocation, ITrx.TRXNAME_ThreadInherited);
 
-		InterfaceWrapperHelper.save(orgContact, ITrx.TRXNAME_ThreadInherited);
+		userBL.save(orgContact);
 
 		InterfaceWrapperHelper.save(orgBankAccount, ITrx.TRXNAME_ThreadInherited);
 
 		InterfaceWrapperHelper.save(acctSchema, ITrx.TRXNAME_ThreadInherited);
 
 		InterfaceWrapperHelper.save(priceList_None, ITrx.TRXNAME_ThreadInherited);
+
+		for (final RoleId roleId : roleIdsToAssign)
+		{
+			roleDAO.createUserRoleAssignmentIfMissing(getContactUserId(), roleId);
+		}
 	}
 
 	private void setOtherDefaults()
@@ -261,23 +280,33 @@ public class ClientSetup
 		return orgBPartner.getCompanyName();
 	}
 
-	public ClientSetup setCurrencyId(final CurrencyId currencyId)
+	public ClientSetup setCurrencyId(@Nullable final CurrencyId currencyId)
 	{
 		if (currencyId == null)
 		{
 			return this;
 		}
 
-		final CurrencyId acctCurrencyId = CurrencyId.ofRepoId(acctSchema.getC_Currency_ID());
-		final CurrencyCode acctCurrencyCode = currencyDAO.getCurrencyCodeById(acctCurrencyId);
+		final CurrencyCode currencyCode = currencyRepository.getCurrencyCodeById(currencyId);
 
 		orgBankAccount.setC_Currency_ID(currencyId.getRepoId());
 		acctSchema.setC_Currency_ID(currencyId.getRepoId());
-		acctSchema.setName(acctSchema.getGAAP() + " / " + acctCurrencyCode.toThreeLetterCode());
+		acctSchema.setName(acctSchema.getGAAP() + " / " + currencyCode.toThreeLetterCode());
 
 		priceList_None.setC_Currency_ID(currencyId.getRepoId());
 
 		return this;
+	}
+
+	public ClientSetup setCurrencyId(@Nullable final CurrencyCode currencyCode)
+	{
+		if (currencyCode == null)
+		{
+			return this;
+		}
+
+		final CurrencyId currencyId = currencyRepository.getCurrencyIdByCurrencyCode(currencyCode);
+		return setCurrencyId(currencyId);
 	}
 
 	public int getC_Currency_ID()
@@ -341,7 +370,7 @@ public class ClientSetup
 		return Math.max(locationId, 0);
 	}
 
-	public ClientSetup setCompanyAddress(final I_C_Location companyAddress)
+	public ClientSetup setCompanyAddress(@Nullable final I_C_Location companyAddress)
 	{
 		if (companyAddress == null)
 		{
@@ -358,6 +387,13 @@ public class ClientSetup
 		bpartnerBL.setAddress(orgBPartnerLocation); // update Address string
 
 		return this;
+	}
+
+	public ClientSetup setCompanyAddress(@NonNull final LocationCreateRequest companyAddressCreateRequest)
+	{
+		final LocationId locationId = locationBL.createLocation(companyAddressCreateRequest);
+		final I_C_Location location = locationBL.getById(locationId);
+		return setCompanyAddress(location);
 	}
 
 	public ClientSetup setCompanyAddressByLocationId(final int locationId)
@@ -425,6 +461,15 @@ public class ClientSetup
 		return logo.getAD_Image_ID();
 	}
 
+	public ClientSetup setTimeZone(@Nullable final ZoneId timeZone)
+	{
+		if(timeZone != null)
+		{
+			adOrgInfoChangeRequest.timeZone(Optional.of(timeZone));
+		}
+		return this;
+	}
+
 	public ClientSetup setCompanyTaxID(@Nullable final String companyTaxIDParam)
 	{
 		final String companyTaxID = StringUtils.trimBlankToNull(companyTaxIDParam);
@@ -442,6 +487,12 @@ public class ClientSetup
 		return orgBPartner.getVATaxID();
 	}
 
+	private UserId getContactUserId()
+	{
+		return UserId.ofRepoId(orgContact.getAD_User_ID());
+	}
+
+	@Nullable
 	public String getContactFirstName()
 	{
 		return orgContact.getFirstname();
@@ -456,6 +507,7 @@ public class ClientSetup
 		return this;
 	}
 
+	@Nullable
 	public String getContactLastName()
 	{
 		return orgContact.getLastname();
@@ -467,6 +519,20 @@ public class ClientSetup
 		{
 			orgContact.setLastname(contactLastName.trim());
 		}
+		return this;
+	}
+
+	public ClientSetup setContactIsSystemUserWithPassword(@NonNull final String password)
+	{
+		Check.assumeNotEmpty(password, "password not empty");
+		orgContact.setIsSystemUser(true);
+		userBL.changePasswordNoSave(orgContact, password);
+		return this;
+	}
+
+	public ClientSetup addLoginRole(@NonNull final RoleId roleId)
+	{
+		roleIdsToAssign.add(roleId);
 		return this;
 	}
 
@@ -523,6 +589,7 @@ public class ClientSetup
 		return this;
 	}
 
+	@Nullable
 	public final String getPhone()
 	{
 		return orgContact.getPhone();
@@ -538,6 +605,7 @@ public class ClientSetup
 		return this;
 	}
 
+	@Nullable
 	public final String getFax()
 	{
 		return orgContact.getFax();
@@ -553,6 +621,7 @@ public class ClientSetup
 		return this;
 	}
 
+	@Nullable
 	public final String getEMail()
 	{
 		return orgContact.getEMail();
