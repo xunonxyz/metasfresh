@@ -1,9 +1,10 @@
 package de.metas.ui.web.login.json;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
+import lombok.Value;
 
 /*
  * #%L
@@ -27,36 +28,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * #L%
  */
 
-@SuppressWarnings("serial")
-public class JSONLoginRole implements Serializable
+@Value
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonDeserialize(builder = JSONLoginRole.JSONLoginRoleBuilder.class)
+public class JSONLoginRole
 {
-	@JsonCreator
-	public static final JSONLoginRole of(
-			@JsonProperty("caption") final String caption //
-			, @JsonProperty("roleId") final int roleId //
-			, @JsonProperty("tenantId") final int tenantId //
-			, @JsonProperty("orgId") int orgId //
-	)
-	{
-		return new JSONLoginRole(caption, roleId, tenantId, orgId);
-	}
+	String caption;
+	int roleId;
+	int tenantId;
+	int orgId;
 
-	@JsonProperty("key")
-	private final String key;
+	String key;
 
-	@JsonProperty("caption")
-	private final String caption;
-
-	@JsonProperty("roleId")
-	private final int roleId;
-
-	@JsonProperty("tenantId")
-	private final int tenantId;
-
-	@JsonProperty("orgId")
-	private final int orgId;
-
-	private JSONLoginRole(final String caption, final int roleId, final int tenantId, int orgId)
+	@Builder
+	private JSONLoginRole(
+			final String caption,
+			final int roleId,
+			final int tenantId,
+			final int orgId)
 	{
 		this.caption = caption;
 		this.roleId = roleId;
@@ -65,23 +54,7 @@ public class JSONLoginRole implements Serializable
 		this.key = roleId + "_" + tenantId + "_" + orgId;
 	}
 
-	public String getCaption()
-	{
-		return caption;
-	}
+	@JsonPOJOBuilder(withPrefix = "")
+	public static class JSONLoginRoleBuilder {}
 
-	public int getRoleId()
-	{
-		return roleId;
-	}
-
-	public int getTenantId()
-	{
-		return tenantId;
-	}
-
-	public int getOrgId()
-	{
-		return orgId;
-	}
 }

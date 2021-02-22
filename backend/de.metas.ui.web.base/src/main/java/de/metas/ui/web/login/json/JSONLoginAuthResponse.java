@@ -1,15 +1,15 @@
 package de.metas.ui.web.login.json;
 
-import java.util.Collection;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
-
 import de.metas.util.Check;
 import lombok.Value;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 /*
  * #%L
@@ -37,14 +37,14 @@ import lombok.Value;
 @Value
 public class JSONLoginAuthResponse
 {
-	public static final JSONLoginAuthResponse of(final Collection<JSONLoginRole> roles)
+	public static JSONLoginAuthResponse of(final Collection<JSONLoginRole> roles)
 	{
 		Check.assumeNotEmpty(roles, "roles is not empty");
 		final boolean loginComplete = false;
 		return new JSONLoginAuthResponse(roles, loginComplete);
 	}
 
-	public static final JSONLoginAuthResponse loginComplete(final JSONLoginRole role)
+	public static JSONLoginAuthResponse loginComplete(final JSONLoginRole role)
 	{
 		Check.assumeNotNull(role, "Parameter role is not null");
 		final Set<JSONLoginRole> roles = ImmutableSet.of(role);
@@ -62,5 +62,12 @@ public class JSONLoginAuthResponse
 	{
 		this.roles = ImmutableSet.copyOf(roles);
 		this.loginComplete = loginComplete;
+	}
+
+	public Optional<JSONLoginRole> getFirstByRoleId(final int roleId)
+	{
+		return roles.stream()
+			.filter(role -> role.getRoleId() == roleId)
+			.findFirst();
 	}
 }

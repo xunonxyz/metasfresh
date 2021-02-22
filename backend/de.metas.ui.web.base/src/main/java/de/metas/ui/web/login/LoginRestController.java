@@ -212,8 +212,12 @@ public class LoginRestController
 					}
 
 					final String caption = Joiner.on(", ").join(role.getName(), tenant.getName(), org.getName());
-					final JSONLoginRole jsonRole = JSONLoginRole.of(caption, roleId.getRepoId(), clientId.getRepoId(), orgId.getRepoId());
-					jsonRoles.add(jsonRole);
+					jsonRoles.add(JSONLoginRole.builder()
+							.caption(caption)
+							.roleId(roleId.getRepoId())
+							.tenantId(clientId.getRepoId())
+							.orgId(orgId.getRepoId())
+							.build());
 
 				}
 			}
@@ -395,7 +399,7 @@ public class LoginRestController
 		final I_AD_User user = usersRepo.getByPasswordResetCode(token);
 
 		final String userADLanguage = user.getAD_Language();
-		if (!Check.isBlank(userADLanguage))
+		if (userADLanguage != null && !Check.isBlank(userADLanguage))
 		{
 			userSession.setAD_Language(userADLanguage);
 		}
@@ -442,6 +446,11 @@ public class LoginRestController
 		final I_AD_User user = usersService.resetPassword(token, request.getPassword());
 
 		final String username = user.getEMail();
+		if(username == null || !Check.isBlank(username))
+		{
+			throw new AdempiereException("@Invalid@ @PasswordResetCode@ (2)");
+		}
+		
 		final HashableString password = usersService.getUserPassword(user);
 		return authenticate(username, password);
 	}
