@@ -1,7 +1,9 @@
 package de.metas.organization;
 
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.TimeZone;
 
 import org.adempiere.warehouse.WarehouseId;
 
@@ -32,8 +34,9 @@ import lombok.Value;
  * #L%
  */
 
-@Builder
 @Value
+@Builder
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class OrgInfoUpdateRequest
 {
 	@NonNull
@@ -43,4 +46,5 @@ public class OrgInfoUpdateRequest
 	Optional<BPartnerLocationId> orgBPartnerLocationId;
 	Optional<WarehouseId> warehouseId;
 	OptionalInt logoImageId;
+	Optional<ZoneId> timeZone;
 }

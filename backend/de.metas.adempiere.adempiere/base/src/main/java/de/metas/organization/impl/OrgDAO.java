@@ -117,6 +117,12 @@ public class OrgDAO implements IOrgDAO
 			record.setLogo_ID(request.getLogoImageId().orElse(-1));
 		}
 
+		if (request.getTimeZone() != null)
+		{
+			final ZoneId timeZone = request.getTimeZone().orElse(null);
+			record.setTimeZone(timeZone != null ? timeZone.getId() : null);
+		}
+
 		saveRecord(record);
 
 		return toOrgInfo(record);
@@ -162,8 +168,9 @@ public class OrgDAO implements IOrgDAO
 				: null;
 
 		final UserId supervisorId = InterfaceWrapperHelper.isNull(record, I_AD_OrgInfo.COLUMNNAME_Supervisor_ID) ? null : UserId.ofRepoId(record.getSupervisor_ID());
-		final ZoneId timeZone = !Check.isEmpty(record.getTimeZone())
-				? ZoneId.of(record.getTimeZone().trim())
+		final String timeZoneCode = record.getTimeZone();
+		final ZoneId timeZone = timeZoneCode != null && !Check.isEmpty(timeZoneCode)
+				? ZoneId.of(timeZoneCode.trim())
 				: null;
 
 		return OrgInfo.builder()
