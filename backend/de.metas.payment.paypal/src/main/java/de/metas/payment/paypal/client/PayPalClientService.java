@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import javax.annotation.Nullable;
 
+import com.paypal.http.HttpRequest;
+import com.paypal.http.HttpResponse;
+import com.paypal.http.exceptions.HttpException;
 import org.adempiere.exceptions.AdempiereException;
 import org.springframework.stereotype.Service;
 
-import com.braintreepayments.http.HttpRequest;
-import com.braintreepayments.http.HttpResponse;
-import com.braintreepayments.http.exceptions.HttpException;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.orders.Order;

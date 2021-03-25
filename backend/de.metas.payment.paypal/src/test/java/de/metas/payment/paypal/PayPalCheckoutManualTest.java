@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.paypal.http.HttpRequest;
+import com.paypal.http.HttpResponse;
+import com.paypal.http.exceptions.HttpException;
 import org.adempiere.exceptions.AdempiereException;
 import org.adempiere.test.AdempiereTestHelper;
 
-import com.braintreepayments.http.HttpRequest;
-import com.braintreepayments.http.HttpResponse;
-import com.braintreepayments.http.exceptions.HttpException;
 import com.google.common.collect.ImmutableList;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
@@ -28,7 +28,7 @@ import com.paypal.orders.OrdersAuthorizeRequest;
 import com.paypal.orders.OrdersCreateRequest;
 import com.paypal.orders.OrdersGetRequest;
 import com.paypal.orders.PurchaseUnitRequest;
-import com.paypal.orders.ShippingDetails;
+import com.paypal.orders.ShippingDetail;
 import com.paypal.payments.AuthorizationsCaptureRequest;
 import com.paypal.payments.Capture;
 import com.paypal.payments.CaptureRequest;
@@ -234,7 +234,7 @@ public class PayPalCheckoutManualTest
 		final String orderApproveCallbackUrl = config.getOrderApproveCallbackUrl("http://example.com");
 		
 		final OrderRequest orderRequest = new OrderRequest();
-		orderRequest.intent("AUTHORIZE");
+		orderRequest.checkoutPaymentIntent("AUTHORIZE");
 
 		final ApplicationContext applicationContext = new ApplicationContext()
 				.brandName("metasfresh")
@@ -251,10 +251,10 @@ public class PayPalCheckoutManualTest
 				.description("order descriptions")
 				.customId("customId")
 				.softDescriptor("SoftDescription")
-				.amount(new AmountWithBreakdown()
+				.amountWithBreakdown(new AmountWithBreakdown()
 						.currencyCode("EUR")
 						.value("220.00")
-						.breakdown(new AmountBreakdown()
+						.amountBreakdown(new AmountBreakdown()
 								.itemTotal(new Money().currencyCode("EUR").value("180.00"))
 								.shipping(new Money().currencyCode("EUR").value("20.00"))
 								.handling(new Money().currencyCode("EUR").value("10.00"))
@@ -276,7 +276,7 @@ public class PayPalCheckoutManualTest
 								.tax(new Money().currencyCode("EUR").value("5.00"))
 								.quantity("2")
 								.category("PHYSICAL_GOODS")))
-				.shipping(new ShippingDetails()
+				.shippingDetail(new ShippingDetail()
 						.name(new Name().fullName("John Doe"))
 						.addressPortable(new AddressPortable()
 								.addressLine1("Franz Liszt 4")
@@ -302,14 +302,14 @@ public class PayPalCheckoutManualTest
 		final String orderApproveCallbackUrl = config.getOrderApproveCallbackUrl("http://example.com");
 		
 		final OrderRequest orderRequest = new OrderRequest();
-		orderRequest.intent("AUTHORIZE");
+		orderRequest.checkoutPaymentIntent("AUTHORIZE");
 		final ApplicationContext applicationContext = new ApplicationContext()
 				.returnUrl(orderApproveCallbackUrl)
 				.cancelUrl(orderApproveCallbackUrl);
 		orderRequest.applicationContext(applicationContext);
 		final List<PurchaseUnitRequest> purchaseUnitRequests = new ArrayList<>();
 		final PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest()
-				.amount(new AmountWithBreakdown().currencyCode("EUR").value("220.00"));
+				.amountWithBreakdown(new AmountWithBreakdown().currencyCode("EUR").value("220.00"));
 		purchaseUnitRequests.add(purchaseUnitRequest);
 		orderRequest.purchaseUnits(purchaseUnitRequests);
 		return orderRequest;
@@ -363,7 +363,6 @@ public class PayPalCheckoutManualTest
 	/**
 	 * Method to create order with minimum required payload
 	 *
-	 * @param debug true = print response data
 	 * @return HttpResponse<Order> response received from API
 	 * @throws IOException Exceptions from API if any
 	 */
@@ -382,15 +381,15 @@ public class PayPalCheckoutManualTest
 			System.out.println("Status Code: " + response.statusCode());
 			System.out.println("Status: " + responseOrder.status());
 			System.out.println("Order ID: " + responseOrder.id());
-			System.out.println("Intent: " + responseOrder.intent());
+			System.out.println("Intent: " + responseOrder.checkoutPaymentIntent());
 			System.out.println("Links: ");
 			for (final LinkDescription link : responseOrder.links())
 			{
 				System.out.println("\t" + link.rel() + ": " + link.href() + "\tCall Type: " + link.method());
 			}
 			System.out.println("Total Amount:"
-					+ " " + responseOrder.purchaseUnits().get(0).amount().currencyCode()
-					+ " " + responseOrder.purchaseUnits().get(0).amount().value());
+					+ " " + responseOrder.purchaseUnits().get(0).amountWithBreakdown().currencyCode()
+					+ " " + responseOrder.purchaseUnits().get(0).amountWithBreakdown().value());
 		}
 
 		return response;
@@ -485,7 +484,6 @@ public class PayPalCheckoutManualTest
 	 * Method to Refund the Capture. valid capture Id should be passed.
 	 *
 	 * @param captureId Capture ID from authorizeOrder response
-	 * @param debug true = print response data
 	 * @return HttpResponse<Capture> response received from API
 	 * @throws IOException Exceptions from API if any
 	 */

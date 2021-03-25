@@ -16,14 +16,14 @@
 	<description>PayPal Payments</description>
 
 	<properties>
-		<migration-sql-basedir></migration-sql-basedir>
+		<migration-sql-basedir/>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.paypal.sdk</groupId>
 			<artifactId>checkout-sdk</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.2</version>
 		</dependency>
 
 		<dependency>

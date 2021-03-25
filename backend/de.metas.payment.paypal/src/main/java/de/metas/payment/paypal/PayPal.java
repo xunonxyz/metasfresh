@@ -190,13 +190,13 @@ public class PayPal
 		final String approveCallbackUrl = config.getOrderApproveCallbackUrl(webuiFrontendUrl);
 
 		return new OrderRequest()
-				.intent("AUTHORIZE")
+				.checkoutPaymentIntent("AUTHORIZE")
 				.applicationContext(new ApplicationContext()
 						.returnUrl(approveCallbackUrl)
 						.cancelUrl(approveCallbackUrl))
 				.purchaseUnits(ImmutableList.of(
 						new PurchaseUnitRequest()
-								.amount(toAmountWithBreakdown(reservation.getAmount()))));
+								.amountWithBreakdown(toAmountWithBreakdown(reservation.getAmount()))));
 	}
 
 	private AmountWithBreakdown toAmountWithBreakdown(final de.metas.money.Money money)

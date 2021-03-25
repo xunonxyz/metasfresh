@@ -7,6 +7,8 @@ import static org.adempiere.model.InterfaceWrapperHelper.saveRecord;
 import java.util.List;
 import java.util.Optional;
 
+import com.paypal.http.serializer.Json;
+import com.paypal.orders.Order;
 import org.adempiere.ad.dao.IQueryBL;
 import org.adempiere.exceptions.AdempiereException;
 import org.slf4j.Logger;
@@ -23,6 +25,8 @@ import de.metas.payment.reservation.PaymentReservationId;
 import de.metas.util.Check;
 import de.metas.util.Services;
 import lombok.NonNull;
+
+import javax.annotation.Nullable;
 
 /*
  * #%L
@@ -50,6 +54,8 @@ import lombok.NonNull;
 public class PayPalOrderRepository
 {
 	private static final Logger logger = LogManager.getLogger(PayPalOrderRepository.class);
+	
+	private final IQueryBL queryBL = Services.get(IQueryBL.class);
 
 	public PayPalOrder getById(@NonNull final PayPalOrderId id)
 	{
@@ -71,7 +77,7 @@ public class PayPalOrderRepository
 
 	private Optional<I_PayPal_Order> getActiveRecordByReservationId(@NonNull final PaymentReservationId reservationId)
 	{
-		final I_PayPal_Order record = Services.get(IQueryBL.class).createQueryBuilder(I_PayPal_Order.class)
+		final I_PayPal_Order record = queryBL.createQueryBuilder(I_PayPal_Order.class)
 				.addOnlyActiveRecordsFilter()
 				.addEqualsFilter(I_PayPal_Order.COLUMN_C_Payment_Reservation_ID, reservationId)
 				.create()
@@ -174,7 +180,8 @@ public class PayPalOrderRepository
 		return order;
 	}
 
-	private static PayPalOrderAuthorizationId extractAuthorizationIdOrNull(@NonNull final com.paypal.orders.Order apiOrder)
+	@Nullable
+	private static PayPalOrderAuthorizationId extractAuthorizationIdOrNull(@NonNull final Order apiOrder)
 	{
 		final List<PurchaseUnit> purchaseUnits = apiOrder.purchaseUnits();
 		if (purchaseUnits == null || purchaseUnits.isEmpty())
@@ -202,6 +209,7 @@ public class PayPalOrderRepository
 		return extractUrlOrNull(apiOrder, "approve");
 	}
 
+	@Nullable
 	private static String extractUrlOrNull(@NonNull final com.paypal.orders.Order apiOrder, @NonNull final String rel)
 	{
 		for (final LinkDescription link : apiOrder.links())
@@ -225,7 +233,7 @@ public class PayPalOrderRepository
 		try
 		{
 			// IMPORTANT: we shall use paypal's JSON serializer, else we won't get any result
-			return new com.braintreepayments.http.serializer.Json().serialize(apiOrder);
+			return new Json().serialize(apiOrder);
 		}
 		catch (final Exception ex)
 		{

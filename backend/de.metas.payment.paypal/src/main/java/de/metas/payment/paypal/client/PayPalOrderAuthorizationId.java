@@ -66,6 +66,7 @@ public final class PayPalOrderAuthorizationId
 		return id;
 	}
 
+	@Nullable
 	public static String toString(@Nullable final PayPalOrderAuthorizationId id)
 	{
 		return id != null ? id.getAsString() : null;

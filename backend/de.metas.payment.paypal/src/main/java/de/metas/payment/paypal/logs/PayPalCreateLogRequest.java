@@ -1,12 +1,12 @@
 package de.metas.payment.paypal.logs;
 
+import com.paypal.http.Headers;
+import com.paypal.http.HttpRequest;
+import com.paypal.http.HttpResponse;
+import com.paypal.http.exceptions.HttpException;
+import com.paypal.http.serializer.Json;
 import org.compiere.util.Util;
 
-import com.braintreepayments.http.Headers;
-import com.braintreepayments.http.HttpRequest;
-import com.braintreepayments.http.HttpResponse;
-import com.braintreepayments.http.exceptions.HttpException;
-import com.braintreepayments.http.serializer.Json;
 import com.google.common.collect.ImmutableMap;
 
 import de.metas.invoice.InvoiceId;
