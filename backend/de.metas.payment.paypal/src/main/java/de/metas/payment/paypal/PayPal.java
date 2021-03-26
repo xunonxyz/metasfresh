@@ -121,7 +121,7 @@ public class PayPal
 		updateReservationFromPaypalOrder(paypalOrder);
 	}
 
-	private PayPalOrder updatePayPalOrderFromAPI(final PayPalOrder paypalOrder)
+	private PayPalOrder updatePayPalOrderFromAPI(@NonNull final PayPalOrder paypalOrder)
 	{
 		final PayPalClientResponse<Order, PayPalErrorResponse> response = paypalClient.getAPIOrderById(
 				paypalOrder.getExternalId(),

@@ -7,3 +7,8 @@
 
 For bonus-points you can then do `docker-compose logs -f db` to see how the DB is repopulated.
 Don't forget to apply the latest migration scripts after that.
+
+## Papercut
+
+With papercut you have an smpt server running locally on your port 25.
+You can connect to its web-UI at http://localhost:37408/

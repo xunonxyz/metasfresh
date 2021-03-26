@@ -1,5 +1,6 @@
 package de.metas.payment.paypal;
 
+import static org.adempiere.model.InterfaceWrapperHelper.newInstance;
 import static org.adempiere.model.InterfaceWrapperHelper.newInstanceOutOfTrx;
 import static org.adempiere.model.InterfaceWrapperHelper.saveRecord;
 
@@ -12,6 +13,7 @@ import org.adempiere.test.AdempiereTestHelper;
 import org.compiere.model.I_AD_Client;
 import org.compiere.model.I_AD_User;
 import org.compiere.model.I_C_BPartner;
+import org.compiere.model.I_C_Order;
 import org.compiere.model.I_R_MailText;
 
 import com.google.common.collect.ImmutableList;
@@ -48,6 +50,7 @@ import de.metas.payment.reservation.PaymentReservationId;
 import de.metas.payment.reservation.PaymentReservationRepository;
 import de.metas.payment.reservation.PaymentReservationService;
 import lombok.NonNull;
+import org.junit.jupiter.api.Order;
 
 /*
  * #%L
@@ -183,8 +186,11 @@ public class PayPalCheckoutManualTest2
 
 	private void run()
 	{
-		final OrderId salesOrderId = OrderId.ofRepoId(123);
-
+		final I_C_Order salesOrderRecord = newInstance(I_C_Order.class);
+		salesOrderRecord.setDocumentNo("salesOrderRecord-documentNo");
+		saveRecord(salesOrderRecord);
+		final OrderId salesOrderId = OrderId.ofRepoId(salesOrderRecord.getC_Order_ID());
+		
 		//
 		// Create Reservation
 		final PaymentReservationId reservationId;
