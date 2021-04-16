@@ -1,17 +1,15 @@
 package de.metas.ui.web.order.products_proposal.model;
 
-import java.math.BigDecimal;
-
-import javax.annotation.Nullable;
-
-import org.adempiere.exceptions.AdempiereException;
-
 import de.metas.currency.Amount;
 import de.metas.currency.CurrencyCode;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
+import org.adempiere.exceptions.AdempiereException;
+
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
 
 /*
  * #%L
@@ -45,6 +43,9 @@ public class ProductProposalPrice
 
 	private final Amount priceListPrice;
 	private final ProductProposalCampaignPrice campaignPrice;
+	// TODO: add scale prices: list/map of (QtyMin, Price)
+	private final ProductProposalScalePrices scalePrices;
+
 
 	@Getter
 	private final boolean campaignPriceUsed;
@@ -52,14 +53,25 @@ public class ProductProposalPrice
 	@Getter
 	private final boolean priceListPriceUsed;
 
+	@Getter
+	private final boolean scalePricesUsed;
+
+	@Getter
+	private final BigDecimal qty;
+
+
 	@Builder(toBuilder = true)
 	private ProductProposalPrice(
 			@NonNull final Amount priceListPrice,
 			@Nullable final ProductProposalCampaignPrice campaignPrice,
-			@Nullable final BigDecimal userEnteredPriceValue)
+			@Nullable final ProductProposalScalePrices scalePrices,
+			@Nullable final BigDecimal userEnteredPriceValue,
+			@Nullable final BigDecimal qty)
 	{
 		this.priceListPrice = priceListPrice;
 		this.campaignPrice = campaignPrice;
+		this.scalePrices = scalePrices;
+		this.qty = qty;
 
 		//
 		this.currencyCode = priceListPrice.getCurrencyCode();
@@ -77,6 +89,10 @@ public class ProductProposalPrice
 		{
 			this.userEnteredPriceValue = campaignPrice.applyOn(priceListPrice).getAsBigDecimal();
 		}
+		else if (scalePrices != null)
+		{
+			this.userEnteredPriceValue = scalePrices.applyOn(priceListPrice, qty).getAsBigDecimal();
+		}
 		else
 		{
 			this.userEnteredPriceValue = priceListPrice.getAsBigDecimal();
@@ -87,6 +103,9 @@ public class ProductProposalPrice
 		this.campaignPriceUsed = this.campaignPrice != null
 				&& !priceListPriceUsed
 				&& this.campaignPrice.amountValueComparingEqualsTo(this.userEnteredPriceValue);
+
+
+		this.scalePricesUsed = this.scalePrices != null;
 	}
 
 	public Amount getUserEnteredPrice()
@@ -117,5 +136,21 @@ public class ProductProposalPrice
 		}
 
 		return toBuilder().priceListPrice(priceListPrice).build();
+	}
+
+	public ProductProposalPrice withUserEnteredQty(@Nullable final BigDecimal newQty)
+	{
+		if (newQty == null)
+		{
+
+			return toBuilder().qty(BigDecimal.ONE).build();
+		}
+
+		if (newQty.equals(this.qty))
+		{
+			return this;
+		}
+
+		return toBuilder().qty(newQty).build();
 	}
 }

@@ -47,6 +47,8 @@ import de.metas.product.IProductDAO;
 import de.metas.product.ProductId;
 import de.metas.ui.web.order.products_proposal.campaign_price.CampaignPriceProvider;
 import de.metas.ui.web.order.products_proposal.campaign_price.CampaignPriceProviders;
+import de.metas.ui.web.order.products_proposal.campaign_price.ScalePriceProvider;
+import de.metas.ui.web.order.products_proposal.campaign_price.ScalePriceProviders;
 import de.metas.ui.web.order.products_proposal.service.Order;
 import de.metas.ui.web.view.ViewHeaderProperties;
 import de.metas.ui.web.view.ViewHeaderProperties.ViewHeaderPropertiesBuilder;
@@ -90,6 +92,7 @@ public final class ProductsProposalRowsLoader
 	private final IHUPIItemProductBL packingMaterialsService = Services.get(IHUPIItemProductBL.class);
 	private final IMsgBL msgBL = Services.get(IMsgBL.class);
 	private final CampaignPriceProvider campaignPriceProvider;
+	private final ScalePriceProvider scalePriceProvider;
 	private final LookupDataSource productLookup;
 	private final DocumentIdIntSequence nextRowIdSequence = DocumentIdIntSequence.newInstance();
 
@@ -107,6 +110,7 @@ public final class ProductsProposalRowsLoader
 	private ProductsProposalRowsLoader(
 			@NonNull final BPartnerProductStatsService bpartnerProductStatsService,
 			@Nullable final CampaignPriceProvider campaignPriceProvider,
+			@Nullable final ScalePriceProvider scalePriceProvider,
 			//
 			@NonNull @Singular final ImmutableSet<PriceListVersionId> priceListVersionIds,
 			@Nullable final Order order,
@@ -119,6 +123,8 @@ public final class ProductsProposalRowsLoader
 
 		this.bpartnerProductStatsService = bpartnerProductStatsService;
 		this.campaignPriceProvider = campaignPriceProvider != null ? campaignPriceProvider : CampaignPriceProviders.none();
+		this.scalePriceProvider = scalePriceProvider != null ? scalePriceProvider : ScalePriceProviders.none();
+
 		productLookup = LookupDataSourceFactory.instance.searchInTableLookup(I_M_Product.Table_Name);
 
 		this.priceListVersionIds = priceListVersionIds;
@@ -167,6 +173,7 @@ public final class ProductsProposalRowsLoader
 		return ProductsProposalRowsData.builder()
 				.nextRowIdSequence(nextRowIdSequence)
 				.campaignPriceProvider(campaignPriceProvider)
+				.scalePriceProvider(scalePriceProvider)
 				//
 				.singlePriceListVersionId(singlePriceListVersionId)
 				.basePriceListVersionId(basePriceListVersionId)
@@ -195,7 +202,7 @@ public final class ProductsProposalRowsLoader
 	{
 		return priceListsRepo.retrieveProductPrices(priceListVersionId, productIdsToExclude)
 				.map(productPriceRecord -> InterfaceWrapperHelper.create(productPriceRecord, I_M_ProductPrice.class))
-				.map(productPriceRecord -> toProductsProposalRowOrNull(productPriceRecord))
+				.map(this::toProductsProposalRowOrNull)
 				.filter(Objects::nonNull);
 	}
 
@@ -242,10 +249,21 @@ public final class ProductsProposalRowsLoader
 
 		final ProductId productId = ProductId.ofRepoId(record.getM_Product_ID());
 		final ProductProposalCampaignPrice campaignPrice = campaignPriceProvider.getCampaignPrice(productId).orElse(null);
+		final ProductProposalScalePrices scalePrice;
+
+		if (record.isUseScalePrice())
+		{
+			scalePrice = scalePriceProvider.getScalePrice(ProductPriceId.ofRepoId(record.getM_ProductPrice_ID())).orElse(null);
+		}
+		else
+		{
+			scalePrice = null;
+		}
 
 		return ProductProposalPrice.builder()
 				.priceListPrice(priceListPrice)
 				.campaignPrice(campaignPrice)
+				.scalePrices(scalePrice)
 				.build();
 	}
 
