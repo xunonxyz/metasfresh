@@ -1,5 +1,11 @@
 package de.metas.ui.web.payment_allocation.process;
 
+import de.metas.currency.Amount;
+import de.metas.i18n.ITranslatableString;
+import de.metas.i18n.TranslatableStringBuilder;
+import de.metas.i18n.TranslatableStrings;
+import de.metas.money.Money;
+import javafx.animation.TranslateTransition;
 import org.compiere.SpringContextHolder;
 
 import de.metas.banking.payment.paymentallocation.IPaymentAllocationBL;
@@ -8,6 +14,8 @@ import de.metas.money.MoneyService;
 import de.metas.ui.web.payment_allocation.process.PaymentsViewAllocateCommand.PaymentsViewAllocateCommandBuilder;
 import de.metas.util.Services;
 import lombok.NonNull;
+
+import java.util.Collection;
 
 /*
  * #%L
@@ -75,5 +83,27 @@ abstract class PaymentsView_Allocate_Template extends PaymentsViewBasedProcess
 	protected void customizePaymentsViewAllocateCommandBuilder(@NonNull final PaymentsViewAllocateCommandBuilder builder)
 	{
 		// nothing on this level
+	}
+
+	protected ITranslatableString toTranslatableString(@NonNull final Collection<Money> moneyCollection)
+	{
+		if(moneyCollection.isEmpty())
+		{
+			return TranslatableStrings.empty();
+		}
+
+		final TranslatableStringBuilder builder = TranslatableStrings.builder();
+		for(final Money money : moneyCollection)
+		{
+			if(!builder.isEmpty())
+			{
+				builder.append(", ");
+			}
+
+			final Amount amount = moneyService.toAmount(money);
+			builder.append(amount);
+		}
+
+		return builder.build();
 	}
 }
