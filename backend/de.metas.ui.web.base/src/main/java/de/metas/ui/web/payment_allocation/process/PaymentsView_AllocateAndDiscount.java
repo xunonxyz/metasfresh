@@ -9,7 +9,6 @@ import de.metas.process.Param;
 import de.metas.process.ProcessPreconditionsResolution;
 import de.metas.ui.web.payment_allocation.process.PaymentsViewAllocateCommand.PaymentsViewAllocateCommandBuilder;
 import lombok.NonNull;
-import org.compiere.util.DisplayType;
 
 import java.time.LocalDate;
 
@@ -74,11 +73,12 @@ public class PaymentsView_AllocateAndDiscount extends PaymentsView_Allocate_Temp
 				.deriveWithCaptionOverride(computeCaption(result));
 	}
 
-	private static ITranslatableString computeCaption(final PaymentAllocationResult result)
+	private ITranslatableString computeCaption(final PaymentAllocationResult result)
 	{
+		final ITranslatableString discountStr = toTranslatableString(result.getExtraDiscountApplied().values());
 		return TranslatableStrings.builder()
-				.appendADElement("DiscountAmt").append(": ")
-				.append(result.getTotalDiscountAmtAsBigDecimal(), DisplayType.Amount)
+				.appendADElement("ExtraDiscountAmt").append(": ")
+				.append(discountStr)
 				.build();
 	}
 }

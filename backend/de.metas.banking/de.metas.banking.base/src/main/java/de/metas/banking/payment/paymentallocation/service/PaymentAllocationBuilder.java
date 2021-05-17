@@ -25,7 +25,6 @@ package de.metas.banking.payment.paymentallocation.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import de.metas.allocation.api.PaymentAllocationId;
 import de.metas.banking.payment.paymentallocation.service.AllocationLineCandidate.AllocationLineCandidateType;
 import de.metas.currency.CurrencyConversionContext;
@@ -58,7 +57,9 @@ import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Builds one {@link I_C_AllocationHdr} of all given {@link PayableDocument}s and {@link PaymentDocument}s.
@@ -94,6 +95,8 @@ public class PaymentAllocationBuilder
 
 	// Status
 	private boolean _built = false;
+	private HashMap<CurrencyId, Money> extraDiscountApplied = new HashMap<>();
+	private HashMap<CurrencyId, Money> extraWriteOffApplied = new HashMap<>();
 
 	private PaymentAllocationBuilder()
 	{
@@ -127,29 +130,31 @@ public class PaymentAllocationBuilder
 
 		//
 		// Create & process allocation documents
-		final ImmutableMap<PaymentAllocationId,AllocationLineCandidate> paymentAllocations;
+		final ImmutableMap<PaymentAllocationId, AllocationLineCandidate> paymentAllocations;
 		if (!candidates.isEmpty() && !dryRun)
 		{
 			paymentAllocations = processCandidates(candidates);
 		}
 		else
 		{
-			paymentAllocations= ImmutableMap.of();
+			paymentAllocations = ImmutableMap.of();
 		}
 
 		return PaymentAllocationResult.builder()
 				.candidates(candidates)
 				.fullyAllocatedCheck(fullyAllocatedCheck)
 				.paymentAllocationIds(paymentAllocations)
+				.extraDiscountApplied(ImmutableMap.copyOf(extraDiscountApplied))
+				.extraWriteOffApplied(ImmutableMap.copyOf(extraWriteOffApplied))
 				.build();
 	}
 
-	private ImmutableMap<PaymentAllocationId,AllocationLineCandidate> processCandidates(final Collection<AllocationLineCandidate> candidates)
+	private ImmutableMap<PaymentAllocationId, AllocationLineCandidate> processCandidates(final Collection<AllocationLineCandidate> candidates)
 	{
 		return trxManager.callInThreadInheritedTrx(() -> processCandidatesInTrx(candidates));
 	}
 
-	private ImmutableMap<PaymentAllocationId,AllocationLineCandidate> processCandidatesInTrx(final Collection<AllocationLineCandidate> candidates)
+	private ImmutableMap<PaymentAllocationId, AllocationLineCandidate> processCandidatesInTrx(final Collection<AllocationLineCandidate> candidates)
 	{
 		try
 		{
@@ -193,9 +198,9 @@ public class PaymentAllocationBuilder
 		return candidate.toBuilder()
 				.type(AllocationLineCandidateType.SalesInvoiceToPurchaseInvoice)
 				.amounts(amounts.toBuilder()
-						.payAmt(amounts.getInvoiceProcessingFee())
-						.invoiceProcessingFee(null)
-						.build())
+								 .payAmt(amounts.getInvoiceProcessingFee())
+								 .invoiceProcessingFee(null)
+								 .build())
 				.paymentDocumentRef(TableRecordReference.of(I_C_Invoice.Table_Name, serviceInvoiceId))
 				.build();
 	}
@@ -388,11 +393,21 @@ public class PaymentAllocationBuilder
 		}
 		else if (PayableRemainingOpenAmtPolicy.DISCOUNT.equals(payableRemainingOpenAmtPolicy))
 		{
+			final Money openAmt = payable.getAmountsToAllocate().getPayAmt();
+			extraDiscountApplied.compute(
+					openAmt.getCurrencyId(),
+					(currencyId, existingAmt) -> existingAmt != null ? existingAmt.add(openAmt) : openAmt);
+
 			payable.moveRemainingOpenAmtToDiscount();
 			return createAllocationLineCandidate_DiscountAndWriteOff(payable);
 		}
 		else if (PayableRemainingOpenAmtPolicy.WRITE_OFF.equals(payableRemainingOpenAmtPolicy))
 		{
+			final Money openAmt = payable.getAmountsToAllocate().getPayAmt();
+			extraWriteOffApplied.compute(
+					openAmt.getCurrencyId(),
+					(currencyId, existingAmt) -> existingAmt != null ? existingAmt.add(openAmt) : openAmt);
+
 			payable.moveRemainingOpenAmtToWriteOff();
 			return createAllocationLineCandidate_DiscountAndWriteOff(payable);
 		}

@@ -75,11 +75,12 @@ public class PaymentsView_AllocateAndWriteOff extends PaymentsView_Allocate_Temp
 				.deriveWithCaptionOverride(computeCaption(result));
 	}
 
-	private static ITranslatableString computeCaption(final PaymentAllocationResult result)
+	private ITranslatableString computeCaption(final PaymentAllocationResult result)
 	{
+		final ITranslatableString writeOffStr = toTranslatableString(result.getExtraWriteOffApplied().values());
 		return TranslatableStrings.builder()
-				.appendADElement("WriteOffAmt").append(": ")
-				.append(result.getTotalWriteOffAmtAsBigDecimal(), DisplayType.Amount)
+				.appendADElement("ExtraWriteOffAmt").append(": ")
+				.append(writeOffStr)
 				.build();
 	}
 }
