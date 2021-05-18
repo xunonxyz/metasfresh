@@ -5,7 +5,6 @@ import de.metas.i18n.ITranslatableString;
 import de.metas.i18n.TranslatableStringBuilder;
 import de.metas.i18n.TranslatableStrings;
 import de.metas.money.Money;
-import javafx.animation.TranslateTransition;
 import org.compiere.SpringContextHolder;
 
 import de.metas.banking.payment.paymentallocation.IPaymentAllocationBL;
