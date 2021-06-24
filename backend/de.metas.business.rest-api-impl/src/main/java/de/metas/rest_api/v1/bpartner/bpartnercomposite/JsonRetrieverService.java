@@ -150,6 +150,7 @@ public class JsonRetrieverService
 			.put(BPartnerContactType.SALES_DEFAULT, JsonResponseContact.SALES_DEFAULT)
 			.put(BPartnerContactType.PURCHASE, JsonResponseContact.PURCHASE)
 			.put(BPartnerContactType.PURCHASE_DEFAULT, JsonResponseContact.PURCHASE_DEFAULT)
+			.put(BPartnerContactType.MEMBERSHIP, JsonResponseContact.MEMBERSHIP)
 
 			.build();
 
@@ -384,6 +385,7 @@ public class JsonRetrieverService
 					.purchase(contactType.getIsPurchaseOr(false))
 					.purchaseDefault(contactType.getIsPurchaseDefaultOr(false))
 					.subjectMatter(contact.isSubjectMatterContact())
+					.membership(contactType.getIsMembershipOr(false))
 					.changeInfo(jsonChangeInfo)
 					.build();
 		}

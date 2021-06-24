@@ -34,6 +34,7 @@ import de.metas.bpartner.composite.BPartnerLocation;
 import de.metas.bpartner.composite.BPartnerLocationType;
 import de.metas.bpartner.composite.repository.BPartnerCompositeRepository;
 import de.metas.bpartner.service.CloneBPartnerRequest;
+import de.metas.bpartner.service.IBPartnerBL;
 import de.metas.bpartner.service.IBPartnerDAO;
 import de.metas.common.util.CoalesceUtil;
 import de.metas.contracts.ConditionsId;
@@ -130,6 +131,7 @@ public class OrgChangeCommand
 	private final IFlatrateBL flatrateBL = Services.get(IFlatrateBL.class);
 	private final IPricingBL pricingBL = Services.get(IPricingBL.class);
 	private final ICountryDAO countryDAO = Services.get(ICountryDAO.class);
+	private final IBPartnerBL bpPartnerService = Services.get(IBPartnerBL.class);
 
 	private final IRequestBL requestBL = Services.get(IRequestBL.class);
 
@@ -182,6 +184,8 @@ public class OrgChangeCommand
 			bpCompositeRepo.save(destinationBPartnerComposite);
 		}
 
+		bpPartnerService.updateNameAndGreetingFromContacts(newBPartnerId);
+
 		saveOrgChangeBPartnerComposite(bpartnerAndSubscriptions);
 
 		createNewSubscriptions(bpartnerAndSubscriptions, destinationBPartnerComposite);
@@ -203,6 +207,7 @@ public class OrgChangeCommand
 																		 .orgMappingId(orgMappingId)
 																		 .build()));
 	}
+
 	private void createNewSubscriptions(
 			@NonNull final OrgChangeBPartnerComposite bpartnerAndSubscriptions,
 			@NonNull final BPartnerComposite destinationBPartnerComposite)
@@ -293,7 +298,7 @@ public class OrgChangeCommand
 			return;
 		}
 
-		final I_AD_User user = sourceSubscription.getUserInChargeId() == null ? null:
+		final I_AD_User user = sourceSubscription.getUserInChargeId() == null ? null :
 				userDAO.getCounterpartUser(sourceSubscription.getUserInChargeId(), orgChangeRequest.getOrgToId()).orElse(null);
 
 		final Timestamp startDate = TimeUtil.asTimestamp(orgChangeRequest.getStartDate());

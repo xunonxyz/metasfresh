@@ -61,6 +61,7 @@ public class JsonResponseContact
 	public static final String PURCHASE_DEFAULT = "purchaseDefault";
 	public static final String PURCHASE = "purchase";
 	public static final String SUBJECT_MATTER = "subjectMatter";
+	public static final String MEMBERSHIP = "membership";
 
 	@ApiModelProperty(allowEmptyValue = false, dataType = "java.lang.Long")
 	JsonMetasfreshId metasfreshId;
@@ -132,6 +133,9 @@ public class JsonResponseContact
 	@ApiModelProperty(allowEmptyValue = false)
 	boolean subjectMatter;
 
+	@ApiModelProperty(allowEmptyValue = false)
+	boolean membership;
+
 	@JsonInclude(Include.NON_NULL)
 	@ApiModelProperty(position = 20) // shall be last
 	JsonChangeInfo changeInfo;
@@ -159,13 +163,14 @@ public class JsonResponseContact
 			@JsonProperty(BILL_TO_DEFAULT) final boolean billToDefault,
 			@JsonProperty(DEFAULT_CONTACT) final boolean defaultContact,
 
+			@JsonProperty(MEMBERSHIP) final boolean membership,
+
 			@JsonProperty(SALES) final boolean sales,
 			@JsonProperty(SALES_DEFAULT) final boolean salesDefault,
 			@JsonProperty(PURCHASE) final boolean purchase,
 			@JsonProperty(PURCHASE_DEFAULT) final boolean purchaseDefault,
 			@JsonProperty(SUBJECT_MATTER) final boolean subjectMatter,
 			@JsonProperty(INVOICE_EMAIL_ENABLED) final Boolean invoiceEmailEnabled,
-
 
 			@JsonProperty("changeInfo") @Nullable JsonChangeInfo changeInfo)
 	{
@@ -177,6 +182,8 @@ public class JsonResponseContact
 		this.purchase = purchase;
 		this.purchaseDefault = purchaseDefault;
 		this.subjectMatter = subjectMatter;
+
+		this.membership = membership;
 
 		this.newsletter = newsletter;
 		this.description = description;

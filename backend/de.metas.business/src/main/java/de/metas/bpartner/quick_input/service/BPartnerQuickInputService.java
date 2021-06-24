@@ -364,6 +364,7 @@ public class BPartnerQuickInputService
 								.salesDefault(isSalesContact && isDefaultContact)
 								.purchase(isPurchaseContact)
 								.purchaseDefault(isPurchaseContact && isDefaultContact)
+								.membership(contactTemplate.isMembershipContact())
 								.build())
 						.newsletter(contactTemplate.isNewsletter())
 						.membershipContact(contactTemplate.isMembershipContact())

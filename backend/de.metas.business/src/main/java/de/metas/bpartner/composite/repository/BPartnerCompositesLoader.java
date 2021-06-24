@@ -462,6 +462,7 @@ final class BPartnerCompositesLoader
 				.salesDefault(contactRecord.isSalesContact_Default())
 				.purchase(contactRecord.isPurchaseContact())
 				.purchaseDefault(contactRecord.isPurchaseContact_Default())
+				.membership(contactRecord.isMembershipContact())
 				.build();
 	}
 

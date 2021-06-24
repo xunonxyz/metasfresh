@@ -45,6 +45,7 @@ public class BPartnerContactType
 	public static final String SALES_DEFAULT = "salesDefault";
 	public static final String PURCHASE = "purchase";
 	public static final String PURCHASE_DEFAULT = "purchaseDefault";
+	public static final String MEMBERSHIP = "membership";
 
 	@JsonInclude(Include.NON_ABSENT)
 	private Optional<Boolean> defaultContact;
@@ -67,6 +68,9 @@ public class BPartnerContactType
 	@JsonInclude(Include.NON_ABSENT)
 	private Optional<Boolean> purchaseDefault;
 
+	@JsonInclude(Include.NON_ABSENT)
+	private Optional<Boolean> membership;
+
 	//
 	// NOTE to dev: if you have more flags to add, consider adding them to BPartnerContact model (like we did with newsletter, membershipContact etc)
 	//
@@ -79,11 +83,13 @@ public class BPartnerContactType
 			@Nullable final Boolean sales,
 			@Nullable final Boolean salesDefault,
 			@Nullable final Boolean purchase,
-			@Nullable final Boolean purchaseDefault)
+			@Nullable final Boolean purchaseDefault,
+			@Nullable final Boolean membership)
 	{
 		this.defaultContact = Optional.ofNullable(defaultContact);
 		this.billToDefault = Optional.ofNullable(billToDefault);
 		this.shipToDefault = Optional.ofNullable(shipToDefault);
+		this.membership = Optional.ofNullable(membership);
 
 		this.salesDefault = Optional.ofNullable(salesDefault);
 		if (this.salesDefault.orElse(false) && sales == null)
@@ -118,6 +124,7 @@ public class BPartnerContactType
 		this.salesDefault = from.salesDefault;
 		this.purchase = from.purchase;
 		this.purchaseDefault = from.purchaseDefault;
+		this.membership = from.membership;
 	}
 
 	public BPartnerContactType deepCopy()
@@ -155,6 +162,11 @@ public class BPartnerContactType
 		return purchaseDefault.orElse(defaultValue);
 	}
 
+	public boolean getIsMembershipOr(final boolean defaultValue)
+	{
+		return membership.orElse(defaultValue);
+	}
+
 	public boolean getIsPurchaseOr(final boolean defaultValue)
 	{
 		return purchase.orElse(defaultValue);
@@ -184,4 +196,10 @@ public class BPartnerContactType
 	{
 		this.salesDefault = Optional.of(salesDefault);
 	}
+
+	public void setMembership(final boolean membership)
+	{
+		this.membership = Optional.of(membership);
+	}
+
 }
