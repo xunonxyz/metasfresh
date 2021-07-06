@@ -53,6 +53,7 @@ context('Reusable "login" custom command using API', function () {
 
     const handleSuccess = function () {
       cy.window().then((win) => {
+        win.loggedIn = true;
         if (redirect) {
           win.history.back();
         } else {
@@ -73,9 +74,7 @@ context('Reusable "login" custom command using API', function () {
         })
         .then((response) => {
           if (!response.body.error) {
-            cy.window().then((win) => {
-              win.history.pushState({}, '', '/');
-            });
+            return handleSuccess();
           }
 
           cy.log(`Login failed because ${error}`);
