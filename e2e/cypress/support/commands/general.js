@@ -52,13 +52,15 @@ context('Reusable "login" custom command using API', function () {
     });
 
     const handleSuccess = function () {
-      cy.window().then((win) => {
+      return cy.window().then((win) => {
         win.loggedIn = true;
         if (redirect) {
           win.history.back();
         } else {
           win.history.pushState({}, '', '/');
         }
+
+        return cy.wrap(null);
       });
     };
 
@@ -78,7 +80,8 @@ context('Reusable "login" custom command using API', function () {
           }
 
           cy.log(`Login failed because ${error}`);
-          return Promise.reject(error);
+
+          return cy.wrap(error);
         });
     };
 
@@ -128,7 +131,7 @@ context('Reusable "login" custom command using API', function () {
             cy.saveLocalStorage();
             Cypress.reduxStore.dispatch(loginSuccess(auth));
 
-            handleSuccess();
+            return handleSuccess();
           });
       });
   });
