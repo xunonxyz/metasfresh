@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 public class DurationUtilsTest
 {
@@ -44,15 +45,14 @@ public class DurationUtilsTest
 	@Test
 	public void testNegative()
 	{
-		Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> DurationUtils.toWorkDuration(BigDecimal.valueOf(-0.5), ChronoUnit.HOURS));		
+		Assertions.assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> DurationUtils.toWorkDuration(BigDecimal.valueOf(-0.5), ChronoUnit.HOURS));
 	}
-	
-	
+
 	@Test
 	public void testRoundingHalfDay()
 	{
 		final Duration duration = DurationUtils.toWorkDuration(BigDecimal.valueOf(0.5), ChronoUnit.DAYS);
-		Assertions.assertThat(duration.getSeconds()).isCloseTo((long)(4 * 60 * 60), ACCURACY_PERCENTAGE);
+		Assertions.assertThat(duration.getSeconds()).isCloseTo((4 * 60 * 60), ACCURACY_PERCENTAGE);
 	}
 
 	@Test
@@ -80,5 +80,26 @@ public class DurationUtilsTest
 	{
 		final Duration duration = DurationUtils.toWorkDurationRoundUp(BigDecimal.valueOf(0.5), ChronoUnit.HOURS);
 		Assertions.assertThat(duration.getSeconds()).isCloseTo((60 * 60), ACCURACY_PERCENTAGE);
+	}
+
+	@Test
+	public void testTemporalUnitSeconds()
+	{
+		final TemporalUnit temporalUnit = DurationUtils.getTemporalUnitForWorkDuration(Duration.ofSeconds(3601));
+		Assertions.assertThat(temporalUnit).isEqualTo(ChronoUnit.SECONDS);
+	}
+
+	@Test
+	public void testTemporalUnitHours()
+	{
+		final TemporalUnit temporalUnit = DurationUtils.getTemporalUnitForWorkDuration(Duration.ofSeconds(3600));
+		Assertions.assertThat(temporalUnit).isEqualTo(ChronoUnit.HOURS);
+	}
+
+	@Test
+	public void testTemporalUnitDays()
+	{
+		final TemporalUnit temporalUnit = DurationUtils.getTemporalUnitForWorkDuration(Duration.ofSeconds(3 * 8 * 3600));
+		Assertions.assertThat(temporalUnit).isEqualTo(ChronoUnit.DAYS);
 	}
 }

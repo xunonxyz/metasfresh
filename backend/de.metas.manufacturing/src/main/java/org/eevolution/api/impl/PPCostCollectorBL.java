@@ -40,6 +40,7 @@ import de.metas.uom.UOMConversionContext;
 import de.metas.uom.UomId;
 import de.metas.util.Check;
 import de.metas.util.Services;
+import de.metas.util.time.DurationUtils;
 import de.metas.workflow.WFDurationUnit;
 import lombok.Builder;
 import lombok.NonNull;
@@ -73,8 +74,10 @@ import org.eevolution.model.X_PP_Cost_Collector;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 
 public class PPCostCollectorBL implements IPPCostCollectorBL
@@ -580,8 +583,9 @@ public class PPCostCollectorBL implements IPPCostCollectorBL
 		cc.setM_Locator_ID(LocatorId.toRepoId(request.getLocatorId()));
 		cc.setM_AttributeSetInstance_ID(request.getAttributeSetInstanceId().getRepoId());
 		cc.setS_Resource_ID(ResourceId.toRepoId(request.getResourceId()));
-		cc.setMovementDate(TimeUtil.asTimestamp(request.getMovementDate()));
-		cc.setDateAcct(TimeUtil.asTimestamp(request.getMovementDate()));
+		final Timestamp movementDate = TimeUtil.asTimestamp(request.getMovementDate());
+		cc.setMovementDate(movementDate);
+		cc.setDateAcct(movementDate);
 		cc.setM_Product_ID(ProductId.toRepoId(request.getProductId()));
 
 		setQuantities(cc, PPCostCollectorQuantities.builder()
@@ -596,7 +600,8 @@ public class PPCostCollectorBL implements IPPCostCollectorBL
 			cc.setPP_Order_Node_ID(orderActivity.getId().getRepoId());
 			cc.setIsSubcontracting(orderActivity.isSubcontracting());
 
-			final WFDurationUnit durationUnit = orderActivity.getDurationUnit();
+			final TemporalUnit temporalUnit = DurationUtils.getTemporalUnitForWorkDuration(request.getDuration());
+			final WFDurationUnit durationUnit = WFDurationUnit.ofTemporalUnit(temporalUnit);
 			cc.setDurationUnit(durationUnit.getCode());
 			cc.setSetupTimeReal(durationUnit.toBigDecimal(request.getDurationSetup()));
 			cc.setDurationReal(durationUnit.toBigDecimal(request.getDuration()));

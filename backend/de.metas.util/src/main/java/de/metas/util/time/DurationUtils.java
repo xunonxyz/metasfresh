@@ -140,4 +140,26 @@ public class DurationUtils
 		throw Check.newException("No smaller temporal unit defined for {}", unit);
 	}
 
+	public static TemporalUnit getTemporalUnitForWorkDuration(final Duration duration)
+	{
+		final long seconds = duration.getSeconds();
+		if (seconds == 0)
+		{
+			return ChronoUnit.NANOS;
+		}
+		if (seconds % 28800 == 0)
+		{
+			return ChronoUnit.DAYS;
+		}
+		if (seconds % 3600 == 0)
+		{
+			return ChronoUnit.HOURS;
+		}
+		if (seconds % 60 == 0)
+		{
+			return ChronoUnit.MINUTES;
+		}
+		return ChronoUnit.SECONDS;
+	}
+
 }
