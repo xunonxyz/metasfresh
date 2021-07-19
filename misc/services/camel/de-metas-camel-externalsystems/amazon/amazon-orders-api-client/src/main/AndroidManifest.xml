@@ -1,0 +1,3 @@
+<manifest package="de.metas.camel.externalsystems.amazon.api.orders.invoker" xmlns:android="http://schemas.android.com/apk/res/android">
+    <application />
+</manifest>

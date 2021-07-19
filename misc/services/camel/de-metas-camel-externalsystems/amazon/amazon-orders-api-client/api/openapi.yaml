@@ -1,0 +1,3209 @@
+openapi: 3.0.1
+info:
+  contact:
+    name: Selling Partner API Developer Support
+    url: https://sellercentral.amazon.com/gp/mws/contactus.html
+  description: The Selling Partner API for Orders helps you programmatically retrieve
+    order information. These APIs let you develop fast, flexible, custom applications
+    in areas like order synchronization, order research, and demand-based decision
+    support tools.
+  license:
+    name: Apache License 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  title: Selling Partner API for Orders
+  version: v0
+servers:
+- url: https://sellingpartnerapi-na.amazon.com/
+paths:
+  /orders/v0/orders:
+    get:
+      description: |-
+        Returns orders created or updated during the time frame indicated by the specified parameters. You can also apply a range of filtering criteria to narrow the list of orders returned. If NextToken is present, that will be used to retrieve the orders instead of other criteria.
+
+        **Usage Plans:**
+
+        | Plan type | Rate (requests per second) | Burst |
+        | ---- | ---- | ---- |
+        |Default| 0.0055 | 20 |
+        |Selling partner specific| Variable | Variable |
+
+        The x-amzn-RateLimit-Limit response header returns the usage plan rate limits that were applied to the requested operation. Rate limits for some selling partners will vary from the default rate and burst shown in the table above. For more information, see "Usage Plans and Rate Limits" in the Selling Partner API documentation.
+      operationId: getOrders
+      parameters:
+      - description: A date used for selecting orders created after (or at) a specified
+          time. Only orders placed after the specified time are returned. Either the
+          CreatedAfter parameter or the LastUpdatedAfter parameter is required. Both
+          cannot be empty. The date must be in ISO 8601 format.
+        in: query
+        name: CreatedAfter
+        schema:
+          type: string
+      - description: A date used for selecting orders created before (or at) a specified
+          time. Only orders placed before the specified time are returned. The date
+          must be in ISO 8601 format.
+        in: query
+        name: CreatedBefore
+        schema:
+          type: string
+      - description: A date used for selecting orders that were last updated after
+          (or at) a specified time. An update is defined as any change in order status,
+          including the creation of a new order. Includes updates made by Amazon and
+          by the seller. The date must be in ISO 8601 format.
+        in: query
+        name: LastUpdatedAfter
+        schema:
+          type: string
+      - description: A date used for selecting orders that were last updated before
+          (or at) a specified time. An update is defined as any change in order status,
+          including the creation of a new order. Includes updates made by Amazon and
+          by the seller. The date must be in ISO 8601 format.
+        in: query
+        name: LastUpdatedBefore
+        schema:
+          type: string
+      - description: 'A list of OrderStatus values used to filter the results. Possible
+          values: PendingAvailability (This status is available for pre-orders only.
+          The order has been placed, payment has not been authorized, and the release
+          date of the item is in the future.); Pending (The order has been placed
+          but payment has not been authorized); Unshipped (Payment has been authorized
+          and the order is ready for shipment, but no items in the order have been
+          shipped); PartiallyShipped (One or more, but not all, items in the order
+          have been shipped); Shipped (All items in the order have been shipped);
+          InvoiceUnconfirmed (All items in the order have been shipped. The seller
+          has not yet given confirmation to Amazon that the invoice has been shipped
+          to the buyer.); Canceled (The order has been canceled); and Unfulfillable
+          (The order cannot be fulfilled. This state applies only to Multi-Channel
+          Fulfillment orders.).'
+        explode: false
+        in: query
+        name: OrderStatuses
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: A list of MarketplaceId values. Used to select orders that were
+          placed in the specified marketplaces.
+        explode: false
+        in: query
+        name: MarketplaceIds
+        required: true
+        schema:
+          items:
+            type: string
+          maxItems: 50
+          type: array
+        style: form
+      - description: 'A list that indicates how an order was fulfilled. Filters the
+          results by fulfillment channel. Possible values: FBA (Fulfillment by Amazon);
+          SellerFulfilled (Fulfilled by the seller).'
+        explode: false
+        in: query
+        name: FulfillmentChannels
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: 'A list of payment method values. Used to select orders paid
+          using the specified payment methods. Possible values: COD (Cash on delivery);
+          CVS (Convenience store payment); Other (Any payment method other than COD
+          or CVS).'
+        explode: false
+        in: query
+        name: PaymentMethods
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: The email address of a buyer. Used to select orders that contain
+          the specified email address.
+        in: query
+        name: BuyerEmail
+        schema:
+          type: string
+      - description: An order identifier that is specified by the seller. Used to
+          select only the orders that match the order identifier. If SellerOrderId
+          is specified, then FulfillmentChannels, OrderStatuses, PaymentMethod, LastUpdatedAfter,
+          LastUpdatedBefore, and BuyerEmail cannot be specified.
+        in: query
+        name: SellerOrderId
+        schema:
+          type: string
+      - description: A number that indicates the maximum number of orders that can
+          be returned per page. Value must be 1 - 100. Default 100.
+        in: query
+        name: MaxResultsPerPage
+        schema:
+          type: integer
+      - description: 'A list of EasyShipShipmentStatus values. Used to select Easy
+          Ship orders with statuses that match the specified  values. If EasyShipShipmentStatus
+          is specified, only Amazon Easy Ship orders are returned.Possible values:
+          PendingPickUp (Amazon has not yet picked up the package from the seller).
+          LabelCanceled (The seller canceled the pickup). PickedUp (Amazon has picked
+          up the package from the seller). AtOriginFC (The packaged is at the origin
+          fulfillment center). AtDestinationFC (The package is at the destination
+          fulfillment center). OutForDelivery (The package is out for delivery). Damaged
+          (The package was damaged by the carrier). Delivered (The package has been
+          delivered to the buyer). RejectedByBuyer (The package has been rejected
+          by the buyer). Undeliverable (The package cannot be delivered). ReturnedToSeller
+          (The package was not delivered to the buyer and was returned to the seller).
+          ReturningToSeller (The package was not delivered to the buyer and is being
+          returned to the seller).'
+        explode: false
+        in: query
+        name: EasyShipShipmentStatuses
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: A string token returned in the response of your previous request.
+        in: query
+        name: NextToken
+        schema:
+          type: string
+      - description: A list of AmazonOrderId values. An AmazonOrderId is an Amazon-defined
+          order identifier, in 3-7-7 format.
+        explode: false
+        in: query
+        name: AmazonOrderIds
+        schema:
+          items:
+            type: string
+          maxItems: 50
+          type: array
+        style: form
+      - description: Denotes the recommended sourceId where the order should be fulfilled
+          from.
+        in: query
+        name: ActualFulfillmentSupplySourceId
+        schema:
+          type: string
+      - description: When true, this order is marked to be picked up from a store
+          rather than delivered.
+        in: query
+        name: IsISPU
+        schema:
+          type: boolean
+      - description: The store chain store identifier. Linked to a specific store
+          in a store chain.
+        in: query
+        name: StoreChainStoreId
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                payload:
+                  NextToken: 2YgYW55IGNhcm5hbCBwbGVhc3VyZS4
+                  Orders:
+                  - AmazonOrderId: 902-3159896-1390916
+                    PurchaseDate: 2017-01-20T19:49:35Z
+                    LastUpdateDate: 2017-01-20T19:49:35Z
+                    OrderStatus: Pending
+                    FulfillmentChannel: SellerFulfilled
+                    NumberOfItemsShipped: 0
+                    NumberOfItemsUnshipped: 0
+                    PaymentMethod: Other
+                    PaymentMethodDetails:
+                    - CreditCard
+                    - GiftCerificate
+                    MarketplaceId: ATVPDKIKX0DER
+                    ShipmentServiceLevelCategory: Standard
+                    OrderType: StandardOrder
+                    EarliestShipDate: 2017-01-20T19:51:16Z
+                    LatestShipDate: 2017-01-25T19:49:35Z
+                    IsBusinessOrder: false
+                    IsPrime: false
+                    IsGlobalExpressEnabled: false
+                    IsPremiumOrder: false
+                    IsSoldByAB: false
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: Success.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                CreatedAfter:
+                  value: TEST_CASE_200
+                MarketplaceIds:
+                  value:
+                  - ATVPDKIKX0DER
+            response:
+              payload:
+                CreatedBefore: 1.569521782042E9
+                Orders:
+                - AmazonOrderId: 902-1845936-5435065
+                  PurchaseDate: 1970-01-19T03:58:30Z
+                  LastUpdateDate: 1970-01-19T03:58:32Z
+                  OrderStatus: Unshipped
+                  FulfillmentChannel: MFN
+                  SalesChannel: Amazon.com
+                  ShipServiceLevel: Std US D2D Dom
+                  OrderTotal:
+                    CurrencyCode: USD
+                    Amount: "11.01"
+                  NumberOfItemsShipped: 0
+                  NumberOfItemsUnshipped: 1
+                  PaymentMethod: Other
+                  PaymentMethodDetails:
+                  - Standard
+                  IsReplacementOrder: false
+                  MarketplaceId: ATVPDKIKX0DER
+                  ShipmentServiceLevelCategory: Standard
+                  OrderType: StandardOrder
+                  EarliestShipDate: 1970-01-19T03:59:27Z
+                  LatestShipDate: 1970-01-19T04:05:13Z
+                  EarliestDeliveryDate: 1970-01-19T04:06:39Z
+                  LatestDeliveryDate: 1970-01-19T04:15:17Z
+                  IsBusinessOrder: false
+                  IsPrime: false
+                  IsGlobalExpressEnabled: false
+                  IsPremiumOrder: false
+                  IsSoldByAB: false
+                  DefaultShipFromLocationAddress:
+                    Name: MFNIntegrationTestMerchant
+                    AddressLine1: 2201 WESTLAKE AVE
+                    City: SEATTLE
+                    StateOrRegion: WA
+                    PostalCode: 98121-2778
+                    CountryCode: US
+                    Phone: +1 480-386-0930 ext. 73824
+                    AddressType: Commercial
+                  FulfillmentInstruction:
+                    FulfillmentSupplySourceId: sampleSupplySourceId
+                  IsISPU: false
+                - AmazonOrderId: 902-8745147-1934268
+                  PurchaseDate: 1970-01-19T03:58:30Z
+                  LastUpdateDate: 1970-01-19T03:58:32Z
+                  OrderStatus: Unshipped
+                  FulfillmentChannel: MFN
+                  SalesChannel: Amazon.com
+                  ShipServiceLevel: Std US D2D Dom
+                  OrderTotal:
+                    CurrencyCode: USD
+                    Amount: "11.01"
+                  NumberOfItemsShipped: 0
+                  NumberOfItemsUnshipped: 1
+                  PaymentMethod: Other
+                  PaymentMethodDetails:
+                  - Standard
+                  IsReplacementOrder: false
+                  MarketplaceId: ATVPDKIKX0DER
+                  ShipmentServiceLevelCategory: Standard
+                  OrderType: StandardOrder
+                  EarliestShipDate: 1970-01-19T03:59:27Z
+                  LatestShipDate: 1970-01-19T04:05:13Z
+                  EarliestDeliveryDate: 1970-01-19T04:06:39Z
+                  LatestDeliveryDate: 1970-01-19T04:15:17Z
+                  IsBusinessOrder: false
+                  IsPrime: false
+                  IsGlobalExpressEnabled: false
+                  IsPremiumOrder: false
+                  IsSoldByAB: false
+          - request:
+              parameters:
+                CreatedAfter:
+                  value: TEST_CASE_200_NEXT_TOKEN
+                MarketplaceIds:
+                  value:
+                  - ATVPDKIKX0DER
+            response:
+              payload:
+                NextToken: 2YgYW55IGNhcm5hbCBwbGVhc3VyZS4
+                Orders:
+                - AmazonOrderId: 902-3159896-1390916
+                  PurchaseDate: 2017-01-20T19:49:35Z
+                  LastUpdateDate: 2017-01-20T19:49:35Z
+                  OrderStatus: Pending
+                  FulfillmentChannel: SellerFulfilled
+                  NumberOfItemsShipped: 0
+                  NumberOfItemsUnshipped: 0
+                  PaymentMethod: Other
+                  PaymentMethodDetails:
+                  - CreditCard
+                  - GiftCerificate
+                  MarketplaceId: ATVPDKIKX0DER
+                  ShipmentServiceLevelCategory: Standard
+                  OrderType: StandardOrder
+                  EarliestShipDate: 2017-01-20T19:51:16Z
+                  LatestShipDate: 2017-01-25T19:49:35Z
+                  IsBusinessOrder: false
+                  IsPrime: false
+                  IsGlobalExpressEnabled: false
+                  IsPremiumOrder: false
+                  IsSoldByAB: false
+          - request:
+              parameters:
+                CreatedAfter:
+                  value: TEST_CASE_200_NEXT_TOKEN
+                MarketplaceIds:
+                  value:
+                  - ATVPDKIKX0DER
+                NextToken:
+                  value: 2YgYW55IGNhcm5hbCBwbGVhc3VyZS4
+            response:
+              payload:
+                Orders:
+                - AmazonOrderId: 902-3159896-1390916
+                  PurchaseDate: 2017-01-20T19:49:35Z
+                  LastUpdateDate: 2017-01-20T19:49:35Z
+                  OrderStatus: Pending
+                  FulfillmentChannel: SellerFulfilled
+                  NumberOfItemsShipped: 0
+                  NumberOfItemsUnshipped: 0
+                  PaymentMethod: Other
+                  PaymentMethodDetails:
+                  - CreditCard
+                  - GiftCerificate
+                  MarketplaceId: ATVPDKIKX0DER
+                  ShipmentServiceLevelCategory: Standard
+                  OrderType: StandardOrder
+                  EarliestShipDate: 2017-01-20T19:51:16Z
+                  LatestShipDate: 2017-01-25T19:49:35Z
+                  IsBusinessOrder: false
+                  IsPrime: false
+                  IsGlobalExpressEnabled: false
+                  IsPremiumOrder: false
+                  IsSoldByAB: false
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: Request has missing or invalid parameters and cannot be parsed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                CreatedAfter:
+                  value: TEST_CASE_400
+            response:
+              errors:
+              - code: InvalidInput
+                message: Invalid Input
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: Indicates access to the resource is forbidden. Possible reasons
+            include Access Denied, Unauthorized, Expired Token, or Invalid Signature.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: The resource specified does not exist.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: The frequency of requests was greater than allowed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: An unexpected condition occurred that prevented the server
+            from fulfilling the request.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrdersResponse'
+          description: Temporary overloading or maintenance of the server.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+      tags:
+      - ordersV0
+      x-accepts: application/json
+  /orders/v0/orders/{orderId}:
+    get:
+      description: |-
+        Returns the order indicated by the specified order ID.
+
+        **Usage Plans:**
+
+        | Plan type | Rate (requests per second) | Burst |
+        | ---- | ---- | ---- |
+        |Default| 0.0055 | 20 |
+        |Selling partner specific| Variable | Variable |
+
+        The x-amzn-RateLimit-Limit response header returns the usage plan rate limits that were applied to the requested operation. Rate limits for some selling partners will vary from the default rate and burst shown in the table above. For more information, see "Usage Plans and Rate Limits" in the Selling Partner API documentation.
+      operationId: getOrder
+      parameters:
+      - description: An Amazon-defined order identifier, in 3-7-7 format.
+        in: path
+        name: orderId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                payload:
+                  AmazonOrderId: 902-3159896-1390916
+                  PurchaseDate: 2017-01-20T19:49:35Z
+                  LastUpdateDate: 2017-01-20T19:49:35Z
+                  OrderStatus: Pending
+                  FulfillmentChannel: SellerFulfilled
+                  NumberOfItemsShipped: 0
+                  NumberOfItemsUnshipped: 0
+                  PaymentMethod: Other
+                  PaymentMethodDetails:
+                  - CreditCard
+                  - GiftCerificate
+                  MarketplaceId: ATVPDKIKX0DER
+                  ShipmentServiceLevelCategory: Standard
+                  OrderType: StandardOrder
+                  EarliestShipDate: 2017-01-20T19:51:16Z
+                  LatestShipDate: 2017-01-25T19:49:35Z
+                  IsBusinessOrder: false
+                  IsPrime: false
+                  IsGlobalExpressEnabled: false
+                  IsPremiumOrder: false
+                  IsSoldByAB: false
+                  DefaultShipFromLocationAddress:
+                    Name: MFNIntegrationTestMerchant
+                    AddressLine1: 2201 WESTLAKE AVE
+                    City: SEATTLE
+                    StateOrRegion: WA
+                    PostalCode: 98121-2778
+                    CountryCode: US
+                    Phone: +1 480-386-0930 ext. 73824
+                    AddressType: Commercial
+                  FulfillmentInstruction:
+                    FulfillmentSupplySourceId: sampleSupplySourceId
+                  IsISPU: false
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: Success.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_200
+            response:
+              payload:
+                AmazonOrderId: 902-1845936-5435065
+                PurchaseDate: 1970-01-19T03:58:30Z
+                LastUpdateDate: 1970-01-19T03:58:32Z
+                OrderStatus: Unshipped
+                FulfillmentChannel: MFN
+                SalesChannel: Amazon.com
+                ShipServiceLevel: Std US D2D Dom
+                OrderTotal:
+                  CurrencyCode: USD
+                  Amount: "11.01"
+                NumberOfItemsShipped: 0
+                NumberOfItemsUnshipped: 1
+                PaymentMethod: Other
+                PaymentMethodDetails:
+                - Standard
+                IsReplacementOrder: false
+                MarketplaceId: ATVPDKIKX0DER
+                ShipmentServiceLevelCategory: Standard
+                OrderType: StandardOrder
+                EarliestShipDate: 1970-01-19T03:59:27Z
+                LatestShipDate: 1970-01-19T04:05:13Z
+                EarliestDeliveryDate: 1970-01-19T04:06:39Z
+                LatestDeliveryDate: 1970-01-19T04:15:17Z
+                IsBusinessOrder: false
+                IsPrime: false
+                IsGlobalExpressEnabled: false
+                IsPremiumOrder: false
+                IsSoldByAB: false
+                DefaultShipFromLocationAddress:
+                  Name: MFNIntegrationTestMerchant
+                  AddressLine1: 2201 WESTLAKE AVE
+                  City: SEATTLE
+                  StateOrRegion: WA
+                  PostalCode: 98121-2778
+                  CountryCode: US
+                  Phone: +1 480-386-0930 ext. 73824
+                  AddressType: Commercial
+                FulfillmentInstruction:
+                  FulfillmentSupplySourceId: sampleSupplySourceId
+                IsISPU: false
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_IBA_200
+            response:
+              payload:
+                AmazonOrderId: 921-3175655-0452641
+                PurchaseDate: 2019-05-07T15:42:57.058Z
+                LastUpdateDate: 2019-05-08T21:59:59Z
+                OrderStatus: Shipped
+                FulfillmentChannel: AFN
+                SalesChannel: Amazon.de
+                ShipServiceLevel: Standard
+                OrderTotal:
+                  CurrencyCode: EUR
+                  Amount: "100.00"
+                NumberOfItemsShipped: 1
+                NumberOfItemsUnshipped: 0
+                PaymentMethod: Other
+                PaymentMethodDetails:
+                - Invoice
+                IsReplacementOrder: false
+                MarketplaceId: A1PA6795UKMFR9
+                ShipmentServiceLevelCategory: Standard
+                OrderType: StandardOrder
+                EarliestShipDate: 1970-01-19T03:59:27Z
+                LatestShipDate: 2019-05-08T21:59:59Z
+                EarliestDeliveryDate: 2019-05-10T21:59:59Z
+                LatestDeliveryDate: 2019-05-12T21:59:59Z
+                IsBusinessOrder: true
+                IsPrime: false
+                IsGlobalExpressEnabled: false
+                IsPremiumOrder: false
+                IsSoldByAB: true
+                DefaultShipFromLocationAddress:
+                  Name: MFNIntegrationTestMerchant
+                  AddressLine1: 2201 WESTLAKE AVE
+                  City: SEATTLE
+                  StateOrRegion: WA
+                  PostalCode: 98121-2778
+                  CountryCode: US
+                  Phone: +1 480-386-0930 ext. 73824
+                  AddressType: Commercial
+                FulfillmentInstruction:
+                  FulfillmentSupplySourceId: sampleSupplySourceId
+                IsISPU: false
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: Request has missing or invalid parameters and cannot be parsed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_400
+            response:
+              errors:
+              - code: InvalidInput
+                message: Invalid Input
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: Indicates access to the resource is forbidden. Possible reasons
+            include Access Denied, Unauthorized, Expired Token, or Invalid Signature.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: The resource specified does not exist.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: The frequency of requests was greater than allowed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: An unexpected condition occurred that prevented the server
+            from fulfilling the request.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderResponse'
+          description: Temporary overloading or maintenance of the server.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+      tags:
+      - ordersV0
+      x-accepts: application/json
+  /orders/v0/orders/{orderId}/buyerInfo:
+    get:
+      description: |-
+        Returns buyer information for the order indicated by the specified order ID.
+
+        **Usage Plans:**
+
+        | Plan type | Rate (requests per second) | Burst |
+        | ---- | ---- | ---- |
+        |Default| 0.0055 | 20 |
+        |Selling partner specific| Variable | Variable |
+
+        The x-amzn-RateLimit-Limit response header returns the usage plan rate limits that were applied to the requested operation. Rate limits for some selling partners will vary from the default rate and burst shown in the table above. For more information, see "Usage Plans and Rate Limits" in the Selling Partner API documentation.
+      operationId: getOrderBuyerInfo
+      parameters:
+      - description: An orderId is an Amazon-defined order identifier, in 3-7-7 format.
+        in: path
+        name: orderId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                payload:
+                  AmazonOrderId: 902-3159896-1390916
+                  BuyerEmail: user@amz.com
+                  BuyerName: John Smith
+                  BuyerTaxInfo:
+                    CompanyLegalName: Company Name
+                  PurchaseOrderNumber: "2234345435345"
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: Success.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_200
+            response:
+              payload:
+                AmazonOrderId: 902-1845936-5435065
+                BuyerEmail: fzyrv6gwkhbb15c@devo-marketplace.amazon.com
+                BuyerName: MFNIntegrationTestMerchant
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: Request has missing or invalid parameters and cannot be parsed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_400
+            response:
+              errors:
+              - code: InvalidInput
+                message: Invalid Input
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: Indicates access to the resource is forbidden. Possible reasons
+            include Access Denied, Unauthorized, Expired Token, or Invalid Signature.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: The resource specified does not exist.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: The frequency of requests was greater than allowed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: An unexpected condition occurred that prevented the server
+            from fulfilling the request.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderBuyerInfoResponse'
+          description: Temporary overloading or maintenance of the server.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+      tags:
+      - ordersV0
+      x-accepts: application/json
+  /orders/v0/orders/{orderId}/address:
+    get:
+      description: |-
+        Returns the shipping address for the order indicated by the specified order ID.
+
+        **Usage Plans:**
+
+        | Plan type | Rate (requests per second) | Burst |
+        | ---- | ---- | ---- |
+        |Default| 0.0055 | 20 |
+        |Selling partner specific| Variable | Variable |
+
+        The x-amzn-RateLimit-Limit response header returns the usage plan rate limits that were applied to the requested operation. Rate limits for some selling partners will vary from the default rate and burst shown in the table above. For more information, see "Usage Plans and Rate Limits" in the Selling Partner API documentation.
+      operationId: getOrderAddress
+      parameters:
+      - description: An orderId is an Amazon-defined order identifier, in 3-7-7 format.
+        in: path
+        name: orderId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                payload:
+                  AmazonOrderId: 902-3159896-1390916
+                  ShippingAddress:
+                    Name: Michigan address
+                    AddressLine1: 1 cross st
+                    City: Canton
+                    StateOrRegion: MI
+                    PostalCode: "48817"
+                    CountryCode: US
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: Success.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_200
+            response:
+              payload:
+                AmazonOrderId: 902-1845936-5435065
+                ShippingAddress:
+                  Name: MFNIntegrationTestMerchant
+                  AddressLine1: 2201 WESTLAKE AVE
+                  City: SEATTLE
+                  StateOrRegion: WA
+                  PostalCode: 98121-2778
+                  CountryCode: US
+                  Phone: +1 480-386-0930 ext. 73824
+                  AddressType: Commercial
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: Request has missing or invalid parameters and cannot be parsed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_400
+            response:
+              errors:
+              - code: InvalidInput
+                message: Invalid Input
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: Indicates access to the resource is forbidden. Possible reasons
+            include Access Denied, Unauthorized, Expired Token, or Invalid Signature.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: The resource specified does not exist.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: The frequency of requests was greater than allowed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: An unexpected condition occurred that prevented the server
+            from fulfilling the request.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderAddressResponse'
+          description: Temporary overloading or maintenance of the server.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+      tags:
+      - ordersV0
+      x-accepts: application/json
+  /orders/v0/orders/{orderId}/orderItems:
+    get:
+      description: |-
+        Returns detailed order item information for the order indicated by the specified order ID. If NextToken is provided, it's used to retrieve the next page of order items.
+
+        Note: When an order is in the Pending state (the order has been placed but payment has not been authorized), the getOrderItems operation does not return information about pricing, taxes, shipping charges, gift status or promotions for the order items in the order. After an order leaves the Pending state (this occurs when payment has been authorized) and enters the Unshipped, Partially Shipped, or Shipped state, the getOrderItems operation returns information about pricing, taxes, shipping charges, gift status and promotions for the order items in the order.
+
+        **Usage Plans:**
+
+        | Plan type | Rate (requests per second) | Burst |
+        | ---- | ---- | ---- |
+        |Default| 0.0055 | 20 |
+        |Selling partner specific| Variable | Variable |
+
+        The x-amzn-RateLimit-Limit response header returns the usage plan rate limits that were applied to the requested operation. Rate limits for some selling partners will vary from the default rate and burst shown in the table above. For more information, see "Usage Plans and Rate Limits" in the Selling Partner API documentation.
+      operationId: getOrderItems
+      parameters:
+      - description: An Amazon-defined order identifier, in 3-7-7 format.
+        in: path
+        name: orderId
+        required: true
+        schema:
+          type: string
+      - description: A string token returned in the response of your previous request.
+        in: query
+        name: NextToken
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                payload:
+                  AmazonOrderId: 903-1671087-0812628
+                  NextToken: 2YgYW55IGNhcm5hbCBwbGVhc3VyZS4
+                  OrderItems:
+                  - ASIN: BT0093TELA
+                    OrderItemId: "68828574383266"
+                    SellerSKU: CBA_OTF_1
+                    Title: Example item name
+                    QuantityOrdered: 1
+                    QuantityShipped: 1
+                    PointsGranted:
+                      PointsNumber: 10
+                      PointsMonetaryValue:
+                        CurrencyCode: JPY
+                        Amount: "10.00"
+                    ItemPrice:
+                      CurrencyCode: JPY
+                      Amount: "25.99"
+                    ShippingPrice:
+                      CurrencyCode: JPY
+                      Amount: "1.26"
+                    ScheduledDeliveryEndDate: 2013-09-09T01:30:00Z
+                    ScheduledDeliveryStartDate: 2013-09-07T02:00:00Z
+                    CODFee:
+                      CurrencyCode: JPY
+                      Amount: "10.00"
+                    CODFeeDiscount:
+                      CurrencyCode: JPY
+                      Amount: "1.00"
+                    priceDesignation: BusinessPrice
+                  - ASIN: BCTU1104UEFB
+                    OrderItemId: "79039765272157"
+                    SellerSKU: CBA_OTF_5
+                    Title: Example item name
+                    QuantityOrdered: 2
+                    ItemPrice:
+                      CurrencyCode: JPY
+                      Amount: "17.95"
+                    PromotionIds:
+                    - FREESHIP
+                    ConditionId: Used
+                    ConditionSubtypeId: Mint
+                    ConditionNote: Example ConditionNote
+                    PriceDesignation: BusinessPrice
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: Success.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_200
+            response:
+              payload:
+                AmazonOrderId: 902-1845936-5435065
+                OrderItems:
+                - ASIN: B00551Q3CS
+                  OrderItemId: "05015851154158"
+                  SellerSKU: NABetaASINB00551Q3CS
+                  Title: B00551Q3CS [Card Book]
+                  QuantityOrdered: 1
+                  QuantityShipped: 0
+                  ProductInfo:
+                    NumberOfItems: 1
+                  ItemPrice:
+                    CurrencyCode: USD
+                    Amount: "10.00"
+                  ItemTax:
+                    CurrencyCode: USD
+                    Amount: "1.01"
+                  PromotionDiscount:
+                    CurrencyCode: USD
+                    Amount: "0.00"
+                  IsGift: false
+                  ConditionId: New
+                  ConditionSubtypeId: New
+                  IsTransparency: false
+                  SerialNumberRequired: false
+                  IossNumber: ""
+                  DeemedResellerCategory: IOSS
+                  StoreChainStoreId: ISPU_StoreId
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: Request has missing or invalid parameters and cannot be parsed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_400
+            response:
+              errors:
+              - code: InvalidInput
+                message: Invalid Input
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: Indicates access to the resource is forbidden. Possible reasons
+            include Access Denied, Unauthorized, Expired Token, or Invalid Signature.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: The resource specified does not exist.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: The frequency of requests was greater than allowed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: An unexpected condition occurred that prevented the server
+            from fulfilling the request.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsResponse'
+          description: Temporary overloading or maintenance of the server.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+      tags:
+      - ordersV0
+      x-accepts: application/json
+  /orders/v0/orders/{orderId}/orderItems/buyerInfo:
+    get:
+      description: |-
+        Returns buyer information in the order items of the order indicated by the specified order ID.
+
+        **Usage Plans:**
+
+        | Plan type | Rate (requests per second) | Burst |
+        | ---- | ---- | ---- |
+        |Default| 0.0055 | 20 |
+        |Selling partner specific| Variable | Variable |
+
+        The x-amzn-RateLimit-Limit response header returns the usage plan rate limits that were applied to the requested operation. Rate limits for some selling partners will vary from the default rate and burst shown in the table above. For more information, see "Usage Plans and Rate Limits" in the Selling Partner API documentation.
+      operationId: getOrderItemsBuyerInfo
+      parameters:
+      - description: An Amazon-defined order identifier, in 3-7-7 format.
+        in: path
+        name: orderId
+        required: true
+        schema:
+          type: string
+      - description: A string token returned in the response of your previous request.
+        in: query
+        name: NextToken
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                payload:
+                  OrderItemId: 903-1671087-0812628
+                  BuyerCustomizedInfo:
+                    CustomizedURL: https://zme-caps.amazon.com/t/bR6qHkzSOxuB/J8nbWhze0Bd3DkajkOdY-XQbWkFralegp2sr_QZiKEE/1
+                  GiftMessageText: For you!
+                  GiftWrapPrice:
+                    CurrencyCode: JPY
+                    Amount: "1.99"
+                  GiftWrapLevel: Classic
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: Success.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_200
+            response:
+              payload:
+                AmazonOrderId: 902-1845936-5435065
+                OrderItems:
+                - BuyerCustomizedInfo:
+                    CustomizedURL: https://zme-caps.amazon.com/t/bR6qHkzSOxuB/J8nbWhze0Bd3DkajkOdY-XQbWkFralegp2sr_QZiKEE/1
+                  GiftMessageText: Et toi!
+                  GiftWrapPrice:
+                    CurrencyCode: JPY
+                    Amount: "1.99"
+                  GiftWrapLevel: Classic
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: Request has missing or invalid parameters and cannot be parsed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+          x-amazon-spds-sandbox-behaviors:
+          - request:
+              parameters:
+                orderId:
+                  value: TEST_CASE_400
+            response:
+              errors:
+              - code: InvalidInput
+                message: Invalid Input
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: Indicates access to the resource is forbidden. Possible reasons
+            include Access Denied, Unauthorized, Expired Token, or Invalid Signature.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: The resource specified does not exist.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: The frequency of requests was greater than allowed.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: An unexpected condition occurred that prevented the server
+            from fulfilling the request.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrderItemsBuyerInfoResponse'
+          description: Temporary overloading or maintenance of the server.
+          headers:
+            x-amzn-RequestId:
+              description: Unique request reference ID.
+              schema:
+                type: string
+            x-amzn-RateLimit-Limit:
+              description: Your rate limit (requests per second) for this operation.
+              schema:
+                type: string
+      tags:
+      - ordersV0
+      x-accepts: application/json
+components:
+  schemas:
+    GetOrdersResponse:
+      description: The response schema for the getOrders operation.
+      example:
+        payload:
+          Orders:
+          - AmazonOrderId: AmazonOrderId
+            EarliestDeliveryDate: EarliestDeliveryDate
+            EarliestShipDate: EarliestShipDate
+            ReplacedOrderId: ReplacedOrderId
+            SalesChannel: SalesChannel
+            OrderStatus: Pending
+            NumberOfItemsShipped: 0
+            OrderType: StandardOrder
+            IsPremiumOrder: true
+            IsPrime: true
+            OrderChannel: OrderChannel
+            FulfillmentChannel: MFN
+            NumberOfItemsUnshipped: 6
+            MarketplaceTaxInfo:
+              TaxClassifications:
+              - Value: Value
+                Name: Name
+              - Value: Value
+                Name: Name
+            IsReplacementOrder: true
+            IsSoldByAB: true
+            LatestShipDate: LatestShipDate
+            PaymentExecutionDetail:
+            - Payment:
+                CurrencyCode: CurrencyCode
+                Amount: Amount
+              PaymentMethod: PaymentMethod
+            - Payment:
+                CurrencyCode: CurrencyCode
+                Amount: Amount
+              PaymentMethod: PaymentMethod
+            IsEstimatedShipDateSet: true
+            SellerDisplayName: SellerDisplayName
+            ShipServiceLevel: ShipServiceLevel
+            DefaultShipFromLocationAddress:
+              Municipality: Municipality
+              PostalCode: PostalCode
+              City: City
+              County: County
+              Name: Name
+              AddressLine3: AddressLine3
+              AddressLine2: AddressLine2
+              StateOrRegion: StateOrRegion
+              AddressLine1: AddressLine1
+              Phone: Phone
+              CountryCode: CountryCode
+              AddressType: Residential
+              District: District
+            IsISPU: true
+            MarketplaceId: MarketplaceId
+            LatestDeliveryDate: LatestDeliveryDate
+            FulfillmentInstruction:
+              FulfillmentSupplySourceId: FulfillmentSupplySourceId
+            PurchaseDate: PurchaseDate
+            SellerOrderId: SellerOrderId
+            PaymentMethod: COD
+            IsBusinessOrder: true
+            OrderTotal:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            EasyShipShipmentStatus: EasyShipShipmentStatus
+            PaymentMethodDetails:
+            - PaymentMethodDetails
+            - PaymentMethodDetails
+            IsGlobalExpressEnabled: true
+            PromiseResponseDueDate: PromiseResponseDueDate
+            LastUpdateDate: LastUpdateDate
+            ShipmentServiceLevelCategory: ShipmentServiceLevelCategory
+            CbaDisplayableShippingLabel: CbaDisplayableShippingLabel
+          - AmazonOrderId: AmazonOrderId
+            EarliestDeliveryDate: EarliestDeliveryDate
+            EarliestShipDate: EarliestShipDate
+            ReplacedOrderId: ReplacedOrderId
+            SalesChannel: SalesChannel
+            OrderStatus: Pending
+            NumberOfItemsShipped: 0
+            OrderType: StandardOrder
+            IsPremiumOrder: true
+            IsPrime: true
+            OrderChannel: OrderChannel
+            FulfillmentChannel: MFN
+            NumberOfItemsUnshipped: 6
+            MarketplaceTaxInfo:
+              TaxClassifications:
+              - Value: Value
+                Name: Name
+              - Value: Value
+                Name: Name
+            IsReplacementOrder: true
+            IsSoldByAB: true
+            LatestShipDate: LatestShipDate
+            PaymentExecutionDetail:
+            - Payment:
+                CurrencyCode: CurrencyCode
+                Amount: Amount
+              PaymentMethod: PaymentMethod
+            - Payment:
+                CurrencyCode: CurrencyCode
+                Amount: Amount
+              PaymentMethod: PaymentMethod
+            IsEstimatedShipDateSet: true
+            SellerDisplayName: SellerDisplayName
+            ShipServiceLevel: ShipServiceLevel
+            DefaultShipFromLocationAddress:
+              Municipality: Municipality
+              PostalCode: PostalCode
+              City: City
+              County: County
+              Name: Name
+              AddressLine3: AddressLine3
+              AddressLine2: AddressLine2
+              StateOrRegion: StateOrRegion
+              AddressLine1: AddressLine1
+              Phone: Phone
+              CountryCode: CountryCode
+              AddressType: Residential
+              District: District
+            IsISPU: true
+            MarketplaceId: MarketplaceId
+            LatestDeliveryDate: LatestDeliveryDate
+            FulfillmentInstruction:
+              FulfillmentSupplySourceId: FulfillmentSupplySourceId
+            PurchaseDate: PurchaseDate
+            SellerOrderId: SellerOrderId
+            PaymentMethod: COD
+            IsBusinessOrder: true
+            OrderTotal:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            EasyShipShipmentStatus: EasyShipShipmentStatus
+            PaymentMethodDetails:
+            - PaymentMethodDetails
+            - PaymentMethodDetails
+            IsGlobalExpressEnabled: true
+            PromiseResponseDueDate: PromiseResponseDueDate
+            LastUpdateDate: LastUpdateDate
+            ShipmentServiceLevelCategory: ShipmentServiceLevelCategory
+            CbaDisplayableShippingLabel: CbaDisplayableShippingLabel
+          NextToken: NextToken
+          LastUpdatedBefore: LastUpdatedBefore
+          CreatedBefore: CreatedBefore
+        errors:
+        - code: code
+          details: details
+          message: message
+        - code: code
+          details: details
+          message: message
+      properties:
+        payload:
+          $ref: '#/components/schemas/OrdersList'
+        errors:
+          description: A list of error responses returned when a request is unsuccessful.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      type: object
+    GetOrderResponse:
+      description: The response schema for the getOrder operation.
+      example:
+        payload:
+          AmazonOrderId: AmazonOrderId
+          EarliestDeliveryDate: EarliestDeliveryDate
+          EarliestShipDate: EarliestShipDate
+          ReplacedOrderId: ReplacedOrderId
+          SalesChannel: SalesChannel
+          OrderStatus: Pending
+          NumberOfItemsShipped: 0
+          OrderType: StandardOrder
+          IsPremiumOrder: true
+          IsPrime: true
+          OrderChannel: OrderChannel
+          FulfillmentChannel: MFN
+          NumberOfItemsUnshipped: 6
+          MarketplaceTaxInfo:
+            TaxClassifications:
+            - Value: Value
+              Name: Name
+            - Value: Value
+              Name: Name
+          IsReplacementOrder: true
+          IsSoldByAB: true
+          LatestShipDate: LatestShipDate
+          PaymentExecutionDetail:
+          - Payment:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PaymentMethod: PaymentMethod
+          - Payment:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PaymentMethod: PaymentMethod
+          IsEstimatedShipDateSet: true
+          SellerDisplayName: SellerDisplayName
+          ShipServiceLevel: ShipServiceLevel
+          DefaultShipFromLocationAddress:
+            Municipality: Municipality
+            PostalCode: PostalCode
+            City: City
+            County: County
+            Name: Name
+            AddressLine3: AddressLine3
+            AddressLine2: AddressLine2
+            StateOrRegion: StateOrRegion
+            AddressLine1: AddressLine1
+            Phone: Phone
+            CountryCode: CountryCode
+            AddressType: Residential
+            District: District
+          IsISPU: true
+          MarketplaceId: MarketplaceId
+          LatestDeliveryDate: LatestDeliveryDate
+          FulfillmentInstruction:
+            FulfillmentSupplySourceId: FulfillmentSupplySourceId
+          PurchaseDate: PurchaseDate
+          SellerOrderId: SellerOrderId
+          PaymentMethod: COD
+          IsBusinessOrder: true
+          OrderTotal:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          EasyShipShipmentStatus: EasyShipShipmentStatus
+          PaymentMethodDetails:
+          - PaymentMethodDetails
+          - PaymentMethodDetails
+          IsGlobalExpressEnabled: true
+          PromiseResponseDueDate: PromiseResponseDueDate
+          LastUpdateDate: LastUpdateDate
+          ShipmentServiceLevelCategory: ShipmentServiceLevelCategory
+          CbaDisplayableShippingLabel: CbaDisplayableShippingLabel
+        errors:
+        - code: code
+          details: details
+          message: message
+        - code: code
+          details: details
+          message: message
+      properties:
+        payload:
+          $ref: '#/components/schemas/Order'
+        errors:
+          description: A list of error responses returned when a request is unsuccessful.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      type: object
+    GetOrderBuyerInfoResponse:
+      description: The response schema for the getOrderBuyerInfo operation.
+      example:
+        payload:
+          PurchaseOrderNumber: PurchaseOrderNumber
+          AmazonOrderId: AmazonOrderId
+          BuyerEmail: BuyerEmail
+          BuyerCounty: BuyerCounty
+          BuyerName: BuyerName
+          BuyerTaxInfo:
+            CompanyLegalName: CompanyLegalName
+            TaxClassifications:
+            - Value: Value
+              Name: Name
+            - Value: Value
+              Name: Name
+            TaxingRegion: TaxingRegion
+        errors:
+        - code: code
+          details: details
+          message: message
+        - code: code
+          details: details
+          message: message
+      properties:
+        payload:
+          $ref: '#/components/schemas/OrderBuyerInfo'
+        errors:
+          description: A list of error responses returned when a request is unsuccessful.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      type: object
+    GetOrderAddressResponse:
+      description: The response schema for the getOrderAddress operation.
+      example:
+        payload:
+          AmazonOrderId: AmazonOrderId
+          ShippingAddress:
+            Municipality: Municipality
+            PostalCode: PostalCode
+            City: City
+            County: County
+            Name: Name
+            AddressLine3: AddressLine3
+            AddressLine2: AddressLine2
+            StateOrRegion: StateOrRegion
+            AddressLine1: AddressLine1
+            Phone: Phone
+            CountryCode: CountryCode
+            AddressType: Residential
+            District: District
+        errors:
+        - code: code
+          details: details
+          message: message
+        - code: code
+          details: details
+          message: message
+      properties:
+        payload:
+          $ref: '#/components/schemas/OrderAddress'
+        errors:
+          description: A list of error responses returned when a request is unsuccessful.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      type: object
+    GetOrderItemsResponse:
+      description: The response schema for the getOrderItems operation.
+      example:
+        payload:
+          OrderItems:
+          - TaxCollection:
+              Model: MarketplaceFacilitator
+              ResponsibleParty: Amazon Services, Inc.
+            CODFee:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            StoreChainStoreId: StoreChainStoreId
+            ASIN: ASIN
+            SellerSKU: SellerSKU
+            ShippingTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ScheduledDeliveryEndDate: ScheduledDeliveryEndDate
+            SerialNumberRequired: true
+            IsGift: true
+            PointsGranted:
+              PointsMonetaryValue:
+                CurrencyCode: CurrencyCode
+                Amount: Amount
+              PointsNumber: 5
+            ConditionSubtypeId: ConditionSubtypeId
+            ShippingDiscount:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ShippingDiscountTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            IsTransparency: true
+            PromotionDiscountTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ConditionId: ConditionId
+            OrderItemId: OrderItemId
+            DeemedResellerCategory: IOSS
+            CODFeeDiscount:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ProductInfo:
+              NumberOfItems: 1
+            IossNumber: IossNumber
+            ItemTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            QuantityShipped: 6
+            ConditionNote: ConditionNote
+            ItemPrice:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            Title: Title
+            PriceDesignation: PriceDesignation
+            ShippingPrice:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            QuantityOrdered: 0
+            ScheduledDeliveryStartDate: ScheduledDeliveryStartDate
+            PromotionIds:
+            - PromotionIds
+            - PromotionIds
+            PromotionDiscount:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+          - TaxCollection:
+              Model: MarketplaceFacilitator
+              ResponsibleParty: Amazon Services, Inc.
+            CODFee:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            StoreChainStoreId: StoreChainStoreId
+            ASIN: ASIN
+            SellerSKU: SellerSKU
+            ShippingTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ScheduledDeliveryEndDate: ScheduledDeliveryEndDate
+            SerialNumberRequired: true
+            IsGift: true
+            PointsGranted:
+              PointsMonetaryValue:
+                CurrencyCode: CurrencyCode
+                Amount: Amount
+              PointsNumber: 5
+            ConditionSubtypeId: ConditionSubtypeId
+            ShippingDiscount:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ShippingDiscountTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            IsTransparency: true
+            PromotionDiscountTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ConditionId: ConditionId
+            OrderItemId: OrderItemId
+            DeemedResellerCategory: IOSS
+            CODFeeDiscount:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            ProductInfo:
+              NumberOfItems: 1
+            IossNumber: IossNumber
+            ItemTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            QuantityShipped: 6
+            ConditionNote: ConditionNote
+            ItemPrice:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            Title: Title
+            PriceDesignation: PriceDesignation
+            ShippingPrice:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            QuantityOrdered: 0
+            ScheduledDeliveryStartDate: ScheduledDeliveryStartDate
+            PromotionIds:
+            - PromotionIds
+            - PromotionIds
+            PromotionDiscount:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+          NextToken: NextToken
+          AmazonOrderId: AmazonOrderId
+        errors:
+        - code: code
+          details: details
+          message: message
+        - code: code
+          details: details
+          message: message
+      properties:
+        payload:
+          $ref: '#/components/schemas/OrderItemsList'
+        errors:
+          description: A list of error responses returned when a request is unsuccessful.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      type: object
+    GetOrderItemsBuyerInfoResponse:
+      description: The response schema for the getOrderItemsBuyerInfo operation.
+      example:
+        payload:
+          OrderItems:
+          - GiftMessageText: GiftMessageText
+            GiftWrapLevel: GiftWrapLevel
+            GiftWrapPrice:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            GiftWrapTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            OrderItemId: OrderItemId
+            BuyerCustomizedInfo:
+              CustomizedURL: CustomizedURL
+          - GiftMessageText: GiftMessageText
+            GiftWrapLevel: GiftWrapLevel
+            GiftWrapPrice:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            GiftWrapTax:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            OrderItemId: OrderItemId
+            BuyerCustomizedInfo:
+              CustomizedURL: CustomizedURL
+          NextToken: NextToken
+          AmazonOrderId: AmazonOrderId
+        errors:
+        - code: code
+          details: details
+          message: message
+        - code: code
+          details: details
+          message: message
+      properties:
+        payload:
+          $ref: '#/components/schemas/OrderItemsBuyerInfoList'
+        errors:
+          description: A list of error responses returned when a request is unsuccessful.
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      type: object
+    OrdersList:
+      description: A list of orders along with additional information to make subsequent
+        API calls.
+      example:
+        Orders:
+        - AmazonOrderId: AmazonOrderId
+          EarliestDeliveryDate: EarliestDeliveryDate
+          EarliestShipDate: EarliestShipDate
+          ReplacedOrderId: ReplacedOrderId
+          SalesChannel: SalesChannel
+          OrderStatus: Pending
+          NumberOfItemsShipped: 0
+          OrderType: StandardOrder
+          IsPremiumOrder: true
+          IsPrime: true
+          OrderChannel: OrderChannel
+          FulfillmentChannel: MFN
+          NumberOfItemsUnshipped: 6
+          MarketplaceTaxInfo:
+            TaxClassifications:
+            - Value: Value
+              Name: Name
+            - Value: Value
+              Name: Name
+          IsReplacementOrder: true
+          IsSoldByAB: true
+          LatestShipDate: LatestShipDate
+          PaymentExecutionDetail:
+          - Payment:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PaymentMethod: PaymentMethod
+          - Payment:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PaymentMethod: PaymentMethod
+          IsEstimatedShipDateSet: true
+          SellerDisplayName: SellerDisplayName
+          ShipServiceLevel: ShipServiceLevel
+          DefaultShipFromLocationAddress:
+            Municipality: Municipality
+            PostalCode: PostalCode
+            City: City
+            County: County
+            Name: Name
+            AddressLine3: AddressLine3
+            AddressLine2: AddressLine2
+            StateOrRegion: StateOrRegion
+            AddressLine1: AddressLine1
+            Phone: Phone
+            CountryCode: CountryCode
+            AddressType: Residential
+            District: District
+          IsISPU: true
+          MarketplaceId: MarketplaceId
+          LatestDeliveryDate: LatestDeliveryDate
+          FulfillmentInstruction:
+            FulfillmentSupplySourceId: FulfillmentSupplySourceId
+          PurchaseDate: PurchaseDate
+          SellerOrderId: SellerOrderId
+          PaymentMethod: COD
+          IsBusinessOrder: true
+          OrderTotal:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          EasyShipShipmentStatus: EasyShipShipmentStatus
+          PaymentMethodDetails:
+          - PaymentMethodDetails
+          - PaymentMethodDetails
+          IsGlobalExpressEnabled: true
+          PromiseResponseDueDate: PromiseResponseDueDate
+          LastUpdateDate: LastUpdateDate
+          ShipmentServiceLevelCategory: ShipmentServiceLevelCategory
+          CbaDisplayableShippingLabel: CbaDisplayableShippingLabel
+        - AmazonOrderId: AmazonOrderId
+          EarliestDeliveryDate: EarliestDeliveryDate
+          EarliestShipDate: EarliestShipDate
+          ReplacedOrderId: ReplacedOrderId
+          SalesChannel: SalesChannel
+          OrderStatus: Pending
+          NumberOfItemsShipped: 0
+          OrderType: StandardOrder
+          IsPremiumOrder: true
+          IsPrime: true
+          OrderChannel: OrderChannel
+          FulfillmentChannel: MFN
+          NumberOfItemsUnshipped: 6
+          MarketplaceTaxInfo:
+            TaxClassifications:
+            - Value: Value
+              Name: Name
+            - Value: Value
+              Name: Name
+          IsReplacementOrder: true
+          IsSoldByAB: true
+          LatestShipDate: LatestShipDate
+          PaymentExecutionDetail:
+          - Payment:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PaymentMethod: PaymentMethod
+          - Payment:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PaymentMethod: PaymentMethod
+          IsEstimatedShipDateSet: true
+          SellerDisplayName: SellerDisplayName
+          ShipServiceLevel: ShipServiceLevel
+          DefaultShipFromLocationAddress:
+            Municipality: Municipality
+            PostalCode: PostalCode
+            City: City
+            County: County
+            Name: Name
+            AddressLine3: AddressLine3
+            AddressLine2: AddressLine2
+            StateOrRegion: StateOrRegion
+            AddressLine1: AddressLine1
+            Phone: Phone
+            CountryCode: CountryCode
+            AddressType: Residential
+            District: District
+          IsISPU: true
+          MarketplaceId: MarketplaceId
+          LatestDeliveryDate: LatestDeliveryDate
+          FulfillmentInstruction:
+            FulfillmentSupplySourceId: FulfillmentSupplySourceId
+          PurchaseDate: PurchaseDate
+          SellerOrderId: SellerOrderId
+          PaymentMethod: COD
+          IsBusinessOrder: true
+          OrderTotal:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          EasyShipShipmentStatus: EasyShipShipmentStatus
+          PaymentMethodDetails:
+          - PaymentMethodDetails
+          - PaymentMethodDetails
+          IsGlobalExpressEnabled: true
+          PromiseResponseDueDate: PromiseResponseDueDate
+          LastUpdateDate: LastUpdateDate
+          ShipmentServiceLevelCategory: ShipmentServiceLevelCategory
+          CbaDisplayableShippingLabel: CbaDisplayableShippingLabel
+        NextToken: NextToken
+        LastUpdatedBefore: LastUpdatedBefore
+        CreatedBefore: CreatedBefore
+      properties:
+        Orders:
+          description: A list of orders.
+          items:
+            $ref: '#/components/schemas/Order'
+          type: array
+        NextToken:
+          description: When present and not empty, pass this string token in the next
+            request to return the next response page.
+          type: string
+        LastUpdatedBefore:
+          description: A date used for selecting orders that were last updated before
+            (or at) a specified time. An update is defined as any change in order
+            status, including the creation of a new order. Includes updates made by
+            Amazon and by the seller. All dates must be in ISO 8601 format.
+          type: string
+        CreatedBefore:
+          description: A date used for selecting orders created before (or at) a specified
+            time. Only orders placed before the specified time are returned. The date
+            must be in ISO 8601 format.
+          type: string
+      required:
+      - Orders
+      type: object
+    OrderList:
+      description: A list of orders.
+      items:
+        $ref: '#/components/schemas/Order'
+      type: array
+    Order:
+      description: Order information.
+      example:
+        AmazonOrderId: AmazonOrderId
+        EarliestDeliveryDate: EarliestDeliveryDate
+        EarliestShipDate: EarliestShipDate
+        ReplacedOrderId: ReplacedOrderId
+        SalesChannel: SalesChannel
+        OrderStatus: Pending
+        NumberOfItemsShipped: 0
+        OrderType: StandardOrder
+        IsPremiumOrder: true
+        IsPrime: true
+        OrderChannel: OrderChannel
+        FulfillmentChannel: MFN
+        NumberOfItemsUnshipped: 6
+        MarketplaceTaxInfo:
+          TaxClassifications:
+          - Value: Value
+            Name: Name
+          - Value: Value
+            Name: Name
+        IsReplacementOrder: true
+        IsSoldByAB: true
+        LatestShipDate: LatestShipDate
+        PaymentExecutionDetail:
+        - Payment:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          PaymentMethod: PaymentMethod
+        - Payment:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          PaymentMethod: PaymentMethod
+        IsEstimatedShipDateSet: true
+        SellerDisplayName: SellerDisplayName
+        ShipServiceLevel: ShipServiceLevel
+        DefaultShipFromLocationAddress:
+          Municipality: Municipality
+          PostalCode: PostalCode
+          City: City
+          County: County
+          Name: Name
+          AddressLine3: AddressLine3
+          AddressLine2: AddressLine2
+          StateOrRegion: StateOrRegion
+          AddressLine1: AddressLine1
+          Phone: Phone
+          CountryCode: CountryCode
+          AddressType: Residential
+          District: District
+        IsISPU: true
+        MarketplaceId: MarketplaceId
+        LatestDeliveryDate: LatestDeliveryDate
+        FulfillmentInstruction:
+          FulfillmentSupplySourceId: FulfillmentSupplySourceId
+        PurchaseDate: PurchaseDate
+        SellerOrderId: SellerOrderId
+        PaymentMethod: COD
+        IsBusinessOrder: true
+        OrderTotal:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        EasyShipShipmentStatus: EasyShipShipmentStatus
+        PaymentMethodDetails:
+        - PaymentMethodDetails
+        - PaymentMethodDetails
+        IsGlobalExpressEnabled: true
+        PromiseResponseDueDate: PromiseResponseDueDate
+        LastUpdateDate: LastUpdateDate
+        ShipmentServiceLevelCategory: ShipmentServiceLevelCategory
+        CbaDisplayableShippingLabel: CbaDisplayableShippingLabel
+      properties:
+        AmazonOrderId:
+          description: An Amazon-defined order identifier, in 3-7-7 format.
+          type: string
+        SellerOrderId:
+          description: A seller-defined order identifier.
+          type: string
+        PurchaseDate:
+          description: The date when the order was created.
+          type: string
+        LastUpdateDate:
+          description: |-
+            The date when the order was last updated.
+
+            Note: LastUpdateDate is returned with an incorrect date for orders that were last updated before 2009-04-01.
+          type: string
+        OrderStatus:
+          description: The current order status.
+          enum:
+          - Pending
+          - Unshipped
+          - PartiallyShipped
+          - Shipped
+          - Canceled
+          - Unfulfillable
+          - InvoiceUnconfirmed
+          - PendingAvailability
+          type: string
+          x-docgen-enum-table-extension:
+          - value: Pending
+            description: The order has been placed but payment has not been authorized.
+              The order is not ready for shipment. Note that for orders with OrderType
+              = Standard, the initial order status is Pending. For orders with OrderType
+              = Preorder, the initial order status is PendingAvailability, and the
+              order passes into the Pending status when the payment authorization
+              process begins.
+          - value: Unshipped
+            description: Payment has been authorized and order is ready for shipment,
+              but no items in the order have been shipped.
+          - value: PartiallyShipped
+            description: One or more (but not all) items in the order have been shipped.
+          - value: Shipped
+            description: All items in the order have been shipped.
+          - value: Canceled
+            description: The order was canceled.
+          - value: Unfulfillable
+            description: The order cannot be fulfilled. This state applies only to
+              Amazon-fulfilled orders that were not placed on Amazon's retail web
+              site.
+          - value: InvoiceUnconfirmed
+            description: All items in the order have been shipped. The seller has
+              not yet given confirmation to Amazon that the invoice has been shipped
+              to the buyer.
+          - value: PendingAvailability
+            description: This status is available for pre-orders only. The order has
+              been placed, payment has not been authorized, and the release date of
+              the item is in the future. The order is not ready for shipment.
+        FulfillmentChannel:
+          description: Whether the order was fulfilled by Amazon (AFN) or by the seller
+            (MFN).
+          enum:
+          - MFN
+          - AFN
+          type: string
+          x-docgen-enum-table-extension:
+          - value: MFN
+            description: Fulfilled by the seller.
+          - value: AFN
+            description: Fulfilled by Amazon.
+        SalesChannel:
+          description: The sales channel of the first item in the order.
+          type: string
+        OrderChannel:
+          description: The order channel of the first item in the order.
+          type: string
+        ShipServiceLevel:
+          description: The shipment service level of the order.
+          type: string
+        OrderTotal:
+          $ref: '#/components/schemas/Money'
+        NumberOfItemsShipped:
+          description: The number of items shipped.
+          type: integer
+        NumberOfItemsUnshipped:
+          description: The number of items unshipped.
+          type: integer
+        PaymentExecutionDetail:
+          description: A list of payment execution detail items.
+          items:
+            $ref: '#/components/schemas/PaymentExecutionDetailItem'
+          type: array
+        PaymentMethod:
+          description: The payment method for the order. This property is limited
+            to Cash On Delivery (COD) and Convenience Store (CVS) payment methods.
+            Unless you need the specific COD payment information provided by the PaymentExecutionDetailItem
+            object, we recommend using the PaymentMethodDetails property to get payment
+            method information.
+          enum:
+          - COD
+          - CVS
+          - Other
+          type: string
+          x-docgen-enum-table-extension:
+          - value: COD
+            description: Cash on delivery.
+          - value: CVS
+            description: Convenience store.
+          - value: Other
+            description: A payment method other than COD and CVS.
+        PaymentMethodDetails:
+          description: A list of payment method detail items.
+          items:
+            type: string
+          type: array
+        MarketplaceId:
+          description: The identifier for the marketplace where the order was placed.
+          type: string
+        ShipmentServiceLevelCategory:
+          description: |-
+            The shipment service level category of the order.
+
+            Possible values: Expedited, FreeEconomy, NextDay, SameDay, SecondDay, Scheduled, Standard.
+          type: string
+        EasyShipShipmentStatus:
+          description: |-
+            The status of the Amazon Easy Ship order. This property is included only for Amazon Easy Ship orders.
+
+            Possible values: PendingPickUp, LabelCanceled, PickedUp, OutForDelivery, Damaged, Delivered, RejectedByBuyer, Undeliverable, ReturnedToSeller, ReturningToSeller.
+          type: string
+        CbaDisplayableShippingLabel:
+          description: Custom ship label for Checkout by Amazon (CBA).
+          type: string
+        OrderType:
+          description: The type of the order.
+          enum:
+          - StandardOrder
+          - LongLeadTimeOrder
+          - Preorder
+          - BackOrder
+          - SourcingOnDemandOrder
+          type: string
+          x-docgen-enum-table-extension:
+          - value: StandardOrder
+            description: An order that contains items for which the selling partner
+              currently has inventory in stock.
+          - value: LongLeadTimeOrder
+            description: An order that contains items that have a long lead time to
+              ship.
+          - value: Preorder
+            description: An order that contains items with a release date that is
+              in the future.
+          - value: BackOrder
+            description: An order that contains items that already have been released
+              in the market but are currently out of stock and will be available in
+              the future.
+          - value: SourcingOnDemandOrder
+            description: A Sourcing On Demand order.
+        EarliestShipDate:
+          description: |-
+            The start of the time period within which you have committed to ship the order. In ISO 8601 date time format. Returned only for seller-fulfilled orders.
+
+            Note: EarliestShipDate might not be returned for orders placed before February 1, 2013.
+          type: string
+        LatestShipDate:
+          description: |-
+            The end of the time period within which you have committed to ship the order. In ISO 8601 date time format. Returned only for seller-fulfilled orders.
+
+            Note: LatestShipDate might not be returned for orders placed before February 1, 2013.
+          type: string
+        EarliestDeliveryDate:
+          description: The start of the time period within which you have committed
+            to fulfill the order. In ISO 8601 date time format. Returned only for
+            seller-fulfilled orders.
+          type: string
+        LatestDeliveryDate:
+          description: The end of the time period within which you have committed
+            to fulfill the order. In ISO 8601 date time format. Returned only for
+            seller-fulfilled orders that do not have a PendingAvailability, Pending,
+            or Canceled status.
+          type: string
+        IsBusinessOrder:
+          description: When true, the order is an Amazon Business order. An Amazon
+            Business order is an order where the buyer is a Verified Business Buyer.
+          type: boolean
+        IsPrime:
+          description: When true, the order is a seller-fulfilled Amazon Prime order.
+          type: boolean
+        IsPremiumOrder:
+          description: When true, the order has a Premium Shipping Service Level Agreement.
+            For more information about Premium Shipping orders, see "Premium Shipping
+            Options" in the Seller Central Help for your marketplace.
+          type: boolean
+        IsGlobalExpressEnabled:
+          description: When true, the order is a GlobalExpress order.
+          type: boolean
+        ReplacedOrderId:
+          description: The order ID value for the order that is being replaced. Returned
+            only if IsReplacementOrder = true.
+          type: string
+        IsReplacementOrder:
+          description: When true, this is a replacement order.
+          type: boolean
+        PromiseResponseDueDate:
+          description: Indicates the date by which the seller must respond to the
+            buyer with an estimated ship date. Returned only for Sourcing on Demand
+            orders.
+          type: string
+        IsEstimatedShipDateSet:
+          description: When true, the estimated ship date is set for the order. Returned
+            only for Sourcing on Demand orders.
+          type: boolean
+        IsSoldByAB:
+          description: When true, the item within this order was bought and re-sold
+            by Amazon Business EU SARL (ABEU). By buying and instantly re-selling
+            your items, ABEU becomes the seller of record, making your inventory available
+            for sale to customers who would not otherwise purchase from a third-party
+            seller.
+          type: boolean
+        DefaultShipFromLocationAddress:
+          $ref: '#/components/schemas/Address'
+        FulfillmentInstruction:
+          $ref: '#/components/schemas/FulfillmentInstruction'
+        IsISPU:
+          description: When true, this order is marked to be picked up from a store
+            rather than delivered.
+          type: boolean
+        MarketplaceTaxInfo:
+          $ref: '#/components/schemas/MarketplaceTaxInfo'
+        SellerDisplayName:
+          description: The seller’s friendly name registered in the marketplace.
+          type: string
+      required:
+      - AmazonOrderId
+      - LastUpdateDate
+      - OrderStatus
+      - PurchaseDate
+      type: object
+    OrderBuyerInfo:
+      description: Buyer information for an order.
+      example:
+        PurchaseOrderNumber: PurchaseOrderNumber
+        AmazonOrderId: AmazonOrderId
+        BuyerEmail: BuyerEmail
+        BuyerCounty: BuyerCounty
+        BuyerName: BuyerName
+        BuyerTaxInfo:
+          CompanyLegalName: CompanyLegalName
+          TaxClassifications:
+          - Value: Value
+            Name: Name
+          - Value: Value
+            Name: Name
+          TaxingRegion: TaxingRegion
+      properties:
+        AmazonOrderId:
+          description: An Amazon-defined order identifier, in 3-7-7 format.
+          type: string
+        BuyerEmail:
+          description: The anonymized email address of the buyer.
+          type: string
+        BuyerName:
+          description: The name of the buyer.
+          type: string
+        BuyerCounty:
+          description: The county of the buyer.
+          type: string
+        BuyerTaxInfo:
+          $ref: '#/components/schemas/BuyerTaxInfo'
+        PurchaseOrderNumber:
+          description: The purchase order (PO) number entered by the buyer at checkout.
+            Returned only for orders where the buyer entered a PO number at checkout.
+          type: string
+      required:
+      - AmazonOrderId
+      type: object
+    OrderAddress:
+      description: The shipping address for the order.
+      example:
+        AmazonOrderId: AmazonOrderId
+        ShippingAddress:
+          Municipality: Municipality
+          PostalCode: PostalCode
+          City: City
+          County: County
+          Name: Name
+          AddressLine3: AddressLine3
+          AddressLine2: AddressLine2
+          StateOrRegion: StateOrRegion
+          AddressLine1: AddressLine1
+          Phone: Phone
+          CountryCode: CountryCode
+          AddressType: Residential
+          District: District
+      properties:
+        AmazonOrderId:
+          description: An Amazon-defined order identifier, in 3-7-7 format.
+          type: string
+        ShippingAddress:
+          $ref: '#/components/schemas/Address'
+      required:
+      - AmazonOrderId
+      type: object
+    Address:
+      description: The shipping address for the order.
+      example:
+        Municipality: Municipality
+        PostalCode: PostalCode
+        City: City
+        County: County
+        Name: Name
+        AddressLine3: AddressLine3
+        AddressLine2: AddressLine2
+        StateOrRegion: StateOrRegion
+        AddressLine1: AddressLine1
+        Phone: Phone
+        CountryCode: CountryCode
+        AddressType: Residential
+        District: District
+      properties:
+        Name:
+          description: The name.
+          type: string
+        AddressLine1:
+          description: The street address.
+          type: string
+        AddressLine2:
+          description: Additional street address information, if required.
+          type: string
+        AddressLine3:
+          description: Additional street address information, if required.
+          type: string
+        City:
+          description: 'The city '
+          type: string
+        County:
+          description: The county.
+          type: string
+        District:
+          description: The district.
+          type: string
+        StateOrRegion:
+          description: The state or region.
+          type: string
+        Municipality:
+          description: The municipality.
+          type: string
+        PostalCode:
+          description: The postal code.
+          type: string
+        CountryCode:
+          description: The country code. A two-character country code, in ISO 3166-1
+            alpha-2 format.
+          type: string
+        Phone:
+          description: The phone number. Not returned for Fulfillment by Amazon (FBA)
+            orders.
+          type: string
+        AddressType:
+          description: The address type of the shipping address.
+          enum:
+          - Residential
+          - Commercial
+          type: string
+          x-docgen-enum-table-extension:
+          - value: Residential
+            description: The shipping address is a residential address.
+          - value: Commercial
+            description: The shipping address is a commercial address.
+      required:
+      - Name
+      type: object
+    Money:
+      description: The monetary value of the order.
+      example:
+        CurrencyCode: CurrencyCode
+        Amount: Amount
+      properties:
+        CurrencyCode:
+          description: The three-digit currency code. In ISO 4217 format.
+          type: string
+        Amount:
+          description: The currency amount.
+          type: string
+      type: object
+    PaymentMethodDetailItemList:
+      description: A list of payment method detail items.
+      items:
+        type: string
+      type: array
+    PaymentExecutionDetailItemList:
+      description: A list of payment execution detail items.
+      items:
+        $ref: '#/components/schemas/PaymentExecutionDetailItem'
+      type: array
+    PaymentExecutionDetailItem:
+      description: Information about a sub-payment method used to pay for a COD order.
+      example:
+        Payment:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        PaymentMethod: PaymentMethod
+      properties:
+        Payment:
+          $ref: '#/components/schemas/Money'
+        PaymentMethod:
+          description: |-
+            A sub-payment method for a COD order.
+
+            Possible values:
+
+            * COD - Cash On Delivery.
+
+            * GC - Gift Card.
+
+            * PointsAccount - Amazon Points.
+          type: string
+      required:
+      - Payment
+      - PaymentMethod
+      type: object
+    BuyerTaxInfo:
+      description: Tax information about the buyer.
+      example:
+        CompanyLegalName: CompanyLegalName
+        TaxClassifications:
+        - Value: Value
+          Name: Name
+        - Value: Value
+          Name: Name
+        TaxingRegion: TaxingRegion
+      properties:
+        CompanyLegalName:
+          description: The legal name of the company.
+          type: string
+        TaxingRegion:
+          description: The country or region imposing the tax.
+          type: string
+        TaxClassifications:
+          description: A list of tax classifications that apply to the order.
+          items:
+            $ref: '#/components/schemas/TaxClassification'
+          type: array
+      type: object
+    MarketplaceTaxInfo:
+      description: Tax information about the marketplace.
+      example:
+        TaxClassifications:
+        - Value: Value
+          Name: Name
+        - Value: Value
+          Name: Name
+      properties:
+        TaxClassifications:
+          description: A list of tax classifications that apply to the order.
+          items:
+            $ref: '#/components/schemas/TaxClassification'
+          type: array
+      type: object
+    TaxClassification:
+      description: The tax classification for the order.
+      example:
+        Value: Value
+        Name: Name
+      properties:
+        Name:
+          description: The type of tax.
+          type: string
+        Value:
+          description: The buyer's tax identifier.
+          type: string
+      type: object
+    OrderItemsList:
+      description: The order items list along with the order ID.
+      example:
+        OrderItems:
+        - TaxCollection:
+            Model: MarketplaceFacilitator
+            ResponsibleParty: Amazon Services, Inc.
+          CODFee:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          StoreChainStoreId: StoreChainStoreId
+          ASIN: ASIN
+          SellerSKU: SellerSKU
+          ShippingTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ScheduledDeliveryEndDate: ScheduledDeliveryEndDate
+          SerialNumberRequired: true
+          IsGift: true
+          PointsGranted:
+            PointsMonetaryValue:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PointsNumber: 5
+          ConditionSubtypeId: ConditionSubtypeId
+          ShippingDiscount:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ShippingDiscountTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          IsTransparency: true
+          PromotionDiscountTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ConditionId: ConditionId
+          OrderItemId: OrderItemId
+          DeemedResellerCategory: IOSS
+          CODFeeDiscount:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ProductInfo:
+            NumberOfItems: 1
+          IossNumber: IossNumber
+          ItemTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          QuantityShipped: 6
+          ConditionNote: ConditionNote
+          ItemPrice:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          Title: Title
+          PriceDesignation: PriceDesignation
+          ShippingPrice:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          QuantityOrdered: 0
+          ScheduledDeliveryStartDate: ScheduledDeliveryStartDate
+          PromotionIds:
+          - PromotionIds
+          - PromotionIds
+          PromotionDiscount:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+        - TaxCollection:
+            Model: MarketplaceFacilitator
+            ResponsibleParty: Amazon Services, Inc.
+          CODFee:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          StoreChainStoreId: StoreChainStoreId
+          ASIN: ASIN
+          SellerSKU: SellerSKU
+          ShippingTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ScheduledDeliveryEndDate: ScheduledDeliveryEndDate
+          SerialNumberRequired: true
+          IsGift: true
+          PointsGranted:
+            PointsMonetaryValue:
+              CurrencyCode: CurrencyCode
+              Amount: Amount
+            PointsNumber: 5
+          ConditionSubtypeId: ConditionSubtypeId
+          ShippingDiscount:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ShippingDiscountTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          IsTransparency: true
+          PromotionDiscountTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ConditionId: ConditionId
+          OrderItemId: OrderItemId
+          DeemedResellerCategory: IOSS
+          CODFeeDiscount:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          ProductInfo:
+            NumberOfItems: 1
+          IossNumber: IossNumber
+          ItemTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          QuantityShipped: 6
+          ConditionNote: ConditionNote
+          ItemPrice:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          Title: Title
+          PriceDesignation: PriceDesignation
+          ShippingPrice:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          QuantityOrdered: 0
+          ScheduledDeliveryStartDate: ScheduledDeliveryStartDate
+          PromotionIds:
+          - PromotionIds
+          - PromotionIds
+          PromotionDiscount:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+        NextToken: NextToken
+        AmazonOrderId: AmazonOrderId
+      properties:
+        OrderItems:
+          description: A list of order items.
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          type: array
+        NextToken:
+          description: When present and not empty, pass this string token in the next
+            request to return the next response page.
+          type: string
+        AmazonOrderId:
+          description: An Amazon-defined order identifier, in 3-7-7 format.
+          type: string
+      required:
+      - AmazonOrderId
+      - OrderItems
+      type: object
+    OrderItemList:
+      description: A list of order items.
+      items:
+        $ref: '#/components/schemas/OrderItem'
+      type: array
+    OrderItem:
+      description: A single order item.
+      example:
+        TaxCollection:
+          Model: MarketplaceFacilitator
+          ResponsibleParty: Amazon Services, Inc.
+        CODFee:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        StoreChainStoreId: StoreChainStoreId
+        ASIN: ASIN
+        SellerSKU: SellerSKU
+        ShippingTax:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        ScheduledDeliveryEndDate: ScheduledDeliveryEndDate
+        SerialNumberRequired: true
+        IsGift: true
+        PointsGranted:
+          PointsMonetaryValue:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          PointsNumber: 5
+        ConditionSubtypeId: ConditionSubtypeId
+        ShippingDiscount:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        ShippingDiscountTax:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        IsTransparency: true
+        PromotionDiscountTax:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        ConditionId: ConditionId
+        OrderItemId: OrderItemId
+        DeemedResellerCategory: IOSS
+        CODFeeDiscount:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        ProductInfo:
+          NumberOfItems: 1
+        IossNumber: IossNumber
+        ItemTax:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        QuantityShipped: 6
+        ConditionNote: ConditionNote
+        ItemPrice:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        Title: Title
+        PriceDesignation: PriceDesignation
+        ShippingPrice:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        QuantityOrdered: 0
+        ScheduledDeliveryStartDate: ScheduledDeliveryStartDate
+        PromotionIds:
+        - PromotionIds
+        - PromotionIds
+        PromotionDiscount:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+      properties:
+        ASIN:
+          description: The Amazon Standard Identification Number (ASIN) of the item.
+          type: string
+        SellerSKU:
+          description: The seller stock keeping unit (SKU) of the item.
+          type: string
+        OrderItemId:
+          description: An Amazon-defined order item identifier.
+          type: string
+        Title:
+          description: The name of the item.
+          type: string
+        QuantityOrdered:
+          description: 'The number of items in the order. '
+          type: integer
+        QuantityShipped:
+          description: The number of items shipped.
+          type: integer
+        ProductInfo:
+          $ref: '#/components/schemas/ProductInfoDetail'
+        PointsGranted:
+          $ref: '#/components/schemas/PointsGrantedDetail'
+        ItemPrice:
+          $ref: '#/components/schemas/Money'
+        ShippingPrice:
+          $ref: '#/components/schemas/Money'
+        ItemTax:
+          $ref: '#/components/schemas/Money'
+        ShippingTax:
+          $ref: '#/components/schemas/Money'
+        ShippingDiscount:
+          $ref: '#/components/schemas/Money'
+        ShippingDiscountTax:
+          $ref: '#/components/schemas/Money'
+        PromotionDiscount:
+          $ref: '#/components/schemas/Money'
+        PromotionDiscountTax:
+          $ref: '#/components/schemas/Money'
+        PromotionIds:
+          description: A list of promotion identifiers provided by the seller when
+            the promotions were created.
+          items:
+            type: string
+          type: array
+        CODFee:
+          $ref: '#/components/schemas/Money'
+        CODFeeDiscount:
+          $ref: '#/components/schemas/Money'
+        IsGift:
+          description: When true, the item is a gift.
+          type: boolean
+        ConditionNote:
+          description: The condition of the item as described by the seller.
+          type: string
+        ConditionId:
+          description: |-
+            The condition of the item.
+
+            Possible values: New, Used, Collectible, Refurbished, Preorder, Club.
+          type: string
+        ConditionSubtypeId:
+          description: |-
+            The subcondition of the item.
+
+            Possible values: New, Mint, Very Good, Good, Acceptable, Poor, Club, OEM, Warranty, Refurbished Warranty, Refurbished, Open Box, Any, Other.
+          type: string
+        ScheduledDeliveryStartDate:
+          description: The start date of the scheduled delivery window in the time
+            zone of the order destination. In ISO 8601 date time format.
+          type: string
+        ScheduledDeliveryEndDate:
+          description: The end date of the scheduled delivery window in the time zone
+            of the order destination. In ISO 8601 date time format.
+          type: string
+        PriceDesignation:
+          description: "Indicates that the selling price is a special price that is\
+            \ available only for Amazon Business orders. For more information about\
+            \ the Amazon Business Seller Program, see the [Amazon Business website](https://www.amazon.com/b2b/info/amazon-business).\
+            \ \n\nPossible values: BusinessPrice - A special price that is available\
+            \ only for Amazon Business orders."
+          type: string
+        TaxCollection:
+          $ref: '#/components/schemas/TaxCollection'
+        SerialNumberRequired:
+          description: |-
+            When true, the product type for this item has a serial number.
+
+            Returned only for Amazon Easy Ship orders.
+          type: boolean
+        IsTransparency:
+          description: When true, transparency codes are required.
+          type: boolean
+        IossNumber:
+          description: The IOSS number for the marketplace. Sellers shipping to the
+            European Union (EU) from outside of the EU must provide this IOSS number
+            to their carrier when Amazon has collected the VAT on the sale.
+          type: string
+        StoreChainStoreId:
+          description: The store chain store identifier. Linked to a specific store
+            in a store chain.
+          type: string
+        DeemedResellerCategory:
+          description: The category of deemed reseller. This applies to selling partners
+            that are not based in the EU and is used to help them meet the VAT Deemed
+            Reseller tax laws in the EU and UK.
+          enum:
+          - IOSS
+          - UOSS
+          type: string
+          x-docgen-enum-table-extension:
+          - value: IOSS
+            description: Import one stop shop. The item being purchased is not held
+              in the EU for shipment.
+          - value: UOSS
+            description: Union one stop shop. The item being purchased is held in
+              the EU for shipment.
+      required:
+      - ASIN
+      - OrderItemId
+      - QuantityOrdered
+      type: object
+    OrderItemsBuyerInfoList:
+      description: A single order item's buyer information list with the order ID.
+      example:
+        OrderItems:
+        - GiftMessageText: GiftMessageText
+          GiftWrapLevel: GiftWrapLevel
+          GiftWrapPrice:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          GiftWrapTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          OrderItemId: OrderItemId
+          BuyerCustomizedInfo:
+            CustomizedURL: CustomizedURL
+        - GiftMessageText: GiftMessageText
+          GiftWrapLevel: GiftWrapLevel
+          GiftWrapPrice:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          GiftWrapTax:
+            CurrencyCode: CurrencyCode
+            Amount: Amount
+          OrderItemId: OrderItemId
+          BuyerCustomizedInfo:
+            CustomizedURL: CustomizedURL
+        NextToken: NextToken
+        AmazonOrderId: AmazonOrderId
+      properties:
+        OrderItems:
+          description: A single order item's buyer information list.
+          items:
+            $ref: '#/components/schemas/OrderItemBuyerInfo'
+          type: array
+        NextToken:
+          description: When present and not empty, pass this string token in the next
+            request to return the next response page.
+          type: string
+        AmazonOrderId:
+          description: An Amazon-defined order identifier, in 3-7-7 format.
+          type: string
+      required:
+      - AmazonOrderId
+      - OrderItems
+      type: object
+    OrderItemBuyerInfoList:
+      description: A single order item's buyer information list.
+      items:
+        $ref: '#/components/schemas/OrderItemBuyerInfo'
+      type: array
+    OrderItemBuyerInfo:
+      description: A single order item's buyer information.
+      example:
+        GiftMessageText: GiftMessageText
+        GiftWrapLevel: GiftWrapLevel
+        GiftWrapPrice:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        GiftWrapTax:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        OrderItemId: OrderItemId
+        BuyerCustomizedInfo:
+          CustomizedURL: CustomizedURL
+      properties:
+        OrderItemId:
+          description: An Amazon-defined order item identifier.
+          type: string
+        BuyerCustomizedInfo:
+          $ref: '#/components/schemas/BuyerCustomizedInfoDetail'
+        GiftWrapPrice:
+          $ref: '#/components/schemas/Money'
+        GiftWrapTax:
+          $ref: '#/components/schemas/Money'
+        GiftMessageText:
+          description: A gift message provided by the buyer.
+          type: string
+        GiftWrapLevel:
+          description: The gift wrap level specified by the buyer.
+          type: string
+      required:
+      - OrderItemId
+      type: object
+    PointsGrantedDetail:
+      description: The number of Amazon Points offered with the purchase of an item,
+        and their monetary value.
+      example:
+        PointsMonetaryValue:
+          CurrencyCode: CurrencyCode
+          Amount: Amount
+        PointsNumber: 5
+      properties:
+        PointsNumber:
+          description: The number of Amazon Points granted with the purchase of an
+            item.
+          type: integer
+        PointsMonetaryValue:
+          $ref: '#/components/schemas/Money'
+      type: object
+    ProductInfoDetail:
+      description: Product information on the number of items.
+      example:
+        NumberOfItems: 1
+      properties:
+        NumberOfItems:
+          description: The total number of items that are included in the ASIN.
+          type: integer
+      type: object
+    PromotionIdList:
+      description: A list of promotion identifiers provided by the seller when the
+        promotions were created.
+      items:
+        type: string
+      type: array
+    BuyerCustomizedInfoDetail:
+      description: Buyer information for custom orders from the Amazon Custom program.
+      example:
+        CustomizedURL: CustomizedURL
+      properties:
+        CustomizedURL:
+          description: The location of a zip file containing Amazon Custom data.
+          type: string
+      type: object
+    TaxCollection:
+      description: Information about withheld taxes.
+      example:
+        Model: MarketplaceFacilitator
+        ResponsibleParty: Amazon Services, Inc.
+      properties:
+        Model:
+          description: The tax collection model applied to the item.
+          enum:
+          - MarketplaceFacilitator
+          type: string
+          x-docgen-enum-table-extension:
+          - value: MarketplaceFacilitator
+            description: Tax is withheld and remitted to the taxing authority by Amazon
+              on behalf of the seller.
+        ResponsibleParty:
+          description: The party responsible for withholding the taxes and remitting
+            them to the taxing authority.
+          enum:
+          - Amazon Services, Inc.
+          type: string
+          x-docgen-enum-table-extension:
+          - value: Amazon Services, Inc.
+            description: Amazon Services, Inc.
+      type: object
+    FulfillmentInstruction:
+      description: Contains the instructions about the fulfillment like where should
+        it be fulfilled from.
+      example:
+        FulfillmentSupplySourceId: FulfillmentSupplySourceId
+      properties:
+        FulfillmentSupplySourceId:
+          description: Denotes the recommended sourceId where the order should be
+            fulfilled from.
+          type: string
+      type: object
+    ErrorList:
+      description: A list of error responses returned when a request is unsuccessful.
+      items:
+        $ref: '#/components/schemas/Error'
+      type: array
+    Error:
+      description: Error response returned when the request is unsuccessful.
+      example:
+        code: code
+        details: details
+        message: message
+      properties:
+        code:
+          description: An error code that identifies the type of error that occurred.
+          type: string
+        message:
+          description: A message that describes the error condition in a human-readable
+            form.
+          type: string
+        details:
+          description: Additional details that can help the caller understand or fix
+            the issue.
+          type: string
+      required:
+      - code
+      - message
+      type: object
+x-original-swagger-version: "2.0"
+
