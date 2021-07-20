@@ -258,6 +258,12 @@
             <version>${javax-annotation-version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+        	<groupId>com.amazon.sellingpartnerapi</groupId>
+		    <artifactId>sellingpartnerapi-aa-java</artifactId>
+		    <version>1.0</version>
+        </dependency>
+        
         <!-- test dependencies -->
         <dependency>
             <groupId>junit</groupId>

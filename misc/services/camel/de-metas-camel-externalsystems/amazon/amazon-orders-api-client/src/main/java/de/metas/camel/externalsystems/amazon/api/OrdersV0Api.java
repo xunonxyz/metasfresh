@@ -22,6 +22,13 @@ import de.metas.camel.externalsystems.amazon.api.orders.invoker.Pair;
 import de.metas.camel.externalsystems.amazon.api.orders.invoker.ProgressRequestBody;
 import de.metas.camel.externalsystems.amazon.api.orders.invoker.ProgressResponseBody;
 
+import com.amazon.SellingPartnerAPIAA.AWSAuthenticationCredentials;
+import com.amazon.SellingPartnerAPIAA.AWSAuthenticationCredentialsProvider;
+import com.amazon.SellingPartnerAPIAA.AWSSigV4Signer;
+import com.amazon.SellingPartnerAPIAA.LWAAccessTokenCache;
+import com.amazon.SellingPartnerAPIAA.LWAAccessTokenCacheImpl;
+import com.amazon.SellingPartnerAPIAA.LWAAuthorizationCredentials;
+import com.amazon.SellingPartnerAPIAA.LWAAuthorizationSigner;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
@@ -42,8 +49,12 @@ import java.util.Map;
 
 public class OrdersV0Api {
     private ApiClient localVarApiClient;
+    
+    private LWAAuthorizationSigner lwaAuthorizationSigner;
+    
+	private AWSSigV4Signer awsSigV4Signer;
 
-    public OrdersV0Api() {
+	public OrdersV0Api() {
         this(Configuration.getDefaultApiClient());
     }
 
@@ -58,6 +69,86 @@ public class OrdersV0Api {
     public void setApiClient(ApiClient apiClient) {
         this.localVarApiClient = apiClient;
     }
+    
+    
+    public static class Builder {
+        private AWSAuthenticationCredentials awsAuthenticationCredentials;
+        private LWAAuthorizationCredentials lwaAuthorizationCredentials;
+        private String endpoint;
+        private LWAAccessTokenCache lwaAccessTokenCache;
+        private Boolean disableAccessTokenCache = false;
+        private AWSAuthenticationCredentialsProvider awsAuthenticationCredentialsProvider;
+
+        public Builder awsAuthenticationCredentials(AWSAuthenticationCredentials awsAuthenticationCredentials) {
+            this.awsAuthenticationCredentials = awsAuthenticationCredentials;
+            return this;
+        }
+
+        public Builder lwaAuthorizationCredentials(LWAAuthorizationCredentials lwaAuthorizationCredentials) {
+            this.lwaAuthorizationCredentials = lwaAuthorizationCredentials;
+            return this;
+        }
+
+        public Builder endpoint(String endpoint) {
+            this.endpoint = endpoint;
+            return this;
+        }
+        
+        public Builder lwaAccessTokenCache(LWAAccessTokenCache lwaAccessTokenCache) {
+            this.lwaAccessTokenCache = lwaAccessTokenCache;
+            return this;
+        }
+		
+	   public Builder disableAccessTokenCache() {
+            this.disableAccessTokenCache = true;
+            return this;
+        }
+        
+        public Builder awsAuthenticationCredentialsProvider(AWSAuthenticationCredentialsProvider awsAuthenticationCredentialsProvider) {
+            this.awsAuthenticationCredentialsProvider = awsAuthenticationCredentialsProvider;
+            return this;
+        }
+        
+
+        public OrdersV0Api build() {
+            if (awsAuthenticationCredentials == null) {
+                throw new RuntimeException("AWSAuthenticationCredentials not set");
+            }
+
+            if (lwaAuthorizationCredentials == null) {
+                throw new RuntimeException("LWAAuthorizationCredentials not set");
+            }
+
+            if ( null == endpoint || "".equals(endpoint) ) {
+                throw new RuntimeException("Endpoint not set");
+            }
+
+            AWSSigV4Signer awsSigV4Signer;
+            if ( awsAuthenticationCredentialsProvider == null) {
+                awsSigV4Signer = new AWSSigV4Signer(awsAuthenticationCredentials);
+            }
+            else {
+                awsSigV4Signer = new AWSSigV4Signer(awsAuthenticationCredentials,awsAuthenticationCredentialsProvider);
+            }
+            
+            LWAAuthorizationSigner lwaAuthorizationSigner = null;            
+            if (disableAccessTokenCache) {
+                lwaAuthorizationSigner = new LWAAuthorizationSigner(lwaAuthorizationCredentials);
+            }
+            else {
+                if (lwaAccessTokenCache == null) {
+                    lwaAccessTokenCache = new LWAAccessTokenCacheImpl();                  
+                 }
+                 lwaAuthorizationSigner = new LWAAuthorizationSigner(lwaAuthorizationCredentials,lwaAccessTokenCache);
+            }
+
+            return new OrdersV0Api(new ApiClient()
+                .setAWSSigV4Signer(awsSigV4Signer)
+                .setLWAAuthorizationSigner(lwaAuthorizationSigner)
+                .setBasePath(endpoint));
+        }
+    }
+    
 
     /**
      * Build call for getOrder

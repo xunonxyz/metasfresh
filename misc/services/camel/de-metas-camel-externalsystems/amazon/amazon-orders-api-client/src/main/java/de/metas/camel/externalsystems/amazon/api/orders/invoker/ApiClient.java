@@ -22,6 +22,10 @@ import okio.BufferedSink;
 import okio.Okio;
 
 import javax.net.ssl.*;
+
+import com.amazon.SellingPartnerAPIAA.AWSSigV4Signer;
+import com.amazon.SellingPartnerAPIAA.LWAAuthorizationSigner;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +81,9 @@ public class ApiClient {
     private JSON json;
 
     private HttpLoggingInterceptor loggingInterceptor;
+    
+    private LWAAuthorizationSigner lwaAuthorizationSigner;
+    private AWSSigV4Signer awsSigV4Signer;
 
     /*
      * Basic constructor for ApiClient
@@ -1094,6 +1101,14 @@ public class ApiClient {
         } else {
             request = reqBuilder.method(method, reqBody).build();
         }
+        
+        
+        //////////////////////////////////////////////
+        
+        request = lwaAuthorizationSigner.sign(request);
+        request = awsSigV4Signer.sign(request);
+        
+        //////////////////////////////////////////////
 
         return request;
     }
@@ -1347,4 +1362,26 @@ public class ApiClient {
             throw new AssertionError(e);
         }
     }
+
+    /**
+     * Sets the LWAAuthorizationSigner
+     *
+     * @param lwaAuthorizationSigner LWAAuthorizationSigner instance
+     * @return Api client
+    */
+    public ApiClient setLWAAuthorizationSigner(LWAAuthorizationSigner lwaAuthorizationSigner) {
+        this.lwaAuthorizationSigner = lwaAuthorizationSigner;
+        return this;
+    }
+
+    /**
+     * Sets the AWSSigV4Signer
+     *
+     * @param awsSigV4Signer AWSSigV4Signer instance
+     * @return Api client
+     */
+     public ApiClient setAWSSigV4Signer(AWSSigV4Signer awsSigV4Signer) {
+          this.awsSigV4Signer = awsSigV4Signer;
+          return this;
+     }
 }
