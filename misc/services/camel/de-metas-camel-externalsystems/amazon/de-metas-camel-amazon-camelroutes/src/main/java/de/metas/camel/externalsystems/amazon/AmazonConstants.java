@@ -20,11 +20,12 @@
  * #L%
  */
 
-package de.metas.camel.externalsystems.amazon.processor;
+package de.metas.camel.externalsystems.amazon;
 
 public interface AmazonConstants
 {
 	
+
 	// camel route properties
 	String ROUTE_PROPERTY_AMAZON_CLIENT = "amazonClient";
 	String ROUTE_PROPERTY_CURRENT_ORDER = "currentOrder";
@@ -36,5 +37,5 @@ public interface AmazonConstants
 	 * {@link AmazonImportOrdersRouteContext}
 	 */
 	String ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT = "amazon_order_context";
-	
+
 }

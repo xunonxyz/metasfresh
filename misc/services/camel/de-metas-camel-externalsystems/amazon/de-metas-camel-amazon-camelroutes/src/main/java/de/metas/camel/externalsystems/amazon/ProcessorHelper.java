@@ -20,9 +20,22 @@
  * #L%
  */
 
-package de.metas.camel.externalsystems.amazon.processor.order;
+package de.metas.camel.externalsystems.amazon;
 
-public class NextOrderImportRuntimeParameterUpsert
+import lombok.NonNull;
+import org.apache.camel.Exchange;
+
+public class ProcessorHelper
 {
+	public static <T> T getPropertyOrThrowError(@NonNull final Exchange exchange, @NonNull final String propertyName, @NonNull final Class<T> propertyClass)
+	{
+		final T property = exchange.getProperty(propertyName, propertyClass);
+		if (property == null)
+		{
+			throw new RuntimeException("Missing route property: " + propertyName + " !");
+		}
+
+		return property;
+	}
 
 }

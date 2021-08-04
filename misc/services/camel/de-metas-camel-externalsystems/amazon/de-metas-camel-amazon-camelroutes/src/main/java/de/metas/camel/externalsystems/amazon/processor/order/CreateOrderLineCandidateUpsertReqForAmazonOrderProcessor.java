@@ -22,17 +22,53 @@
 
 package de.metas.camel.externalsystems.amazon.processor.order;
 
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT;
+import static de.metas.camel.externalsystems.amazon.ProcessorHelper.getPropertyOrThrowError;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.metas.camel.externalsystems.amazon.AmazonImportOrdersRouteContext;
+import de.metas.common.bpartner.v2.response.JsonResponseBPartnerCompositeUpsert;
+import de.metas.common.bpartner.v2.response.JsonResponseBPartnerCompositeUpsertItem;
+import de.metas.common.ordercandidates.v2.request.JsonOLCandCreateBulkRequest;
+import de.metas.common.util.Check;
+import lombok.NonNull;
 
 public class CreateOrderLineCandidateUpsertReqForAmazonOrderProcessor implements Processor
 {
 
+	protected Logger log = LoggerFactory.getLogger(getClass());
+
 	@Override
 	public void process(Exchange exchange) throws Exception
 	{
-		// TODO Auto-generated method stub
-		
+		final AmazonImportOrdersRouteContext importOrdersRouteContext = getPropertyOrThrowError(exchange, ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT, AmazonImportOrdersRouteContext.class);
+		log.debug("Create OLCs for amazon order {}", importOrdersRouteContext.getOrderNotNull().getAmazonOrderId());
+
+		// get created business partners.
+		final JsonResponseBPartnerCompositeUpsert bPartnerUpsertResponseList = exchange.getIn().getBody(JsonResponseBPartnerCompositeUpsert.class);
+		final JsonResponseBPartnerCompositeUpsertItem bPartnerUpsertResponse = Check.singleElement(bPartnerUpsertResponseList.getResponseItems());
+
+		if (bPartnerUpsertResponse == null)
+		{
+			throw new RuntimeException("No JsonResponseUpsert present! OrderId=" + importOrdersRouteContext.getOrderNotNull().getAmazonOrderId());
+		}
+
+		final JsonOLCandCreateBulkRequest olCandBulkRequest = buildOlCandRequest(importOrdersRouteContext, bPartnerUpsertResponse);
+
+		exchange.getIn().setBody(olCandBulkRequest);
 	}
 
+	private JsonOLCandCreateBulkRequest buildOlCandRequest(
+			@NonNull final AmazonImportOrdersRouteContext context,
+			@NonNull final JsonResponseBPartnerCompositeUpsertItem bPartnerUpsertResponse)
+	{
+
+		// TODO.
+
+		return null;
+	}
 }

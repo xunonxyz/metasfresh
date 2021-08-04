@@ -20,7 +20,7 @@
  * #L%
  */
 
-package de.metas.camel.externalsystems.amazon.processor;
+package de.metas.camel.externalsystems.amazon;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -29,7 +29,11 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import de.metas.camel.externalsystems.amazon.api.OrdersV0Api;
 import de.metas.camel.externalsystems.amazon.api.model.orders.Order;
+import de.metas.camel.externalsystems.amazon.api.model.orders.OrderAddress;
+import de.metas.camel.externalsystems.amazon.api.model.orders.OrderBuyerInfo;
+import de.metas.camel.externalsystems.amazon.api.model.orders.OrderItemsList;
 import de.metas.camel.externalsystems.common.DateAndImportStatus;
 import de.metas.common.externalsystem.JsonExternalSystemRequest;
 import lombok.AccessLevel;
@@ -43,11 +47,11 @@ import lombok.Setter;
 @Builder
 public class AmazonImportOrdersRouteContext
 {
-	
+
 	@NonNull
 	@Setter(AccessLevel.NONE)
 	private final String orgCode;
-	
+
 	/** Initiator of this request and params for it. */
 	@NonNull
 	@Setter(AccessLevel.NONE)
@@ -57,13 +61,29 @@ public class AmazonImportOrdersRouteContext
 	@Builder.Default
 	@Setter(AccessLevel.NONE)
 	private Set<String> importedExternalHeaderIds = new HashSet<>();
-	
+
 	/** Current processed order after splitting. */
 	@Nullable
 	private Order order;
 
+	/** Address of current order. */
+	@Nullable
+	private OrderAddress orderAddress;
+
+	/** Buyer of current order. */
+	@Nullable
+	private OrderBuyerInfo orderBuyerInfo;
+
+	/** Items of current order. */
+	@Nullable
+	private OrderItemsList orderItemsList;
+
 	@Nullable
 	private String bpLocationCustomJsonPath;
+
+	@Nullable
+	@Setter(AccessLevel.NONE)
+	private OrdersV0Api orderApi;
 
 	/** Shipping BPID after generation / query. */
 	@Nullable
@@ -80,7 +100,7 @@ public class AmazonImportOrdersRouteContext
 	@Setter(AccessLevel.NONE)
 	@Getter(AccessLevel.NONE)
 	private DateAndImportStatus nextImportStartingTimestamp;
-	
+
 	@NonNull
 	public Order getOrderNotNull()
 	{
@@ -119,7 +139,7 @@ public class AmazonImportOrdersRouteContext
 		this.order = order;
 		importedExternalHeaderIds.add(order.getAmazonOrderId());
 	}
-	
+
 	@NonNull
 	public Optional<Instant> getNextImportStartingTimestamp()
 	{
@@ -130,7 +150,7 @@ public class AmazonImportOrdersRouteContext
 
 		return Optional.of(nextImportStartingTimestamp.getTimestamp());
 	}
-	
+
 	/**
 	 * Update next import timestamp to the most current one.
 	 */

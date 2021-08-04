@@ -22,17 +22,47 @@
 
 package de.metas.camel.externalsystems.amazon.processor.bpartner;
 
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT;
+import static de.metas.camel.externalsystems.amazon.ProcessorHelper.getPropertyOrThrowError;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class CreateBPartnerUpsertReqForAmazonOrderProcessor  implements Processor
+import de.metas.camel.externalsystems.amazon.AmazonImportOrdersRouteContext;
+import de.metas.camel.externalsystems.amazon.api.model.orders.Order;
+
+/**
+ * Code mapping to create bPartners from amazon orders.
+ * 
+ * @author Werner Gaulke
+ *
+ */
+public class CreateBPartnerUpsertReqForAmazonOrderProcessor implements Processor
 {
+
+	protected Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public void process(Exchange exchange) throws Exception
 	{
-		// TODO Auto-generated method stub
-		
+		final AmazonImportOrdersRouteContext importOrderRouteContext = getPropertyOrThrowError(exchange, ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT, AmazonImportOrdersRouteContext.class);
+		log.debug("Upsert BPartner for amazon order {}", importOrderRouteContext.getOrderNotNull());
+
+		// to process
+		final Order order = importOrderRouteContext.getOrderNotNull();
+
+		// prepare identifiers
+		if (order.getIsBusinessOrder())
+		{
+			// business
+		}
+		else
+		{
+			// private
+		}
+
 	}
 
 }
