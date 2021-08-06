@@ -4,7 +4,7 @@
     
     <parent>
 		<groupId>de.metas.camel.externalsystems</groupId>
-		<artifactId>ebay</artifactId>
+		<artifactId>amazon</artifactId>
 		<version>10.0.0</version>
 	</parent>
     

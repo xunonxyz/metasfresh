@@ -22,6 +22,8 @@
 
 package de.metas.camel.externalsystems.amazon;
 
+import java.math.BigDecimal;
+
 public interface AmazonConstants
 {
 	
@@ -31,11 +33,25 @@ public interface AmazonConstants
 	String ROUTE_PROPERTY_CURRENT_ORDER = "currentOrder";
 	String ROUTE_PROPERTY_ORDER_DELIVERIES = "orderDeliveries";
 	String ROUTE_PROPERTY_ORG_CODE = "orgCode";
+	
+	String ROUTE_HEADER_ORDER_TYPE = "amazonOrderType";
+	String ROUTE_HEADER_FBA = "fulfillmentByAmazon";
+	String ROUTE_HEADER_FBS = "fulfillmentBySeller";
+	
+	//some defaults for olc imports
+	String DATA_SOURCE_INT_AMAZON = "int-Amazon";
+	String DEFAULT_DELIVERY_RULE = "A"; // FIXME: magic name
+	String DEFAULT_DELIVERY_VIA_RULE = "D"; // FIXME: magic name
+	BigDecimal DEFAULT_ORDER_LINE_DISCOUNT = BigDecimal.ZERO;
 
 	/**
 	 * Various props used for order processing.
 	 * {@link AmazonImportOrdersRouteContext}
 	 */
 	String ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT = "amazon_order_context";
+	
+	
+	// external identifier
+	String EXTERNAL_ID_PREFIX = "ext-amazon-";
 
 }

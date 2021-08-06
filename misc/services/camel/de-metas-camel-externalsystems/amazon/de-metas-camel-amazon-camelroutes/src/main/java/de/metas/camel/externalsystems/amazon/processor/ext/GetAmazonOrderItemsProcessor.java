@@ -47,14 +47,14 @@ public class GetAmazonOrderItemsProcessor implements Processor
 	public void process(Exchange exchange) throws Exception
 	{
 		final AmazonImportOrdersRouteContext importOrderRouteContext = getPropertyOrThrowError(exchange, ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT, AmazonImportOrdersRouteContext.class);
-		log.debug("Gathering address details for amazon order {}", importOrderRouteContext.getOrderNotNull());
+		log.debug("Get order items for amazon order {}", importOrderRouteContext.getOrderNotNull().getAmazonOrderId());
 
 		// to process
 		final Order order = importOrderRouteContext.getOrderNotNull();
 		final OrdersV0Api orderApi = importOrderRouteContext.getOrderApi();
 
 		
-		GetOrderItemsResponse response = orderApi.getOrderItems(order.getAmazonOrderId(), null);
+		GetOrderItemsResponse response = orderApi.getOrderItems(order.getAmazonOrderId(), "");
 
 		
 		if (CollectionUtils.isEmpty(response.getErrors()))

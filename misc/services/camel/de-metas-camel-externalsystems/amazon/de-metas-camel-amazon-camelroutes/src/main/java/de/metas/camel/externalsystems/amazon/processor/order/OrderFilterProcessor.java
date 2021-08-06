@@ -23,6 +23,9 @@
 package de.metas.camel.externalsystems.amazon.processor.order;
 
 import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT;
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_HEADER_ORDER_TYPE;
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_HEADER_FBA;
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_HEADER_FBS;
 import static de.metas.camel.externalsystems.amazon.ProcessorHelper.getPropertyOrThrowError;
 
 import org.apache.camel.Exchange;
@@ -32,12 +35,13 @@ import org.slf4j.LoggerFactory;
 
 import de.metas.camel.externalsystems.amazon.AmazonImportOrdersRouteContext;
 import de.metas.camel.externalsystems.amazon.api.model.orders.Order;
+import de.metas.camel.externalsystems.amazon.api.model.orders.Order.FulfillmentChannelEnum;
 import de.metas.camel.externalsystems.amazon.api.model.orders.Order.OrderStatusEnum;
 
 /**
- * Filters orders
+ * Filters orders and checks type to trigger correct flow.
  * 
- * @author werner
+ * @author Werner Gaulke
  *
  */
 public class OrderFilterProcessor implements Processor
@@ -57,12 +61,19 @@ public class OrderFilterProcessor implements Processor
 			throw new RuntimeException("Empty body!");
 		}
 
-		// use sellerOrder Id to identify new orders. Also, orders have to be confirmed (to get all payment details).
-		if ((order.getSellerOrderId() == null || "".equalsIgnoreCase(order.getSellerOrderId())) && !OrderStatusEnum.PENDING.equals(order.getOrderStatus()))
+		if ((order.getSellerOrderId() == null || "".equalsIgnoreCase(order.getSellerOrderId()))  // use sellerOrder Id to identify new orders.
+				&& !OrderStatusEnum.PENDING.equals(order.getOrderStatus()) // Also, orders have to be confirmed (to get all payment details).
+				)  // Also, only process seller fulfilled orders.
 		{
-
+			
 			importOrdersRouteContext.setOrder(order);
 			exchange.getIn().setBody(order);
+			
+			if(FulfillmentChannelEnum.AFN.equals(order.getFulfillmentChannel())) {
+				exchange.getIn().setHeader(ROUTE_HEADER_ORDER_TYPE, ROUTE_HEADER_FBA);
+			} else {
+				exchange.getIn().setHeader(ROUTE_HEADER_ORDER_TYPE, ROUTE_HEADER_FBS);
+			}
 
 		}
 		else

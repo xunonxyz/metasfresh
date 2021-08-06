@@ -35,6 +35,7 @@ import de.metas.camel.externalsystems.amazon.api.model.orders.OrderAddress;
 import de.metas.camel.externalsystems.amazon.api.model.orders.OrderBuyerInfo;
 import de.metas.camel.externalsystems.amazon.api.model.orders.OrderItemsList;
 import de.metas.camel.externalsystems.common.DateAndImportStatus;
+import de.metas.common.externalsystem.JsonExternalSystemAmazonConfigMappings;
 import de.metas.common.externalsystem.JsonExternalSystemRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -100,6 +101,11 @@ public class AmazonImportOrdersRouteContext
 	@Setter(AccessLevel.NONE)
 	@Getter(AccessLevel.NONE)
 	private DateAndImportStatus nextImportStartingTimestamp;
+	
+	/** Configuration object with mappings. E.g. customer group to select for new customers or sync advise. */
+	@Nullable
+	@Setter(AccessLevel.NONE)
+	private JsonExternalSystemAmazonConfigMappings amazonConfigMappings;
 
 	@NonNull
 	public Order getOrderNotNull()

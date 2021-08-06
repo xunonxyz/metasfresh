@@ -27,7 +27,13 @@ import static de.metas.camel.externalsystems.common.ExternalSystemCamelConstants
 import static de.metas.camel.externalsystems.common.ExternalSystemCamelConstants.MF_UPSERT_BPARTNER_V2_CAMEL_URI;
 import static de.metas.camel.externalsystems.common.ExternalSystemCamelConstants.MF_UPSERT_PRODUCT_PRICE_V2_CAMEL_URI;
 import static de.metas.camel.externalsystems.common.ExternalSystemCamelConstants.MF_UPSERT_PRODUCT_V2_CAMEL_URI;
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_HEADER_ORDER_TYPE;
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_HEADER_FBA;
+import static de.metas.camel.externalsystems.amazon.AmazonConstants.ROUTE_HEADER_FBS;
 import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.direct;
+import static org.apache.camel.builder.PredicateBuilder.and;
+
+
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
@@ -100,28 +106,38 @@ public class GetAmazonOrdersRouteBuilder extends RouteBuilder
 				// filter fulfilled orders  
 				.process(new OrderFilterProcessor()).id(FILTER_ORDER_ROUTE_ID)
 				.choice()
-					.when(body().isNull())
-						.log(LoggingLevel.INFO, "Nothing to do! The order was filtered out!")
+					.when( and(body().isNotNull(), header(ROUTE_HEADER_ORDER_TYPE).isEqualTo(ROUTE_HEADER_FBA)) )
+						.log(LoggingLevel.INFO, "FBA Route not implemendet yet.")
+						
+					.when( and(body().isNotNull(), header(ROUTE_HEADER_ORDER_TYPE).isEqualTo(ROUTE_HEADER_FBS)) )
+						.to( direct(GET_ORDER_DETAILS_ADDRESS_ID) )
+						//		.multicast()
+						//		.to( direct(GET_ORDER_DETAILS_ADDRESS_ID) )
+						//		.to( direct(GET_ORDER_DETAILS_BUYER_ID) )
+						//		.to( direct(GET_ORDER_DETAILS_ITEMS_ID) );
 					.otherwise()
-						.multicast()
-							.to( direct(GET_ORDER_DETAILS_ADDRESS_ID) )
-							.to( direct(GET_ORDER_DETAILS_BUYER_ID) )
-							.to( direct(GET_ORDER_DETAILS_ITEMS_ID) );
-		
-		//3) individual detail getters.
-		from( direct(GET_ORDER_DETAILS_ADDRESS_ID) ).process(new GetAmazonOrderAddressProcessor()).to( direct(PROCESS_ORDERS_ROUTE_ID) );
-		from( direct(GET_ORDER_DETAILS_BUYER_ID) ).process(new GetAmazonOrderBuyerProcessor()).to( direct(PROCESS_ORDERS_ROUTE_ID) );
+						.log(LoggingLevel.INFO, "Nothing to do! The order was filtered out!");
+
+//		
+//		//3) individual detail getters.
+//		from( direct(GET_ORDER_DETAILS_ADDRESS_ID) ).process(new GetAmazonOrderAddressProcessor()).to( direct(PROCESS_ORDERS_ROUTE_ID) );
+//		from( direct(GET_ORDER_DETAILS_BUYER_ID) ).process(new GetAmazonOrderBuyerProcessor()).to( direct(PROCESS_ORDERS_ROUTE_ID) );
+//		from( direct(GET_ORDER_DETAILS_ITEMS_ID) ).process(new GetAmazonOrderItemsProcessor()).to( direct(PROCESS_ORDERS_ROUTE_ID) );
+
+		// TODO: workaround use simple chain. Parallel multicast from above won't work O_o.
+		from( direct(GET_ORDER_DETAILS_ADDRESS_ID) ).process(new GetAmazonOrderAddressProcessor()).to( direct(GET_ORDER_DETAILS_BUYER_ID) );
+		from( direct(GET_ORDER_DETAILS_BUYER_ID) ).process(new GetAmazonOrderBuyerProcessor()).to( direct(GET_ORDER_DETAILS_ITEMS_ID) );
 		from( direct(GET_ORDER_DETAILS_ITEMS_ID) ).process(new GetAmazonOrderItemsProcessor()).to( direct(PROCESS_ORDERS_ROUTE_ID) );
 		
 		
 		//4) process each order and its details to create upsert requests.
 		from( direct(PROCESS_ORDERS_ROUTE_ID) )
 			.routeId(PROCESS_ORDERS_ROUTE_ID)
-			.log("Amazon process orders route invoked")
+			.log("Amazon process orders route invoked!")
 			.doTry()
 					
 				//i) create products
-				.to( direct(PROCESS_PRODUCTS_ROUTE_ID) )
+				//.to( direct(PROCESS_PRODUCTS_ROUTE_ID) ) TODO
 				
 				//ii) create bparners and put them in bparner import pipeline.
 				.process(new CreateBPartnerUpsertReqForAmazonOrderProcessor()).id(PROCESS_ORDER_BPARTNER_ROUTE_ID)

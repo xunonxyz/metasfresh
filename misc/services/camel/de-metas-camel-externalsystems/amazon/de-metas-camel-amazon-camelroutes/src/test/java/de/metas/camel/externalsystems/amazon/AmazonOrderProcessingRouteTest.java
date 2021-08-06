@@ -27,13 +27,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -61,9 +68,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 
 import de.metas.camel.externalsystems.amazon.api.OrdersV0Api;
+import de.metas.camel.externalsystems.amazon.api.model.orders.GetOrderAddressResponse;
+import de.metas.camel.externalsystems.amazon.api.model.orders.GetOrderBuyerInfoResponse;
+import de.metas.camel.externalsystems.amazon.api.model.orders.GetOrderItemsResponse;
 import de.metas.camel.externalsystems.amazon.api.model.orders.GetOrdersResponse;
 import de.metas.camel.externalsystems.amazon.api.model.orders.Order;
 import de.metas.camel.externalsystems.common.ExternalSystemCamelConstants;
@@ -74,6 +86,7 @@ import de.metas.common.externalsystem.JsonExternalSystemRequest;
 import de.metas.common.ordercandidates.v2.request.JsonOLCandCreateBulkRequest;
 import de.metas.common.ordercandidates.v2.request.JsonOLCandCreateRequest;
 import de.metas.common.rest_api.common.JsonMetasfreshId;
+import de.metas.camel.externalsystems.amazon.api.model.orders.Error;
 
 @CamelSpringTest
 @ContextConfiguration(classes = AmazonOrderProcessingRouteTest.ContextConfig.class)
@@ -81,6 +94,7 @@ import de.metas.common.rest_api.common.JsonMetasfreshId;
 @UseAdviceWith
 public class AmazonOrderProcessingRouteTest
 {
+	private static final Gson gson = new Gson();
 
 	@Autowired
 	protected CamelContext camelContext;
@@ -97,7 +111,7 @@ public class AmazonOrderProcessingRouteTest
 	
 	@Test
 	@DirtiesContext
-	public void flowWithSimpleOrder() throws Exception
+	public void flowWithExampleOrderTest() throws Exception
 	{
 
 		// mock result of bpartner upsert.
@@ -139,13 +153,17 @@ public class AmazonOrderProcessingRouteTest
 		body.put(AmazonConstants.ROUTE_PROPERTY_AMAZON_CLIENT, orderApi);
 
 		// prepare order api
-		Gson gson = new Gson();
-		InputStream is = AmazonOrderProcessingRouteTest.class.getResourceAsStream("/examples/01_amazon-orders-example.json");
-		GetOrdersResponse mockResult = gson.fromJson(new JsonReader(new InputStreamReader(is, "UTF-8")), GetOrdersResponse.class);
+		GetOrdersResponse getOrdersResponsExample = loadFromJson("/examples/01_amazon-orders-example.json", GetOrdersResponse.class);
+		GetOrderAddressResponse getOrderAddressResponseExample = loadFromJson("/examples/02_amazon-order-address-example.json", GetOrderAddressResponse.class);
+		GetOrderBuyerInfoResponse getOrderBuyerInfoResponseExample = loadFromJson("/examples/02_amazon-order-buyer-info-example.json", GetOrderBuyerInfoResponse.class);
+		GetOrderItemsResponse getOrderItemsResponseExample = loadFromJson("/examples/02_amazon-order-items-example.json", GetOrderItemsResponse.class);
 		
-		when(orderApi.getOrders(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockResult);
+		when(orderApi.getOrders(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(getOrdersResponsExample);
+		when(orderApi.getOrderAddress(eq("902-1845936-5435065"))).thenReturn(getOrderAddressResponseExample);
+		when(orderApi.getOrderBuyerInfo(eq("902-1845936-5435065"))).thenReturn(getOrderBuyerInfoResponseExample);
+		when(orderApi.getOrderItems(eq("902-1845936-5435065"), anyString())).thenReturn(getOrderItemsResponseExample);
 		
-
+		
 		// send message
 		template.sendBodyAndHeaders("direct:" + GetAmazonOrdersRouteBuilder.GET_ORDERS_ROUTE_ID, jesr, body);
 
@@ -157,18 +175,28 @@ public class AmazonOrderProcessingRouteTest
 		//validate OLC 
 		JsonOLCandCreateBulkRequest metasOLCr = createdOLCProcessor.jolccbr;
 		
-		Order amazonOrder = mockResult.getPayload().getOrders().get(0);
+		Order amazonOrder = getOrdersResponsExample.getPayload().getOrders().get(0);
 		
 		
-		//validate line item (values from 01_ebay-new-order-single-item-of-consumer.json).
+		//validate line item 
 		JsonOLCandCreateRequest joccr = metasOLCr.getRequests().get(0);
 		
 		assertEquals( BigDecimal.valueOf(1), joccr.getQty());
-		assertEquals("EUR", joccr.getCurrencyCode());
-		assertEquals("34324", joccr.getProductIdentifier());
-		assertEquals( BigDecimal.valueOf(8.9), joccr.getPrice());
+		assertEquals("USD", joccr.getCurrencyCode());
+		assertEquals("NABetaASINB00551Q3CS", joccr.getProductIdentifier());
+		assertEquals( BigDecimal.valueOf(11.01), joccr.getPrice());
 		
 		
+	}
+	
+	
+	private static <T> T loadFromJson(String file, Type typeOfT) throws JsonIOException, JsonSyntaxException, UnsupportedEncodingException {
+		
+		InputStream is2 = AmazonOrderProcessingRouteTest.class.getResourceAsStream(file);
+		T mockResult = gson.fromJson(new JsonReader(new InputStreamReader(is2, "UTF-8")), typeOfT);
+		
+		
+		return mockResult;
 	}
 	
 	

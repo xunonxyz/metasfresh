@@ -47,7 +47,7 @@ public class GetAmazonOrderBuyerProcessor implements Processor
 	public void process(Exchange exchange) throws Exception
 	{
 		final AmazonImportOrdersRouteContext importOrderRouteContext = getPropertyOrThrowError(exchange, ROUTE_PROPERTY_IMPORT_ORDERS_CONTEXT, AmazonImportOrdersRouteContext.class);
-		log.debug("Gathering address details for amazon order {}", importOrderRouteContext.getOrderNotNull());
+		log.debug("Get buyer info for amazon order {}", importOrderRouteContext.getOrderNotNull().getAmazonOrderId());
 
 		// to process
 		final Order order = importOrderRouteContext.getOrderNotNull();

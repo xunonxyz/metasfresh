@@ -38,13 +38,13 @@ import org.springframework.util.CollectionUtils;
 import de.metas.camel.externalsystems.amazon.AmazonConstants;
 import de.metas.camel.externalsystems.amazon.AmazonImportOrdersRouteContext;
 import de.metas.camel.externalsystems.amazon.api.OrdersV0Api;
+import de.metas.camel.externalsystems.amazon.api.model.orders.Error;
 import de.metas.camel.externalsystems.amazon.api.model.orders.GetOrdersResponse;
 import de.metas.camel.externalsystems.amazon.api.model.orders.OrdersList;
 import de.metas.camel.externalsystems.amazon.api.orders.invoker.ApiClient;
 import de.metas.camel.externalsystems.amazon.api.orders.invoker.Configuration;
 import de.metas.camel.externalsystems.common.ProcessLogger;
 import de.metas.common.externalsystem.JsonExternalSystemRequest;
-import de.metas.camel.externalsystems.amazon.api.model.orders.Error;
 
 public class GetAmazonOrdersProcessor implements Processor
 {
@@ -73,9 +73,29 @@ public class GetAmazonOrdersProcessor implements Processor
 			processLogger.logMessage("Amazon:GetOrders process started!" + Instant.now(), request.getAdPInstanceId().getValue());
 		}
 
-		// TODO: configuration
-		ApiClient defaultClient = Configuration.getDefaultApiClient();
-		final OrdersV0Api orderApi = new OrdersV0Api(defaultClient);
+		
+		
+		// TODO: sort out real amazon api access.
+		
+		
+		// construct api client or use provided one.
+		final OrdersV0Api orderApi;
+		if (exchange.getIn().getHeader(AmazonConstants.ROUTE_PROPERTY_AMAZON_CLIENT) == null)
+		{
+			log.debug("Constructing amazon api client");
+			
+			ApiClient defaultClient = Configuration.getDefaultApiClient();
+			orderApi = new OrdersV0Api(defaultClient);
+		}
+		else
+		{
+			log.debug("Using provided amazon api client");
+			
+			orderApi = (OrdersV0Api)exchange.getIn().getHeader(AmazonConstants.ROUTE_PROPERTY_AMAZON_CLIENT);
+		}
+		
+		
+		
 
 		// required
 		List<String> marketplaceIds = new ArrayList<>();

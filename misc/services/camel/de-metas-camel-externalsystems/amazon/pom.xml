@@ -19,5 +19,6 @@
 	
 	<modules>
 		<module>amazon-orders-api-client</module>
+		<module>de-metas-camel-amazon-camelroutes</module>
 	</modules>
 </project>
