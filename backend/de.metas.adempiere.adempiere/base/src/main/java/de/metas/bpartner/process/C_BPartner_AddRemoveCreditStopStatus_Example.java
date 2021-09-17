@@ -12,10 +12,12 @@ import de.metas.process.IProcessPreconditionsContext;
 import de.metas.process.JavaProcess;
 import de.metas.process.Param;
 import de.metas.process.ProcessPreconditionsResolution;
+import de.metas.util.Loggables;
 import de.metas.util.Services;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.X_C_BPartner_Stats;
+
 
 /**
  * This process set credit status to Credit Stop or removes it, in function by parameter <code>IsSetCreditStop</code> <br>
@@ -40,6 +42,8 @@ public class C_BPartner_AddRemoveCreditStopStatus_Example extends JavaProcess im
 
 		final BPartnerStats stats = bpartnerStatsDAO.getCreateBPartnerStats(bPartner);
 		final String creditStatus;
+		
+		Loggables.get().addLog("Test metasfresh");
 
 		if (SetCreditStatusEnum.CreditOK.equals(setCreditStatus)) {
 			creditStatus = X_C_BPartner_Stats.SOCREDITSTATUS_CreditOK;
