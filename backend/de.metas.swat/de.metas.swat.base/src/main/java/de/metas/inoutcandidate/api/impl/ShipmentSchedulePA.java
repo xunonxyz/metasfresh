@@ -955,20 +955,21 @@ public class ShipmentSchedulePA implements IShipmentSchedulePA
 		logger.debug("Updated {} {} entries for AD_Pinstance_ID={} and released the marker.", result, M_SHIPMENT_SCHEDULE_RECOMPUTE, adPInstanceId);
 	}
 
-	@Override
-	public void deleteSchedulesWithOutOl(final String trxName)
-	{
-		final String sql = "DELETE FROM " + I_M_ShipmentSchedule.Table_Name + " s "
-				+ "WHERE s.AD_Table_ID=" + getTableId(I_C_OrderLine.class) + " "
-				+ "AND NOT EXISTS ("
-				+ "   select 1 from " + I_C_OrderLine.Table_Name + " ol "
-				+ "   where ol." + I_C_OrderLine.COLUMNNAME_C_OrderLine_ID + "=s." + I_M_ShipmentSchedule.COLUMNNAME_C_OrderLine_ID
-				+ ")";
-
-		final int delCnt = DB.executeUpdateEx(sql, trxName);
-
-		logger.debug("Deleted {} shipment schedules whose C_OrderLine is already gone", delCnt);
-	}
+// not needed here and causes a lot of performance-problems
+//	@Override
+//	public void deleteSchedulesWithOutOl(final String trxName)
+//	{
+//		final String sql = "DELETE FROM " + I_M_ShipmentSchedule.Table_Name + " s "
+//				+ "WHERE s.AD_Table_ID=" + getTableId(I_C_OrderLine.class) + " "
+//				+ "AND NOT EXISTS ("
+//				+ "   select 1 from " + I_C_OrderLine.Table_Name + " ol "
+//				+ "   where ol." + I_C_OrderLine.COLUMNNAME_C_OrderLine_ID + "=s." + I_M_ShipmentSchedule.COLUMNNAME_C_OrderLine_ID
+//				+ ")";
+//
+//		final int delCnt = DB.executeUpdateEx(sql, trxName);
+//
+//		logger.debug("Deleted {} shipment schedules whose C_OrderLine is already gone", delCnt);
+//	}
 
 	@Override
 	public void setIsDiplayedForProduct(final int productId, final boolean displayed, final String trxName)

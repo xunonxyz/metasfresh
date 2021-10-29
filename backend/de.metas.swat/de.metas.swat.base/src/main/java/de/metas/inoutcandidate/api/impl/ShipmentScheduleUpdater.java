@@ -76,7 +76,8 @@ public class ShipmentScheduleUpdater implements IShipmentScheduleUpdater
 
 		try
 		{
-			shipmentSchedulePA.deleteSchedulesWithOutOl(trxName);
+			// not needed here and causes a lot of performance-problems
+			//shipmentSchedulePA.deleteSchedulesWithOutOl(trxName);
 
 			if (!updateOnlyLocked)
 			{

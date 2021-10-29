@@ -188,14 +188,15 @@ public interface IShipmentSchedulePA extends ISingletonService
 
 	void setIsDiplayedForProduct(int productId, boolean displayed, String trxName);
 
-	/**
-	 * Deletes all {@link I_M_ShipmentSchedule} records whose {@link I_C_OrderLine} is not there anymore.
-	 *
-	 * It can occur that an order line for a given shipment schedule record is gone.
-	 *
-	 * @param trxName
-	 */
-	void deleteSchedulesWithOutOl(String trxName);
+// not needed here and causes a lot of performance-problems
+//	/**
+//	 * Deletes all {@link I_M_ShipmentSchedule} records whose {@link I_C_OrderLine} is not there anymore.
+//	 *
+//	 * It can occur that an order line for a given shipment schedule record is gone.
+//	 *
+//	 * @param trxName
+//	 */
+//	void deleteSchedulesWithOutOl(String trxName);
 
 	/**
 	 * Mass update DeliveryDate_Override
