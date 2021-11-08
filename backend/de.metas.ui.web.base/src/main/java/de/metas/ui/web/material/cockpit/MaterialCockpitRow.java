@@ -36,11 +36,12 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Singular;
 import lombok.ToString;
+import org.adempiere.warehouse.WarehouseId;
 import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_UOM;
 import org.compiere.model.I_M_Product;
 import org.compiere.model.I_M_Product_Category;
-import org.compiere.model.I_S_Resource;
+import org.compiere.model.I_M_Warehouse;
 import org.compiere.util.Env;
 
 import javax.annotation.Nullable;
@@ -218,6 +219,7 @@ public class MaterialCockpitRow implements IViewRow
 					displayed = Displayed.SYSCONFIG, displayedSysConfigPrefix = SYSCFG_PREFIX) })
 	private final BigDecimal qtySupplySum;
 
+	// Bedarfssumme
 	public static final String FIELDNAME_QtySupplyRequired = I_MD_Cockpit.COLUMNNAME_QtySupplyRequired;
 	@ViewColumn(fieldName = FIELDNAME_QtySupplyRequired, //
 			captionKey = FIELDNAME_QtySupplyRequired, //
@@ -226,6 +228,7 @@ public class MaterialCockpitRow implements IViewRow
 					displayed = Displayed.SYSCONFIG, displayedSysConfigPrefix = SYSCFG_PREFIX) })
 	private final BigDecimal qtySupplyRequired;
 
+	// Zu disp. Bedarf
 	public static final String FIELDNAME_QtySupplyToSchedule = I_MD_Cockpit.COLUMNNAME_QtySupplyToSchedule;
 	@ViewColumn(fieldName = FIELDNAME_QtySupplyToSchedule, //
 			captionKey = FIELDNAME_QtySupplyToSchedule, //
@@ -251,7 +254,7 @@ public class MaterialCockpitRow implements IViewRow
 					displayed = Displayed.SYSCONFIG, displayedSysConfigPrefix = SYSCFG_PREFIX) })
 	private final BigDecimal qtyDemandPPOrder;
 
-	// Zaehlbestand
+	// Planbestand
 	public static final String FIELDNAME_QtyStockCurrent = I_MD_Cockpit.COLUMNNAME_QtyStockCurrent;
 	@ViewColumn(fieldName = FIELDNAME_QtyStockCurrent, //
 			captionKey = FIELDNAME_QtyStockCurrent, //
@@ -301,9 +304,13 @@ public class MaterialCockpitRow implements IViewRow
 					displayed = Displayed.SYSCONFIG, displayedSysConfigPrefix = SYSCFG_PREFIX) })
 	private final BigDecimal qtyExpectedSurplus;
 
-	@ViewColumn(widgetType = DocumentFieldWidgetType.Quantity, //
+	// Bestand
+	public static final String FIELDNAME_QtyOnHand = I_MD_Stock.COLUMNNAME_QtyOnHand;
+	@ViewColumn(fieldName = FIELDNAME_QtyOnHand, //
 			captionKey = I_MD_Stock.COLUMNNAME_QtyOnHand, //
-			layouts = { @ViewColumnLayout(when = JSONViewDataType.grid, seqNo = 110) })
+			widgetType = DocumentFieldWidgetType.Quantity, //
+			layouts = { @ViewColumnLayout(when = JSONViewDataType.grid, seqNo = 110, //
+					displayed = Displayed.SYSCONFIG, displayedSysConfigPrefix = SYSCFG_PREFIX) })
 	@Getter // note that we use the getter for testing
 	private final BigDecimal qtyOnHandStock;
 
@@ -547,7 +554,7 @@ public class MaterialCockpitRow implements IViewRow
 	private MaterialCockpitRow(
 			final int productId,
 			final LocalDate date,
-			final int plantId,
+			@Nullable final WarehouseId warehouseId,
 			@Nullable final Quantity qtyStockEstimateCount,
 			@Nullable final Instant qtyStockEstimateTime,
 			@Nullable final Quantity qtyInventoryCount,
@@ -561,22 +568,22 @@ public class MaterialCockpitRow implements IViewRow
 
 		this.dimensionGroupOrNull = null;
 
-		final String plantName;
-		if (plantId > 0)
+		final String warehouseName;
+		if (warehouseId != null)
 		{
-			final I_S_Resource plant = loadOutOfTrx(plantId, I_S_Resource.class);
-			plantName = plant.getName();
+			final I_M_Warehouse warehouse = loadOutOfTrx(warehouseId, I_M_Warehouse.class);
+			warehouseName = warehouse.getName();
 		}
 		else
 		{
 			final IMsgBL msgBL = Services.get(IMsgBL.class);
-			plantName = msgBL.getMsg(Env.getCtx(), "de.metas.ui.web.material.cockpit.MaterialCockpitRow.No_Plant_Info");
+			warehouseName = msgBL.getMsg(Env.getCtx(), "de.metas.ui.web.material.cockpit.MaterialCockpitRow.No_Plant_Info");
 		}
 		this.documentId = DocumentId.of(DOCUMENT_ID_JOINER.join(
 				"countingRow",
 				date,
 				productId,
-				plantName));
+				warehouseName));
 
 		this.documentPath = DocumentPath.rootDocumentPath(
 				MaterialCockpitUtil.WINDOWID_MaterialCockpitView,
@@ -587,7 +594,7 @@ public class MaterialCockpitRow implements IViewRow
 		final I_M_Product productRecord = loadOutOfTrx(productId, I_M_Product.class);
 		this.productValue = productRecord.getValue();
 		this.productName = productRecord.getName();
-		this.productCategoryOrSubRowName = plantName;
+		this.productCategoryOrSubRowName = warehouseName;
 
 		final LookupDataSourceFactory lookupFactory = LookupDataSourceFactory.instance;
 

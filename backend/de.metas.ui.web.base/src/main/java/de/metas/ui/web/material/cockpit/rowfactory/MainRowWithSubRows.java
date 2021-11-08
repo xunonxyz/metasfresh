@@ -18,6 +18,7 @@ import org.adempiere.warehouse.WarehouseId;
 import org.adempiere.warehouse.api.IWarehouseDAO;
 import org.compiere.model.I_M_Warehouse;
 
+import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class MainRowWithSubRows
 	@NonNull
 	private final Map<DimensionSpecGroup, DimensionGroupSubRowBucket> dimensionGroupSubRows = new LinkedHashMap<>();
 	@NonNull
-	private final Map<Integer, CountingSubRowBucket> countingSubRows = new LinkedHashMap<>();
+	private final Map<WarehouseId, CountingSubRowBucket> countingSubRows = new LinkedHashMap<>();
 	@NonNull
 	private final IProductBL productBL = Services.get(IProductBL.class);
 	private final IWarehouseDAO warehouseDAO = Services.get(IWarehouseDAO.class);
@@ -75,30 +76,25 @@ public class MainRowWithSubRows
 		dimensionGroupSubRows.computeIfAbsent(dimensionSpecGroup, DimensionGroupSubRowBucket::create);
 	}
 
-	public void addEmptyCountingSubrowBucket(final int plantId)
+	public void addEmptyCountingSubrowBucket(@NonNull final WarehouseId warehouseId)
 	{
-		countingSubRows.computeIfAbsent(plantId, CountingSubRowBucket::create);
+		countingSubRows.computeIfAbsent(warehouseId, CountingSubRowBucket::create);
 	}
 
 	public void addCockpitRecord(
 			@NonNull final I_MD_Cockpit cockpitRecord,
 			@NonNull final DimensionSpec dimensionSpec,
-			final boolean includePerPlantDetailRows)
+			final boolean includePerWarehouseDetailRows)
 	{
 		boolean addedToAtLeastOneBucket = false;
 
-		int ppPlantId = 0;
-		if (cockpitRecord.getM_Warehouse_ID() > 0)
+		final WarehouseId warehouseId = WarehouseId.ofRepoIdOrNull(cockpitRecord.getM_Warehouse_ID());
+		
+		if (cockpitRecord.getQtyStockEstimateCount().signum() != 0 || warehouseId != null)
 		{
-			final I_M_Warehouse warehouse = warehouseDAO.getById(WarehouseId.ofRepoId(cockpitRecord.getM_Warehouse_ID()));
-			ppPlantId = warehouse.getPP_Plant_ID();
-		}
-
-		if (cockpitRecord.getQtyStockEstimateCount().signum() != 0 || ppPlantId > 0)
-		{
-			if (includePerPlantDetailRows)
+			if (includePerWarehouseDetailRows)
 			{
-				addCockpitRecordToCounting(cockpitRecord, ppPlantId);
+				addCockpitRecordToCounting(cockpitRecord, warehouseId);
 				addedToAtLeastOneBucket = true;
 			}
 		}
@@ -116,9 +112,9 @@ public class MainRowWithSubRows
 		mainRow.addDataRecord(cockpitRecord);
 	}
 
-	private void addCockpitRecordToCounting(@NonNull final I_MD_Cockpit stockEstimate, final int ppPlantId)
+	private void addCockpitRecordToCounting(@NonNull final I_MD_Cockpit stockEstimate, @Nullable final WarehouseId warehouseId)
 	{
-		final CountingSubRowBucket countingSubRow = countingSubRows.computeIfAbsent(ppPlantId, CountingSubRowBucket::create);
+		final CountingSubRowBucket countingSubRow = countingSubRows.computeIfAbsent(warehouseId, CountingSubRowBucket::create);
 		countingSubRow.addCockpitRecord(stockEstimate);
 	}
 
@@ -212,8 +208,8 @@ public class MainRowWithSubRows
 
 	private void addStockRecordToCounting(@NonNull final I_MD_Stock stockRecord)
 	{
-		final int plantId = stockRecord.getM_Warehouse().getPP_Plant_ID();
-		final CountingSubRowBucket countingSubRow = countingSubRows.computeIfAbsent(plantId, CountingSubRowBucket::create);
+		final WarehouseId warehouseId = WarehouseId.ofRepoId(stockRecord.getM_Warehouse_ID());
+		final CountingSubRowBucket countingSubRow = countingSubRows.computeIfAbsent(warehouseId, CountingSubRowBucket::create);
 		countingSubRow.addStockRecord(stockRecord);
 	}
 

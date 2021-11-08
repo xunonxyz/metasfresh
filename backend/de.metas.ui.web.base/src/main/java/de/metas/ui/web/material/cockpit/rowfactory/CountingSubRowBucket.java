@@ -10,6 +10,7 @@ import de.metas.util.Services;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
+import org.adempiere.warehouse.WarehouseId;
 import org.compiere.model.I_C_UOM;
 import org.compiere.util.TimeUtil;
 
@@ -49,16 +50,16 @@ import static de.metas.util.Check.assumeNotNull;
  * @author metas-dev <dev@metasfresh.com>
  *
  */
-@EqualsAndHashCode(of = "plantId")
+@EqualsAndHashCode(of = "warehouseId")
 @ToString
 public class CountingSubRowBucket
 {
-	public static CountingSubRowBucket create(final int plantId)
+	public static CountingSubRowBucket create(@Nullable final WarehouseId warehouseId)
 	{
-		return new CountingSubRowBucket(plantId);
+		return new CountingSubRowBucket(warehouseId);
 	}
 
-	private final int plantId;
+	private final WarehouseId warehouseId;
 
 	// Zaehlbestand
 	private Quantity qtyStockEstimateCount;
@@ -79,9 +80,9 @@ public class CountingSubRowBucket
 
 	private final Set<Integer> stockRecordIds = new HashSet<>();
 
-	public CountingSubRowBucket(final int plantId)
+	public CountingSubRowBucket(@Nullable final WarehouseId warehouseId)
 	{
-		this.plantId = plantId;
+		this.warehouseId = warehouseId;
 	}
 
 	public void addCockpitRecord(@NonNull final I_MD_Cockpit cockpitRecord)
@@ -122,7 +123,7 @@ public class CountingSubRowBucket
 		return MaterialCockpitRow.countingSubRowBuilder()
 				.date(productIdAndDate.getDate())
 				.productId(productIdAndDate.getProductId().getRepoId())
-				.plantId(plantId)
+				.warehouseId(warehouseId)
 				.qtyStockEstimateCount(qtyStockEstimateCount)
 				.qtyStockEstimateTime(qtyStockEstimateTime)
 				.qtyInventoryCount(qtyInventoryCount)
