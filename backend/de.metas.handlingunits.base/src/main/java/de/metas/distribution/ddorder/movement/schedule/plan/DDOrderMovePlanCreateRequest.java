@@ -11,4 +11,5 @@ public class DDOrderMovePlanCreateRequest
 {
 	@NonNull I_DD_Order ddOrder;
 	boolean failIfNotFullAllocated;
+	boolean computeAlternatives;
 }

@@ -53,6 +53,7 @@ public class DistributionJobCreateCommand
 		final DDOrderMovePlan plan = ddOrderMoveScheduleService.createPlan(DDOrderMovePlanCreateRequest.builder()
 				.ddOrder(ddOrder)
 				.failIfNotFullAllocated(true)
+				.computeAlternatives(true)
 				.build());
 
 		ddOrderMoveScheduleService.savePlan(plan);

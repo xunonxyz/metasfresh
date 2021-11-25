@@ -256,6 +256,7 @@ public class DDOrderService
 		final DDOrderMovePlan plan = ddOrderMoveScheduleService.createPlan(DDOrderMovePlanCreateRequest.builder()
 				.ddOrder(ddOrder)
 				.failIfNotFullAllocated(true)
+				.computeAlternatives(false)
 				.build());
 
 		final ImmutableList<DDOrderMoveSchedule> schedules = ddOrderMoveScheduleService.savePlan(plan);
