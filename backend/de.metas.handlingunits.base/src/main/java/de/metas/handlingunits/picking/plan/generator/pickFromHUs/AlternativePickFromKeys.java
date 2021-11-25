@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -32,6 +33,11 @@ public class AlternativePickFromKeys implements Iterable<AlternativePickFromKey>
 	public static AlternativePickFromKeys ofSet(final Set<AlternativePickFromKey> keys)
 	{
 		return !keys.isEmpty() ? new AlternativePickFromKeys(keys) : EMPTY;
+	}
+
+	public static AlternativePickFromKeys ofCollection(final Collection<AlternativePickFromKey> keys)
+	{
+		return !keys.isEmpty() ? new AlternativePickFromKeys(ImmutableSet.copyOf(keys)) : EMPTY;
 	}
 
 	public static Collector<AlternativePickFromKey, ?, AlternativePickFromKeys> collect()
