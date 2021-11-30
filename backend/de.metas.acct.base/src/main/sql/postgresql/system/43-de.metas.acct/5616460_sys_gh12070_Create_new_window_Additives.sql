@@ -1,7 +1,7 @@
 
 -- 2021-11-30T12:58:54.005Z
 -- I forgot to set the DICTIONARY_ID_COMMENTS System Configurator
-INSERT INTO M_Additive_Trl (AD_Client_ID,AD_Language,AD_Org_ID,Created,CreatedBy,Description,IsActive,IsTranslated,M_Additive_ID,M_Additive_Trl_ID,Name,Updated,UpdatedBy) VALUES (1000000,'en_US',1000000,TO_TIMESTAMP('2021-11-30 13:58:44','YYYY-MM-DD HH24:MI:SS'),100,'with colour','Y','N',1000000,540002,'with colour',TO_TIMESTAMP('2021-11-30 13:58:44','YYYY-MM-DD HH24:MI:SS'),100)
+INSERT INTO M_Additive_Trl (AD_Client_ID,AD_Language,AD_Org_ID,Created,CreatedBy,Description,IsActive,IsTranslated,M_Additive_ID,M_Additive_Trl_ID,Name,Updated,UpdatedBy) VALUES (1000000,'en_US',1000000,TO_TIMESTAMP('2021-11-30 13:58:44','YYYY-MM-DD HH24:MI:SS'),100,'with colour','Y','N',561647,540002,'with colour',TO_TIMESTAMP('2021-11-30 13:58:44','YYYY-MM-DD HH24:MI:SS'),100)
 ;
 
 -- 2021-11-30T12:59:16.317Z

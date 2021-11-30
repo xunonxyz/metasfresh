@@ -1,6 +1,5 @@
--- 2021-11-30T12:55:22.469Z
--- I forgot to set the DICTIONARY_ID_COMMENTS System Configurator
-UPDATE M_Additive SET Description='mit Farbstoff', Name='mit Farbstoff',Updated=TO_TIMESTAMP('2021-11-30 13:55:22','YYYY-MM-DD HH24:MI:SS'),UpdatedBy=100 WHERE M_Additive_ID=1000000
+
+INSERT INTO M_Additive (AD_Client_ID,AD_Org_ID,Created,CreatedBy,Description,IsActive,M_Additive_ID,Name,Updated,UpdatedBy) VALUES (1000000,1000000,TO_TIMESTAMP('2021-11-30 13:57:11','YYYY-MM-DD HH24:MI:SS'),100,'mit Farbstoff','Y',561647,'mit Farbstoff',TO_TIMESTAMP('2021-11-30 13:57:11','YYYY-MM-DD HH24:MI:SS'),100)
 ;
 
 -- 2021-11-30T12:56:12.030Z
