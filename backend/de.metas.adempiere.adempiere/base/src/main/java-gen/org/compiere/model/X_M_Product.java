@@ -944,6 +944,8 @@ public class X_M_Product extends org.compiere.model.PO implements I_M_Product, o
 	public static final String PRODUCTTYPE_Online = "O";
 	/** FreightCost = F */
 	public static final String PRODUCTTYPE_FreightCost = "F";
+	/** Food = N */
+	public static final String PRODUCTTYPE_Food = "N";
 	@Override
 	public void setProductType (final java.lang.String ProductType)
 	{
