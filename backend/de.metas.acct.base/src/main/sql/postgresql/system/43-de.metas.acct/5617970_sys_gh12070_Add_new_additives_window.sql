@@ -2,6 +2,8 @@ DELETE  FROM M_Additive_Trl;
 
 DELETE  FROM M_Additive;
 
+DROP TABLE M_Additive_Trl;
+
 -- 2021-12-09T14:33:44.496Z
 -- I forgot to set the DICTIONARY_ID_COMMENTS System Configurator
 DELETE FROM  AD_Menu_Trl WHERE AD_Menu_ID=541868
@@ -149,8 +151,6 @@ ALTER TABLE M_Additive_Trl
     OWNER TO metasfresh
 ;
 
-
-DROP TABLE M_Additive_Trl;
 -- 2021-12-09T14:44:11.345Z
 -- I forgot to set the DICTIONARY_ID_COMMENTS System Configurator
 INSERT INTO AD_Table (AccessLevel,ACTriggerLength,AD_Client_ID,AD_Org_ID,AD_Table_ID,CopyColumnsFromTable,Created,CreatedBy,EntityType,ImportTable,IsActive,IsAutocomplete,IsChangeLog,IsDeleteable,IsDLM,IsEnableRemoteCacheInvalidation,IsHighVolume,IsSecurityEnabled,IsView,LoadSeq,Name,PersonalDataCategory,ReplicationType,TableName,TooltipType,Updated,UpdatedBy) VALUES ('3',0,0,0,541967,'N',TO_TIMESTAMP('2021-12-09 15:44:07','YYYY-MM-DD HH24:MI:SS'),100,'D','N','Y','N','N','Y','N','N','N','N','N',0,'Additive **','NP','L','M_Additive_Trl','DTI',TO_TIMESTAMP('2021-12-09 15:44:07','YYYY-MM-DD HH24:MI:SS'),100)
