@@ -51,28 +51,6 @@ de.metas.externalsystem.ExternalSystemConfigRepoTest.externalSystem_Config_Alber
   }
 ]
 
-de.metas.externalsystem.ExternalSystemConfigRepoTest.externalSystem_Config_RabbitMQ_getById=[
-  {
-    "id" : 100001,
-    "type" : "RabbitMQ",
-    "name" : "name",
-    "isActive" : true,
-    "orgId" : 0,
-    "childConfig" : {
-      "id" : 100002,
-      "parentId" : 100001,
-      "value" : "testRabbitMQValue",
-      "routingKey" : "routingKey",
-      "remoteUrl" : "remoteURL",
-      "authToken" : "authToken",
-      "isSyncBPartnerToRabbitMQ" : true,
-      "syncBPartnerToRabbitMQ" : true
-    },
-    "writeAudit" : true,
-    "auditFileFolder" : "auditFileFolder"
-  }
-]
-
 
 de.metas.externalsystem.ExternalSystemConfigRepoTest.externalSystem_Config_GRSSignum_getById=[
   {
@@ -91,7 +69,9 @@ de.metas.externalsystem.ExternalSystemConfigRepoTest.externalSystem_Config_GRSSi
       "authToken" : "authToken",
       "syncBPartnersToRestEndpoint" : true,
       "autoSendVendors" : false,
-      "autoSendCustomers" : false
+      "autoSendCustomers" : false,
+      "syncHUsOnMaterialReceipt" : false,
+      "syncHUsOnProductionReceipt" : false
     },
     "writeAudit" : false
   }
@@ -109,7 +89,9 @@ de.metas.externalsystem.ExternalSystemConfigRepoTest.externalSystem_Config_GRSSi
     "authToken" : "authToken",
     "syncBPartnersToRestEndpoint" : false,
     "autoSendVendors" : false,
-    "autoSendCustomers" : false
+    "autoSendCustomers" : false,
+    "syncHUsOnMaterialReceipt" : false,
+    "syncHUsOnProductionReceipt" : false
   }
 ]
 
@@ -131,7 +113,9 @@ de.metas.externalsystem.ExternalSystemConfigRepoTest.externalSystem_Config_GRSSi
       "authToken" : "authToken",
       "syncBPartnersToRestEndpoint" : true,
       "autoSendVendors" : false,
-      "autoSendCustomers" : false
+      "autoSendCustomers" : false,
+      "syncHUsOnMaterialReceipt" : false,
+      "syncHUsOnProductionReceipt" : false
     },
     "writeAudit" : false
   }

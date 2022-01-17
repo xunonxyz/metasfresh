@@ -24,11 +24,11 @@ package de.metas.camel.externalsystems.grssignum.to_grs.bpartner.processor;
 
 import de.metas.camel.externalsystems.common.JsonObjectMapperHolder;
 import de.metas.camel.externalsystems.common.ProcessorHelper;
-import de.metas.camel.externalsystems.grssignum.to_grs.api.model.JsonBPartner;
-import de.metas.camel.externalsystems.grssignum.to_grs.bpartner.ExportBPartnerRouteContext;
-import de.metas.camel.externalsystems.grssignum.to_grs.client.model.DispatchRequest;
-import de.metas.camel.externalsystems.grssignum.from_grs.restapi.Endpoint;
 import de.metas.camel.externalsystems.grssignum.GRSSignumConstants;
+import de.metas.camel.externalsystems.grssignum.from_grs.restapi.Endpoint;
+import de.metas.camel.externalsystems.grssignum.to_grs.ExportGRSRouteContext;
+import de.metas.camel.externalsystems.grssignum.to_grs.api.model.JsonBPartner;
+import de.metas.camel.externalsystems.grssignum.to_grs.client.model.DispatchRequest;
 import de.metas.common.bpartner.v2.response.JsonResponseBPartner;
 import de.metas.common.bpartner.v2.response.JsonResponseComposite;
 import de.metas.common.util.Check;
@@ -44,7 +44,7 @@ public class ExportBPartnerProcessor implements Processor
 	@Override
 	public void process(final Exchange exchange) throws Exception
 	{
-		final ExportBPartnerRouteContext routeContext = ProcessorHelper.getPropertyOrThrowError(exchange, GRSSignumConstants.ROUTE_PROPERTY_EXPORT_BPARTNER_CONTEXT, ExportBPartnerRouteContext.class);
+		final ExportGRSRouteContext routeContext = ProcessorHelper.getPropertyOrThrowError(exchange, GRSSignumConstants.ROUTE_PROPERTY_EXPORT_GRS_CONTEXT, ExportGRSRouteContext.class);
 
 		final JsonResponseComposite jsonResponseComposite = exchange.getIn().getBody(JsonResponseComposite.class);
 

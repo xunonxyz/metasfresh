@@ -20,8 +20,9 @@
  * #L%
  */
 
-package de.metas.externalsystem.rabbitmqhttp;
+package de.metas.externalsystem.grssignum;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import de.metas.audit.data.repository.DataExportAuditLogRepository;
 import de.metas.audit.data.repository.DataExportAuditRepository;
@@ -29,26 +30,27 @@ import de.metas.bpartner.BPartnerId;
 import de.metas.common.externalsystem.ExternalSystemConstants;
 import de.metas.externalsystem.ExternalSystemConfigRepo;
 import de.metas.externalsystem.ExternalSystemConfigService;
+import de.metas.externalsystem.ExternalSystemParentConfig;
 import de.metas.externalsystem.ExternalSystemType;
 import de.metas.externalsystem.IExternalSystemChildConfig;
 import de.metas.externalsystem.IExternalSystemChildConfigId;
-import de.metas.externalsystem.export.bpartner.ExportToExternalSystemService;
+import de.metas.externalsystem.export.bpartner.ExportBPartnerToExternalSystem;
 import de.metas.externalsystem.rabbitmq.ExternalSystemMessageSender;
 import lombok.NonNull;
+import org.compiere.model.I_C_BPartner;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-/**
- * Service to export BPartners (on future maybe other sorts of data) to external systems via {@link ExternalSystemType#RabbitMQ}.
- */
 @Service
-public class ExportToRabbitMQService extends ExportToExternalSystemService
+public class ExportBPartnerToGRSService extends ExportBPartnerToExternalSystem
 {
 	private static final String EXTERNAL_SYSTEM_COMMAND_EXPORT_BPARTNER = "exportBPartner";
 
-	public ExportToRabbitMQService(
+	protected ExportBPartnerToGRSService(
 			@NonNull final ExternalSystemConfigRepo externalSystemConfigRepo,
 			@NonNull final DataExportAuditRepository dataExportAuditRepository,
 			@NonNull final DataExportAuditLogRepository dataExportAuditLogRepository,
@@ -64,15 +66,15 @@ public class ExportToRabbitMQService extends ExportToExternalSystemService
 			@NonNull final IExternalSystemChildConfig childConfig,
 			@NonNull final BPartnerId bPartnerId)
 	{
-		final ExternalSystemRabbitMQConfig rabbitMQConfig = ExternalSystemRabbitMQConfig.cast(childConfig);
+		final ExternalSystemGRSSignumConfig grsSignumConfig = ExternalSystemGRSSignumConfig.cast(childConfig);
 
 		final Map<String, String> parameters = new HashMap<>();
 
-		parameters.put(ExternalSystemConstants.PARAM_EXTERNAL_SYSTEM_HTTP_URL, rabbitMQConfig.getRemoteUrl());
-		parameters.put(ExternalSystemConstants.PARAM_RABBITMQ_HTTP_ROUTING_KEY, rabbitMQConfig.getRoutingKey());
-		parameters.put(ExternalSystemConstants.PARAM_BPARTNER_ID, String.valueOf(BPartnerId.toRepoId(bPartnerId)));
-		parameters.put(ExternalSystemConstants.PARAM_EXTERNAL_SYSTEM_AUTH_TOKEN, rabbitMQConfig.getAuthToken());
-		parameters.put(ExternalSystemConstants.PARAM_CHILD_CONFIG_VALUE, rabbitMQConfig.getValue());
+		parameters.put(ExternalSystemConstants.PARAM_EXTERNAL_SYSTEM_HTTP_URL, grsSignumConfig.getBaseUrl());
+		parameters.put(ExternalSystemConstants.PARAM_TENANT_ID, grsSignumConfig.getTenantId());
+		parameters.put(ExternalSystemConstants.PARAM_CHILD_CONFIG_VALUE, grsSignumConfig.getValue());
+		parameters.put(ExternalSystemConstants.PARAM_EXTERNAL_SYSTEM_AUTH_TOKEN, grsSignumConfig.getAuthToken());
+		parameters.put(ExternalSystemConstants.PARAM_BPARTNER_ID, String.valueOf(bPartnerId.getRepoId()));
 
 		return parameters;
 	}
@@ -80,15 +82,15 @@ public class ExportToRabbitMQService extends ExportToExternalSystemService
 	@Override
 	protected boolean isSyncBPartnerEnabled(final @NonNull IExternalSystemChildConfig childConfig)
 	{
-		final ExternalSystemRabbitMQConfig rabbitMQConfig = ExternalSystemRabbitMQConfig.cast(childConfig);
+		final ExternalSystemGRSSignumConfig grsSignumConfig = ExternalSystemGRSSignumConfig.cast(childConfig);
 
-		return rabbitMQConfig.isSyncBPartnerToRabbitMQ();
+		return grsSignumConfig.isSyncBPartnersToRestEndpoint();
 	}
 
 	@Override
 	protected ExternalSystemType getExternalSystemType()
 	{
-		return ExternalSystemType.RabbitMQ;
+		return ExternalSystemType.GRSSignum;
 	}
 
 	@Override
@@ -98,8 +100,27 @@ public class ExportToRabbitMQService extends ExportToExternalSystemService
 	}
 
 	@Override
-	protected ImmutableSet<IExternalSystemChildConfigId> getAdditionalExternalSystemConfigIds(@NonNull final BPartnerId bPartner)
+	@NonNull
+	protected Optional<Set<IExternalSystemChildConfigId>> getAdditionalExternalSystemConfigIds(@NonNull final BPartnerId bPartnerId)
 	{
-		return ImmutableSet.of();
+		final I_C_BPartner bPartner = bPartnerDAO.getById(bPartnerId);
+
+		final boolean isVendor = bPartner.isVendor();
+		final boolean isCustomer = bPartner.isCustomer();
+
+		if (!isCustomer && !isVendor)
+		{
+			return Optional.empty();
+		}
+
+		final ImmutableList<ExternalSystemParentConfig> grsParentConfigs = externalSystemConfigRepo.getAllByType(ExternalSystemType.GRSSignum);
+
+		return Optional.of(grsParentConfigs.stream()
+								   .filter(ExternalSystemParentConfig::getIsActive)
+								   .map(ExternalSystemParentConfig::getChildConfig)
+								   .map(ExternalSystemGRSSignumConfig::cast)
+								   .filter(grsConfig -> (grsConfig.isAutoSendVendors() && isVendor) || (grsConfig.isAutoSendCustomers() && isCustomer))
+								   .map(IExternalSystemChildConfig::getId)
+								   .collect(ImmutableSet.toImmutableSet()));
 	}
 }

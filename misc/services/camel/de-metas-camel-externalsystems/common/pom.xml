@@ -84,6 +84,12 @@
             <artifactId>camel-jackson</artifactId>
             <version>${camel.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.metas.common.manufacturing</groupId>
+            <artifactId>de-metas-common-manufacturing</artifactId>
+            <version>${metasfresh-common.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>
