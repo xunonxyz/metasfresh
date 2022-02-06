@@ -113,7 +113,9 @@ try {
 
 private void buildAll(String mfVersion, MvnConf mvnConf, scmVars) {
 
-    withEnv(["MF_VERSION=${mfVersion}"]) {
+	withCredentials([string(credentialsId: 'sonarcloud.io-token', variable: 'sonarToken')]) {
+    withEnv(["MF_VERSION=${mfVersion}", "SONAR_TOKEN=${sonarToken}"]) {
+
                 // disable automatic fingerprinting and archiving by artifactsPublisher, because in particular the archiving takes up too much space on the jenkins server.
                 withMaven(jdk: 'java-8-AdoptOpenJDK', maven: 'maven-3.6.3', mavenLocalRepo: '.repository', mavenOpts: '-Xmx1536M', options: [artifactsPublisher(disabled: true)]) {
 
@@ -156,5 +158,6 @@ private void buildAll(String mfVersion, MvnConf mvnConf, scmVars) {
                             //junit '**/target/surefire-reports/*.xml'
                             publishJacocoReports(scmVars.GIT_COMMIT, 'codacy_project_token_for_metasfresh_repo')
                         } // withMaven
+            }
             }
 }
