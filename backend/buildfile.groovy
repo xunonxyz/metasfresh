@@ -68,7 +68,7 @@ Map build(
                 // about -T 2C: it means "run with 2 threads per CPU"; note that for us this is highly experimental
                 sh "mvn --settings ${mvnConf.settingsFile} ${multithreadParam} --file ${mvnConf.pomFile} --batch-mode -Dmaven.test.failure.ignore=true -Dmetasfresh.assembly.descriptor.version=${env.MF_VERSION} ${mvnConf.resolveParams} ${mvnConf.deployParam} clean deploy"
 
-                sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=metasfresh_metasfresh"
+                sh "mvn --settings ${mvnConf.settingsFile} --file ${mvnConf.pomFile} ${mvnConf.resolveParams} verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=metasfresh_metasfresh"
 
                 final DockerConf reportDockerConf = new DockerConf(
                         'metasfresh-report', // artifactName
