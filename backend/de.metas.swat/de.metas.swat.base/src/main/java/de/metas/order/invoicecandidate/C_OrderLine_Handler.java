@@ -314,6 +314,8 @@ public class C_OrderLine_Handler extends AbstractInvoiceCandidateHandler
 		setPaymentRule(ic, orderLine);
 
 		setIncoterms(ic, orderLine);
+
+		setC_Flatrate_Term_ID(ic, orderLine);
 	}
 
 	private void setPaymentRule(
@@ -514,6 +516,13 @@ public class C_OrderLine_Handler extends AbstractInvoiceCandidateHandler
 		ic.setM_ShipmentSchedule_ID(shipmentScheduleId.getRepoId());
 	}
 
+	@Override
+	public final void invalidateCandidatesFor(final Object model)
+	{
+		final IInvoiceCandDAO invoiceCandDAO = Services.get(IInvoiceCandDAO.class);
+		invoiceCandDAO.invalidateCandsThatReference(TableRecordReference.of(model));
+	}
+
 	private void setBPartnerData(@NonNull final I_C_Invoice_Candidate ic, @NonNull final org.compiere.model.I_C_OrderLine orderLine)
 	{
 		final org.compiere.model.I_C_Order order = orderLine.getC_Order();
@@ -537,11 +546,8 @@ public class C_OrderLine_Handler extends AbstractInvoiceCandidateHandler
 		ic.setGroupCompensationPercentage(fromOrderLine.getGroupCompensationPercentage());
 	}
 
-	@Override
-	public final void invalidateCandidatesFor(final Object model)
+	private static void setC_Flatrate_Term_ID(@NonNull final I_C_Invoice_Candidate candidate, @NonNull final org.compiere.model.I_C_OrderLine orderLine)
 	{
-		final IInvoiceCandDAO invoiceCandDAO = Services.get(IInvoiceCandDAO.class);
-		invoiceCandDAO.invalidateCandsThatReference(TableRecordReference.of(model));
+		candidate.setC_Flatrate_Term_ID(orderLine.getC_Flatrate_Term_ID());
 	}
-
 }

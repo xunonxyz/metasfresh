@@ -186,12 +186,11 @@ public interface I_C_Flatrate_Conditions
 
 	ModelColumn<I_C_Flatrate_Conditions, Object> COLUMN_C_LicenseFeeSettings_ID = new ModelColumn<>(I_C_Flatrate_Conditions.class, "C_LicenseFeeSettings_ID", null);
 	String COLUMNNAME_C_LicenseFeeSettings_ID = "C_LicenseFeeSettings_ID";
-
 	/**
 	 * Set Brokerage commission settings.
 	 *
 	 * <br>Type: Search
-	 * <br>Mandatory: true
+	 * <br>Mandatory: false
 	 * <br>Virtual Column: false
 	 */
 	void setC_MediatedCommissionSettings_ID (int C_MediatedCommissionSettings_ID);
@@ -200,13 +199,38 @@ public interface I_C_Flatrate_Conditions
 	 * Get Brokerage commission settings.
 	 *
 	 * <br>Type: Search
-	 * <br>Mandatory: true
+	 * <br>Mandatory: false
 	 * <br>Virtual Column: false
 	 */
 	int getC_MediatedCommissionSettings_ID();
 
 	ModelColumn<I_C_Flatrate_Conditions, Object> COLUMN_C_MediatedCommissionSettings_ID = new ModelColumn<>(I_C_Flatrate_Conditions.class, "C_MediatedCommissionSettings_ID", null);
 	String COLUMNNAME_C_MediatedCommissionSettings_ID = "C_MediatedCommissionSettings_ID";
+
+	/**
+	 * Set Abo-Rabatt.
+	 *
+	 * <br>Type: TableDir
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	void setC_SubscrDiscount_ID (int C_SubscrDiscount_ID);
+
+	/**
+	 * Get Abo-Rabatt.
+	 *
+	 * <br>Type: TableDir
+	 * <br>Mandatory: false
+	 * <br>Virtual Column: false
+	 */
+	int getC_SubscrDiscount_ID();
+
+	@Nullable de.metas.contracts.model.I_C_SubscrDiscount getC_SubscrDiscount();
+
+	void setC_SubscrDiscount(@Nullable de.metas.contracts.model.I_C_SubscrDiscount C_SubscrDiscount);
+
+	ModelColumn<I_C_Flatrate_Conditions, de.metas.contracts.model.I_C_SubscrDiscount> COLUMN_C_SubscrDiscount_ID = new ModelColumn<>(I_C_Flatrate_Conditions.class, "C_SubscrDiscount_ID", de.metas.contracts.model.I_C_SubscrDiscount.class);
+	String COLUMNNAME_C_SubscrDiscount_ID = "C_SubscrDiscount_ID";
 
 	/**
 	 * Set UOM.
@@ -277,31 +301,6 @@ public interface I_C_Flatrate_Conditions
 	int getCreatedBy();
 
 	String COLUMNNAME_CreatedBy = "CreatedBy";
-
-	/**
-	 * Set Abo-Rabatt.
-	 *
-	 * <br>Type: TableDir
-	 * <br>Mandatory: false
-	 * <br>Virtual Column: false
-	 */
-	void setC_SubscrDiscount_ID (int C_SubscrDiscount_ID);
-
-	/**
-	 * Get Abo-Rabatt.
-	 *
-	 * <br>Type: TableDir
-	 * <br>Mandatory: false
-	 * <br>Virtual Column: false
-	 */
-	int getC_SubscrDiscount_ID();
-
-	@Nullable de.metas.contracts.model.I_C_SubscrDiscount getC_SubscrDiscount();
-
-	void setC_SubscrDiscount(@Nullable de.metas.contracts.model.I_C_SubscrDiscount C_SubscrDiscount);
-
-	ModelColumn<I_C_Flatrate_Conditions, de.metas.contracts.model.I_C_SubscrDiscount> COLUMN_C_SubscrDiscount_ID = new ModelColumn<>(I_C_Flatrate_Conditions.class, "C_SubscrDiscount_ID", de.metas.contracts.model.I_C_SubscrDiscount.class);
-	String COLUMNNAME_C_SubscrDiscount_ID = "C_SubscrDiscount_ID";
 
 	/**
 	 * Set Description.

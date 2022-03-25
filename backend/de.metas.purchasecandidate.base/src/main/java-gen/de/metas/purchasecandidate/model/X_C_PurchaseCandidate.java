@@ -1,10 +1,10 @@
 // Generated Model - DO NOT CHANGE
 package de.metas.purchasecandidate.model;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
-import javax.annotation.Nullable;
 
 /** Generated Model for C_PurchaseCandidate
  *  @author metasfresh (generated) 
@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 public class X_C_PurchaseCandidate extends org.compiere.model.PO implements I_C_PurchaseCandidate, org.compiere.model.I_Persistent 
 {
 
-	private static final long serialVersionUID = -1934139498L;
+	private static final long serialVersionUID = 1453414410L;
 
     /** Standard Constructor */
     public X_C_PurchaseCandidate (final Properties ctx, final int C_PurchaseCandidate_ID, @Nullable final String trxName)
@@ -207,13 +207,13 @@ public class X_C_PurchaseCandidate extends org.compiere.model.PO implements I_C_
 	}
 
 	@Override
-	public void setDemandReference (final java.lang.String DemandReference)
+	public void setDemandReference (final String DemandReference)
 	{
 		set_Value (COLUMNNAME_DemandReference, DemandReference);
 	}
 
 	@Override
-	public java.lang.String getDemandReference() 
+	public String getDemandReference()
 	{
 		return get_ValueAsString(COLUMNNAME_DemandReference);
 	}
@@ -258,37 +258,37 @@ public class X_C_PurchaseCandidate extends org.compiere.model.PO implements I_C_
 	}
 
 	@Override
-	public void setExternalHeaderId (final @Nullable java.lang.String ExternalHeaderId)
+	public void setExternalHeaderId (final @Nullable String ExternalHeaderId)
 	{
 		set_Value (COLUMNNAME_ExternalHeaderId, ExternalHeaderId);
 	}
 
 	@Override
-	public java.lang.String getExternalHeaderId() 
+	public String getExternalHeaderId()
 	{
 		return get_ValueAsString(COLUMNNAME_ExternalHeaderId);
 	}
 
 	@Override
-	public void setExternalLineId (final @Nullable java.lang.String ExternalLineId)
+	public void setExternalLineId (final @Nullable String ExternalLineId)
 	{
 		set_Value (COLUMNNAME_ExternalLineId, ExternalLineId);
 	}
 
 	@Override
-	public java.lang.String getExternalLineId() 
+	public String getExternalLineId()
 	{
 		return get_ValueAsString(COLUMNNAME_ExternalLineId);
 	}
 
 	@Override
-	public void setExternalPurchaseOrderURL (final @Nullable java.lang.String ExternalPurchaseOrderURL)
+	public void setExternalPurchaseOrderURL (final @Nullable String ExternalPurchaseOrderURL)
 	{
 		set_Value (COLUMNNAME_ExternalPurchaseOrderURL, ExternalPurchaseOrderURL);
 	}
 
 	@Override
-	public java.lang.String getExternalPurchaseOrderURL() 
+	public String getExternalPurchaseOrderURL()
 	{
 		return get_ValueAsString(COLUMNNAME_ExternalPurchaseOrderURL);
 	}
@@ -351,6 +351,18 @@ public class X_C_PurchaseCandidate extends org.compiere.model.PO implements I_C_
 	public boolean isRequisitionCreated() 
 	{
 		return get_ValueAsBoolean(COLUMNNAME_IsRequisitionCreated);
+	}
+
+	@Override
+	public void setIsSimulated (final boolean IsSimulated)
+	{
+		set_Value (COLUMNNAME_IsSimulated, IsSimulated);
+	}
+
+	@Override
+	public boolean isSimulated() 
+	{
+		return get_ValueAsBoolean(COLUMNNAME_IsSimulated);
 	}
 
 	@Override
@@ -487,7 +499,6 @@ public class X_C_PurchaseCandidate extends org.compiere.model.PO implements I_C_
 	{
 		return get_ValueAsString(COLUMNNAME_POReference);
 	}
-
 	@Override
 	public void setPriceDifference (final @Nullable BigDecimal PriceDifference)
 	{
@@ -664,97 +675,97 @@ public class X_C_PurchaseCandidate extends org.compiere.model.PO implements I_C_
 	/** API = API */
 	public static final String SOURCE_API = "API";
 	@Override
-	public void setSource (final @Nullable java.lang.String Source)
+	public void setSource (final @Nullable String Source)
 	{
 		set_ValueNoCheck (COLUMNNAME_Source, Source);
 	}
 
 	@Override
-	public java.lang.String getSource() 
+	public String getSource()
 	{
 		return get_ValueAsString(COLUMNNAME_Source);
 	}
 
 	@Override
-	public void setUserElementString1 (final @Nullable java.lang.String UserElementString1)
+	public void setUserElementString1 (final @Nullable String UserElementString1)
 	{
 		set_Value (COLUMNNAME_UserElementString1, UserElementString1);
 	}
 
 	@Override
-	public java.lang.String getUserElementString1() 
+	public String getUserElementString1()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString1);
 	}
 
 	@Override
-	public void setUserElementString2 (final @Nullable java.lang.String UserElementString2)
+	public void setUserElementString2 (final @Nullable String UserElementString2)
 	{
 		set_Value (COLUMNNAME_UserElementString2, UserElementString2);
 	}
 
 	@Override
-	public java.lang.String getUserElementString2() 
+	public String getUserElementString2()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString2);
 	}
 
 	@Override
-	public void setUserElementString3 (final @Nullable java.lang.String UserElementString3)
+	public void setUserElementString3 (final @Nullable String UserElementString3)
 	{
 		set_Value (COLUMNNAME_UserElementString3, UserElementString3);
 	}
 
 	@Override
-	public java.lang.String getUserElementString3() 
+	public String getUserElementString3()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString3);
 	}
 
 	@Override
-	public void setUserElementString4 (final @Nullable java.lang.String UserElementString4)
+	public void setUserElementString4 (final @Nullable String UserElementString4)
 	{
 		set_Value (COLUMNNAME_UserElementString4, UserElementString4);
 	}
 
 	@Override
-	public java.lang.String getUserElementString4() 
+	public String getUserElementString4()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString4);
 	}
 
 	@Override
-	public void setUserElementString5 (final @Nullable java.lang.String UserElementString5)
+	public void setUserElementString5 (final @Nullable String UserElementString5)
 	{
 		set_Value (COLUMNNAME_UserElementString5, UserElementString5);
 	}
 
 	@Override
-	public java.lang.String getUserElementString5() 
+	public String getUserElementString5()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString5);
 	}
 
 	@Override
-	public void setUserElementString6 (final @Nullable java.lang.String UserElementString6)
+	public void setUserElementString6 (final @Nullable String UserElementString6)
 	{
 		set_Value (COLUMNNAME_UserElementString6, UserElementString6);
 	}
 
 	@Override
-	public java.lang.String getUserElementString6() 
+	public String getUserElementString6()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString6);
 	}
 
 	@Override
-	public void setUserElementString7 (final @Nullable java.lang.String UserElementString7)
+	public void setUserElementString7 (final @Nullable String UserElementString7)
 	{
 		set_Value (COLUMNNAME_UserElementString7, UserElementString7);
 	}
 
 	@Override
-	public java.lang.String getUserElementString7() 
+	public String getUserElementString7()
 	{
 		return get_ValueAsString(COLUMNNAME_UserElementString7);
 	}

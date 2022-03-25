@@ -2,6 +2,7 @@ package de.metas.handlingunits.material.interceptor;
 
 import de.metas.handlingunits.HuId;
 import de.metas.handlingunits.IHandlingUnitsBL;
+import de.metas.handlingunits.hutransaction.IHUTrxBL;
 import de.metas.handlingunits.model.I_M_HU_Attribute;
 import de.metas.material.event.PostMaterialEventService;
 import de.metas.util.Check;
@@ -54,6 +55,7 @@ public class M_HU_Attribute
 {
 	private final IAttributesBL attributesService = Services.get(IAttributesBL.class);
 	private final IHandlingUnitsBL handlingUnitsBL = Services.get(IHandlingUnitsBL.class);
+	private final IHUTrxBL huTrxBL=Services.get(IHUTrxBL.class);
 	private final ITrxManager trxManager = Services.get(ITrxManager.class);
 	
 	private final PostMaterialEventService materialEventService;

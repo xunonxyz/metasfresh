@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.util.Properties;
-import javax.annotation.Nullable;
 
 /** Generated Model for C_Flatrate_Conditions
  *  @author metasfresh (generated) 
@@ -14,7 +13,7 @@ import javax.annotation.Nullable;
 public class X_C_Flatrate_Conditions extends org.compiere.model.PO implements I_C_Flatrate_Conditions, org.compiere.model.I_Persistent 
 {
 
-	private static final long serialVersionUID = 1074331283L;
+	private static final long serialVersionUID = -868032116L;
 
     /** Standard Constructor */
     public X_C_Flatrate_Conditions (final Properties ctx, final int C_Flatrate_Conditions_ID, @Nullable final String trxName)
@@ -122,54 +121,18 @@ public class X_C_Flatrate_Conditions extends org.compiere.model.PO implements I_
 	@Override
 	public void setC_LicenseFeeSettings_ID (final int C_LicenseFeeSettings_ID)
 	{
-		if (C_LicenseFeeSettings_ID < 1) 
+		if (C_LicenseFeeSettings_ID < 1)
 			set_Value (COLUMNNAME_C_LicenseFeeSettings_ID, null);
-		else 
+		else
 			set_Value (COLUMNNAME_C_LicenseFeeSettings_ID, C_LicenseFeeSettings_ID);
 	}
 
 	@Override
-	public int getC_LicenseFeeSettings_ID() 
+	public int getC_LicenseFeeSettings_ID()
 	{
 		return get_ValueAsInt(COLUMNNAME_C_LicenseFeeSettings_ID);
 	}
-
-	@Override
-	public void setC_UOM_ID (final int C_UOM_ID)
-	{
-		if (C_UOM_ID < 1) 
-			set_Value (COLUMNNAME_C_UOM_ID, null);
-		else 
-			set_Value (COLUMNNAME_C_UOM_ID, C_UOM_ID);
-	}
-
-	@Override
-	public int getC_UOM_ID() 
-	{
-		return get_ValueAsInt(COLUMNNAME_C_UOM_ID);
-	}
-
-	/** 
-	 * ClearingAmtBaseOn AD_Reference_ID=540278
-	 * Reference name: ClearingAmtBaseOn
-	 */
-	public static final int CLEARINGAMTBASEON_AD_Reference_ID=540278;
-	/** ProductPrice = ProductPrice */
-	public static final String CLEARINGAMTBASEON_ProductPrice = "ProductPrice";
-	/** FlatrateAmount = FlatrateAmount */
-	public static final String CLEARINGAMTBASEON_FlatrateAmount = "FlatrateAmount";
-	@Override
-	public void setClearingAmtBaseOn (final @Nullable java.lang.String ClearingAmtBaseOn)
-	{
-		set_Value (COLUMNNAME_ClearingAmtBaseOn, ClearingAmtBaseOn);
-	}
-
-	@Override
-	public java.lang.String getClearingAmtBaseOn() 
-	{
-		return get_ValueAsString(COLUMNNAME_ClearingAmtBaseOn);
-	}
-
+	
 	@Override
 	public void setC_MediatedCommissionSettings_ID (final int C_MediatedCommissionSettings_ID)
 	{
@@ -210,6 +173,42 @@ public class X_C_Flatrate_Conditions extends org.compiere.model.PO implements I_
 	public int getC_SubscrDiscount_ID() 
 	{
 		return get_ValueAsInt(COLUMNNAME_C_SubscrDiscount_ID);
+	}
+
+	@Override
+	public void setC_UOM_ID (final int C_UOM_ID)
+	{
+		if (C_UOM_ID < 1) 
+			set_Value (COLUMNNAME_C_UOM_ID, null);
+		else 
+			set_Value (COLUMNNAME_C_UOM_ID, C_UOM_ID);
+	}
+
+	@Override
+	public int getC_UOM_ID() 
+	{
+		return get_ValueAsInt(COLUMNNAME_C_UOM_ID);
+	}
+
+	/** 
+	 * ClearingAmtBaseOn AD_Reference_ID=540278
+	 * Reference name: ClearingAmtBaseOn
+	 */
+	public static final int CLEARINGAMTBASEON_AD_Reference_ID=540278;
+	/** ProductPrice = ProductPrice */
+	public static final String CLEARINGAMTBASEON_ProductPrice = "ProductPrice";
+	/** FlatrateAmount = FlatrateAmount */
+	public static final String CLEARINGAMTBASEON_FlatrateAmount = "FlatrateAmount";
+	@Override
+	public void setClearingAmtBaseOn (final @Nullable java.lang.String ClearingAmtBaseOn)
+	{
+		set_Value (COLUMNNAME_ClearingAmtBaseOn, ClearingAmtBaseOn);
+	}
+
+	@Override
+	public java.lang.String getClearingAmtBaseOn() 
+	{
+		return get_ValueAsString(COLUMNNAME_ClearingAmtBaseOn);
 	}
 
 	@Override
@@ -643,6 +642,8 @@ public class X_C_Flatrate_Conditions extends org.compiere.model.PO implements I_
 	public static final String TYPE_CONDITIONS_MediatedCommission = "MediatedCommission";
 	/** LicenseFee = LicenseFee */
 	public static final String TYPE_CONDITIONS_LicenseFee = "LicenseFee";
+	/** CallOrder = CallOrder */
+	public static final String TYPE_CONDITIONS_CallOrder = "CallOrder";
 	@Override
 	public void setType_Conditions (final java.lang.String Type_Conditions)
 	{
