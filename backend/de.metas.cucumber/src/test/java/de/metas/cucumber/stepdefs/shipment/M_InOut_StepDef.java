@@ -80,7 +80,7 @@ import static org.compiere.model.I_C_BPartner_Location.COLUMNNAME_C_BPartner_Loc
 public class M_InOut_StepDef
 {
 	private final M_InOut_StepDefData shipmentTable;
-	private final StepDefData<I_M_InOutLine> shipmentLineTable;
+	private final M_InOutLine_StepDefData shipmentLineTable;
 	private final C_BPartner_StepDefData bpartnerTable;
 	private final C_BPartner_Location_StepDefData bpartnerLocationTable;
 	private final M_ShipmentSchedule_StepDefData shipmentScheduleTable;
@@ -95,7 +95,7 @@ public class M_InOut_StepDef
 
 	public M_InOut_StepDef(
 			@NonNull final M_InOut_StepDefData shipmentTable,
-			@NonNull final StepDefData<I_M_InOutLine> shipmentLineTable,
+			@NonNull final M_InOutLine_StepDefData shipmentLineTable,
 			@NonNull final M_ShipmentSchedule_StepDefData shipmentScheduleTable,
 			@NonNull final C_BPartner_StepDefData bpartnerTable,
 			@NonNull final C_BPartner_Location_StepDefData bpartnerLocationTable, 

@@ -126,6 +126,7 @@ public class M_ShipmentSchedule_StepDef
 	private final M_ShipmentSchedule_ExportAudit_StepDefData shipmentScheduleExportAuditTable;
 	private final M_AttributeSetInstance_StepDefData attributeSetInstanceTable;
 	private final M_InOut_StepDefData shipmentTable;
+	
 	private final TestContext testContext;
 	private final JsonAttributeService jsonAttributeService;
 
