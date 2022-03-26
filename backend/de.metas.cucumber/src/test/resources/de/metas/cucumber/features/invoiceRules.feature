@@ -172,7 +172,7 @@ Feature: invoice rules
       | ic_3                              |
     Then after not more than 30s, C_Invoice are found:
       | C_Invoice_Candidate_ID.Identifier | C_Invoice_ID.Identifier |
-      | ic_3                              | invoice_3
+      | ic_3                              | invoice_3               |
     And validate created invoices
       | C_Invoice_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | poReference | paymentTerm | processed | docStatus |
       | invoice_3               | endcustomer_3            | l_3                               | po_ref_mock | 1000002     | true      | CO        |
