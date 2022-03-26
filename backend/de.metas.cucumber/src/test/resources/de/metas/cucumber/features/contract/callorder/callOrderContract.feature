@@ -204,7 +204,7 @@ Feature: Call order contract
       | invoice_1               | bpartner_1               | bpartnerLocation_1                | 1000002     | true      | CO        |
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | call_order_product      | 2           | true      |
+      | invoiceLine_1_1             | invoice_1               | call_order_product      | 2           | true      |
 
     And validate updated C_CallOrderSummary:
       | C_CallOrderSummary_ID.Identifier | C_Flatrate_Term_ID.Identifier | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | M_Product_ID.Identifier | QtyEntered | C_UOM_ID.X12DE355 | IsSOTrx | OPT.QtyDeliveredInUOM | OPT.QtyInvoicedInUOM |
@@ -253,7 +253,7 @@ Feature: Call order contract
       | invoice_3               | bpartner_1               | bpartnerLocation_1                | 1000002     | true      | CO        |
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_3               | invoice_3               | call_order_product      | 4           | true      |
+      | invoiceLine_3_1             | invoice_3               | call_order_product      | 4           | true      |
 
     And validate updated C_CallOrderSummary:
       | C_CallOrderSummary_ID.Identifier | C_Flatrate_Term_ID.Identifier | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | M_Product_ID.Identifier | QtyEntered | C_UOM_ID.X12DE355 | IsSOTrx | OPT.QtyDeliveredInUOM | OPT.QtyInvoicedInUOM |
@@ -481,7 +481,7 @@ Feature: Call order contract
       | invoice_1               | bp_callOrderPO           | bp_callOrderPO_Location           | 1000002     | true      | CO        | poCallOrder_ref |
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | call_order_product_PO   | 6           | true      |
+      | invoiceLine_1_1             | invoice_1               | call_order_product_PO   | 6           | true      |
 
     And validate updated C_CallOrderSummary:
       | C_CallOrderSummary_ID.Identifier | C_Flatrate_Term_ID.Identifier | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | M_Product_ID.Identifier | QtyEntered | C_UOM_ID.X12DE355 | IsSOTrx | OPT.QtyDeliveredInUOM | OPT.QtyInvoicedInUOM |
@@ -530,7 +530,7 @@ Feature: Call order contract
       | invoice_3               | bp_callOrderPO           | bp_callOrderPO_Location           | 1000002     | true      | CO        | poCallOrder_ref |
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_3               | invoice_3               | call_order_product_PO   | 8           | true      |
+      | invoiceLine_3_1             | invoice_3               | call_order_product_PO   | 8           | true      |
 
     And validate updated C_CallOrderSummary:
       | C_CallOrderSummary_ID.Identifier | C_Flatrate_Term_ID.Identifier | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | M_Product_ID.Identifier | QtyEntered | C_UOM_ID.X12DE355 | IsSOTrx | OPT.QtyDeliveredInUOM | OPT.QtyInvoicedInUOM |

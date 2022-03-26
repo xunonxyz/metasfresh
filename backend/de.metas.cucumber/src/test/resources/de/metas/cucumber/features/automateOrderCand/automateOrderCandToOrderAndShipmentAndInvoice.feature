@@ -68,7 +68,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-07-20  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-07-20  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -80,7 +80,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | product_1               | 10          | true      |
+      | invoiceLine_1_1             | invoice_1               | product_1               | 10          | true      |
 
 
   @from:cucumber
@@ -139,7 +139,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-07-20  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-07-20  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -173,7 +173,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | product_1               | 8           | true      |
+      | invoiceLine_1_1             | invoice_1               | product_1               | 8           | true      |
 
 
   @from:cucumber
@@ -272,7 +272,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-07-20  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-07-20  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -284,7 +284,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | product_1               | 8           | true      |
+      | invoiceLine_1_1             | invoice_1               | product_1               | 8           | true      |
 
 
   @from:cucumber
@@ -343,7 +343,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-07-20  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-07-20  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -394,7 +394,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-07-20  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-07-20  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -402,7 +402,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_2            | bpartner_1               | bpartnerLocation_1                           | 2021-07-20  | po_ref_mock     | true      | CO        |
+      | shipment_2            | bpartner_1               | bpartnerLocation_1                | 2021-07-20  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -414,8 +414,8 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | product_1               | 8           | true      |
-      | invoiceLine_2               | invoice_1               | product_1               | 2           | true      |
+      | invoiceLine_1_1             | invoice_1               | product_1               | 8           | true      |
+      | invoiceLine_1_2             | invoice_1               | product_1               | 2           | true      |
 
   @from:cucumber
   @topic:orderCandidate
@@ -471,7 +471,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created orders
       | C_Order_ID.Identifier | externalId | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | docbasetype | currencyCode | deliveryRule | deliveryViaRule | poReference | processed | docStatus |
-      | order_1               | 744777     | bpartner_1               | bpartnerLocation_1                           | 2021-10-13  | SOO         | EUR          | A            | S               | po_ref_mock | true      | CL        |
+      | order_1               | 744777     | bpartner_1               | bpartnerLocation_1                | 2021-10-13  | SOO         | EUR          | A            | S               | po_ref_mock | true      | CL        |
 
     And validate the created order lines
       | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | dateordered | M_Product_ID.Identifier | qtydelivered | qtyordered | qtyinvoiced | price | discount | currencyCode | processed |
@@ -479,7 +479,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-10-13  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-10-13  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -491,7 +491,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | product_1               | 10          | true      |
+      | invoiceLine_1_1             | invoice_1               | product_1               | 10          | true      |
 
   @from:cucumber
   @topic:orderCandidate
@@ -549,7 +549,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created orders
       | C_Order_ID.Identifier | externalId | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | docbasetype | currencyCode | deliveryRule | deliveryViaRule | poReference | processed | docStatus |
-      | order_1               | 888        | bpartner_1               | bpartnerLocation_1                           | 2021-10-13  | SOO         | EUR          | A            | S               | po_ref_mock | true      | CO        |
+      | order_1               | 888        | bpartner_1               | bpartnerLocation_1                | 2021-10-13  | SOO         | EUR          | A            | S               | po_ref_mock | true      | CO        |
 
     And validate the created order lines
       | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | dateordered | M_Product_ID.Identifier | qtydelivered | qtyordered | qtyinvoiced | price | discount | currencyCode | processed |
@@ -557,7 +557,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created shipments
       | M_InOut_ID.Identifier | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | OPT.POReference | processed | docStatus |
-      | shipment_1            | bpartner_1               | bpartnerLocation_1                           | 2021-10-13  | po_ref_mock     | true      | CO        |
+      | shipment_1            | bpartner_1               | bpartnerLocation_1                | 2021-10-13  | po_ref_mock     | true      | CO        |
 
     And validate the created shipment lines
       | M_InOutLine_ID.Identifier | M_InOut_ID.Identifier | M_Product_ID.Identifier | movementqty | processed |
@@ -579,7 +579,7 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate the created orders
       | C_Order_ID.Identifier | externalId | C_BPartner_ID.Identifier | C_BPartner_Location_ID.Identifier | dateordered | docbasetype | currencyCode | deliveryRule | deliveryViaRule | poReference | processed | docStatus |
-      | order_1               | 888        | bpartner_1               | bpartnerLocation_1                           | 2021-10-13  | SOO         | EUR          | A            | S               | po_ref_mock | true      | CL        |
+      | order_1               | 888        | bpartner_1               | bpartnerLocation_1                | 2021-10-13  | SOO         | EUR          | A            | S               | po_ref_mock | true      | CL        |
 
     And validate the created order lines
       | C_OrderLine_ID.Identifier | C_Order_ID.Identifier | dateordered | M_Product_ID.Identifier | qtydelivered | qtyordered | qtyinvoiced | price | discount | currencyCode | processed |
@@ -591,5 +591,5 @@ Feature: Process order candidate and automatically generate shipment and invoice
 
     And validate created invoice lines
       | C_InvoiceLine_ID.Identifier | C_Invoice_ID.Identifier | M_Product_ID.Identifier | qtyinvoiced | processed |
-      | invoiceLine_1               | invoice_1               | product_1               | 8           | true      |
+      | invoiceLine_1_1             | invoice_1               | product_1               | 8           | true      |
     And set sys config boolean value false for sys config AUTO_SHIP_AND_INVOICE
