@@ -122,7 +122,7 @@ public class M_ReceiptSchedule_StepDef
 			assertThat(receiptSchedule.getC_Order_ID()).isEqualTo(order.getC_Order_ID());
 			assertThat(receiptSchedule.getC_OrderLine_ID()).isEqualTo(orderLine.getC_OrderLine_ID());
 			assertThat(receiptSchedule.getC_BPartner_ID()).isEqualTo(bPartner.getC_BPartner_ID());
-			assertThat(receiptSchedule.getC_BPartner_Location_ID()).isEqualTo(bPartnerLocation.getC_BPartner_Location_ID());
+			assertThat(receiptSchedule.getC_BPartner_Location_ID()).as("C_BPartner_Location_ID").isEqualTo(bPartnerLocation.getC_BPartner_Location_ID());
 			assertThat(receiptSchedule.getM_Product_ID()).isEqualTo(product.getM_Product_ID());
 			assertThat(receiptSchedule.getQtyOrdered()).isEqualTo(qtyOrdered);
 			assertThat(receiptSchedule.getM_Warehouse_ID()).isEqualTo(warehouse.getM_Warehouse_ID());

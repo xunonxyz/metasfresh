@@ -272,15 +272,13 @@ Feature: Handling unit rest controller
       | pp_PO      | plv_PO                            | purchaseProduct         | 10.0     | PCE               | Normal                        |
 
     And metasfresh contains C_BPartners:
-      | Identifier  | Name        | Value       | OPT.IsVendor | OPT.IsCustomer | M_PricingSystem_ID.Identifier | OPT.InvoiceRule |
-      | supplier_PO | supplier_PO | supplier_PO | Y            | N              | ps_PO                         | D               |
-    And metasfresh contains C_BPartner_Locations:
-      | Identifier          | GLN          | C_BPartner_ID.Identifier |
-      | supplierLocation_PO | supplierPO01 | supplier_PO              |
+    # note the we also create the c_bpartner-location and store it in the location-table
+      | Identifier  | Name        | Value       | OPT.IsVendor | OPT.IsCustomer | M_PricingSystem_ID.Identifier | OPT.InvoiceRule | OPT.C_BPartner_Location_ID.Identifier | OPT.GLN      |
+      | supplier_PO | supplier_PO | supplier_PO | Y            | N              | ps_PO                         | D               | supplierLocation_PO                   | supplierPO01 |
+
     And metasfresh contains C_Orders:
       | Identifier | IsSOTrx | C_BPartner_ID.Identifier | DateOrdered | OPT.POReference | OPT.C_PaymentTerm_ID | OPT.DocBaseType | OPT.M_PricingSystem_ID.Identifier |
       | order_PO   | N       | supplier_PO              | 2022-01-05  | po_ref          | 1000012              | POO             | ps_PO                             |
-
     And metasfresh contains C_OrderLines:
       | Identifier   | C_Order_ID.Identifier | M_Product_ID.Identifier | QtyEntered |
       | orderLine_PO | order_PO              | purchaseProduct         | 18         |
