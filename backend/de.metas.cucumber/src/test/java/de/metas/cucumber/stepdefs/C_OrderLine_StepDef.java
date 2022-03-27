@@ -42,6 +42,7 @@ import io.cucumber.java.en.Then;
 import lombok.NonNull;
 import org.adempiere.ad.dao.IQueryBL;
 import org.adempiere.model.InterfaceWrapperHelper;
+import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_DocType;
 import org.compiere.model.I_C_Order;
 import org.compiere.model.I_C_OrderLine;
@@ -67,6 +68,7 @@ public class C_OrderLine_StepDef
 	private final IUOMDAO uomDAO = Services.get(IUOMDAO.class);
 
 	private final M_Product_StepDefData productTable;
+	private final C_BPartner_StepDefData partnerTable;
 	private final C_Order_StepDefData orderTable;
 	private final C_OrderLine_StepDefData orderLineTable;
 	private final M_AttributeSetInstance_StepDefData attributeSetInstanceTable;
@@ -75,6 +77,7 @@ public class C_OrderLine_StepDef
 
 	public C_OrderLine_StepDef(
 			@NonNull final M_Product_StepDefData productTable,
+			@NonNull final C_BPartner_StepDefData partnerTable,
 			@NonNull final C_Order_StepDefData orderTable,
 			@NonNull final C_OrderLine_StepDefData orderLineTable,
 			@NonNull final M_AttributeSetInstance_StepDefData attributeSetInstanceTable,
@@ -82,6 +85,7 @@ public class C_OrderLine_StepDef
 			@NonNull final C_Flatrate_Term_StepDefData contractTable)
 	{
 		this.productTable = productTable;
+		this.partnerTable = partnerTable;
 		this.orderTable = orderTable;
 		this.orderLineTable = orderLineTable;
 		this.attributeSetInstanceTable = attributeSetInstanceTable;
@@ -115,6 +119,13 @@ public class C_OrderLine_StepDef
 			final String orderIdentifier = DataTableUtil.extractStringForColumnName(tableRow, I_C_OrderLine.COLUMNNAME_C_Order_ID + "." + TABLECOLUMN_IDENTIFIER);
 			final I_C_Order order = orderTable.get(orderIdentifier);
 			orderLine.setC_Order_ID(order.getC_Order_ID());
+
+			final String partnerIdentifier = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + I_C_OrderLine.COLUMNNAME_C_BPartner_ID + ".Identifier");
+			if (partnerIdentifier != null)
+			{
+				final I_C_BPartner partner = partnerTable.get(partnerIdentifier);
+				orderLine.setC_BPartner_ID(partner.getC_BPartner_ID());
+			}
 
 			final String flatrateConditionsIdentifier = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + I_C_OrderLine.COLUMNNAME_C_Flatrate_Conditions_ID + "." + TABLECOLUMN_IDENTIFIER);
 			if (Check.isNotBlank(flatrateConditionsIdentifier))
@@ -165,6 +176,8 @@ public class C_OrderLine_StepDef
 			final BigDecimal qtyOrdered = DataTableUtil.extractBigDecimalForColumnName(tableRow, I_C_OrderLine.COLUMNNAME_QtyOrdered);
 			final BigDecimal netAmt = DataTableUtil.extractBigDecimalForColumnName(tableRow, I_C_OrderLine.COLUMNNAME_LineNetAmt);
 			final String productIdentifier = DataTableUtil.extractStringForColumnName(tableRow, COLUMNNAME_M_Product_ID + ".Identifier");
+			final String partnerIdentifier = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + I_C_OrderLine.COLUMNNAME_C_BPartner_ID + ".Identifier");
+			final int partnerId = Check.isBlank(partnerIdentifier) ? 0 : partnerTable.get(partnerIdentifier).getC_BPartner_ID();
 
 			boolean linePresent = false;
 
@@ -173,6 +186,10 @@ public class C_OrderLine_StepDef
 				linePresent = orderLine.getLineNetAmt().compareTo(netAmt) == 0
 						&& orderLine.getQtyOrdered().compareTo(qtyOrdered) == 0
 						&& orderLine.getM_Product_ID() == productTable.get(productIdentifier).getM_Product_ID();
+				if (partnerId > 0)
+				{
+					linePresent = linePresent && orderLine.getC_BPartner_ID() == partnerId;
+				}
 
 				if (linePresent)
 				{

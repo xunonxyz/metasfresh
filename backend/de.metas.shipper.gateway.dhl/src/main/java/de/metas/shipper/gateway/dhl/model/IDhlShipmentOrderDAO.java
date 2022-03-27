@@ -1,8 +1,8 @@
 /*
  * #%L
- * de-metas-camel-shopware6
+ * de.metas.shipper.gateway.dhl
  * %%
- * Copyright (C) 2021 metas GmbH
+ * Copyright (C) 2022 metas GmbH
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -20,32 +20,15 @@
  * #L%
  */
 
-package de.metas.camel.externalsystems.shopware6.api.model;
+package de.metas.shipper.gateway.dhl.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import de.metas.util.ISingletonService;
+import lombok.NonNull;
 
-@AllArgsConstructor
-@Getter
-public enum PathSegmentsEnum
+import javax.annotation.Nullable;
+
+public interface IDhlShipmentOrderDAO extends ISingletonService
 {
-	API("api"),
-	SEARCH("search"),
-	ORDER("order"),
-	PRODUCT("product"),
-	UNIT("unit"),
-	DELIVERIES("deliveries"),
-	ORDER_ADDRESS("order-address"),
-	OATH("oauth"),
-	TOKEN("token"),
-	COUNTRY("country"),
-	LINE_ITEMS("line-items"),
-	CURRENCY("currency"),
-	SALUTATION("salutation"),
-	CUSTOMER("customer"),
-	GROUP("group"),
-	TRANSACTIONS("transactions"),
-	PAYMENT_METHOD("payment-method");
-
-	private final String value;
+	@Nullable
+	DhlCustomDeliveryDataDetail getByIdOrNull(@NonNull DhlShipmentOrderId id);
 }
