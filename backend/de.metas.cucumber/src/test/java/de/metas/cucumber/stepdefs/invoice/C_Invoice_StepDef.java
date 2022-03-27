@@ -91,7 +91,7 @@ public class C_Invoice_StepDef
 	private final IDocumentBL documentBL = Services.get(IDocumentBL.class);
 
 	private final C_Invoice_StepDefData invoiceTable;
-	private final StepDefData<I_C_InvoiceLine> invoiceLineTable;
+	private final C_InvoiceLine_StepDefData invoiceLineTable;
 	private final C_Invoice_Candidate_StepDefData invoiceCandTable;
 	private final C_Order_StepDefData orderTable;
 	private final C_OrderLine_StepDefData orderLineTable;
