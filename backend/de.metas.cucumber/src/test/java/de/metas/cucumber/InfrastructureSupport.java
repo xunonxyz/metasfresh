@@ -48,7 +48,7 @@ public class InfrastructureSupport
 	 * To always run your cucumber-tests on an "unpolluted" DB, you can use the scripts in the dev-support folder.
 	 */
 	@Getter
-	private final boolean runAgainstDockerizedDatabase = false;
+	private final boolean runAgainstDockerizedDatabase = true;
 
 	@Getter
 	private String dbHost;
