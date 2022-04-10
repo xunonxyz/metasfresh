@@ -26,14 +26,15 @@ import de.metas.bpartner.BPGroupId;
 import de.metas.bpartner.BPartnerLocationId;
 import de.metas.bpartner.service.IBPartnerDAO;
 import de.metas.common.rest_api.common.JsonMetasfreshId;
+import de.metas.common.util.Check;
 import de.metas.common.util.CoalesceUtil;
 import de.metas.common.util.EmptyUtil;
+import de.metas.cucumber.stepdefs.discountschema.M_DiscountSchema_StepDefData;
 import de.metas.cucumber.stepdefs.pricing.M_PricingSystem_StepDefData;
 import de.metas.externalreference.ExternalIdentifier;
 import de.metas.externalreference.bpartner.BPartnerExternalReferenceType;
 import de.metas.externalreference.rest.v1.ExternalReferenceRestControllerService;
 import de.metas.product.IProductDAO;
-import de.metas.util.Check;
 import de.metas.util.Services;
 import de.metas.util.StringUtils;
 import io.cucumber.datatable.DataTable;
@@ -47,6 +48,7 @@ import org.compiere.model.I_C_BPartner;
 import org.compiere.model.I_C_BPartner_Location;
 import org.compiere.model.I_C_Location;
 import org.compiere.model.I_C_PaymentTerm;
+import org.compiere.model.I_M_DiscountSchema;
 import org.compiere.model.I_M_PricingSystem;
 import org.compiere.model.I_M_Product;
 import org.compiere.util.Env;
@@ -65,8 +67,12 @@ import static org.compiere.model.I_C_BPartner.COLUMNNAME_InvoiceRule;
 import static org.compiere.model.I_C_BPartner.COLUMNNAME_IsCustomer;
 import static org.compiere.model.I_C_BPartner.COLUMNNAME_IsSalesRep;
 import static org.compiere.model.I_C_BPartner.COLUMNNAME_IsVendor;
+import static org.compiere.model.I_C_BPartner.COLUMNNAME_PO_DiscountSchema_ID;
+import static org.compiere.model.I_C_BPartner.COLUMNNAME_PO_InvoiceRule;
 import static org.compiere.model.I_C_BPartner.COLUMNNAME_PO_PricingSystem_ID;
+import static org.compiere.model.I_C_BPartner.COLUMNNAME_PaymentRulePO;
 import static org.compiere.model.I_C_BPartner_Location.COLUMNNAME_C_BPartner_Location_ID;
+import static org.compiere.model.I_C_Order.COLUMNNAME_PaymentRule;
 import static org.compiere.model.I_M_Product.COLUMNNAME_M_Product_ID;
 import static org.compiere.model.X_C_BPartner.DELIVERYRULE_Force;
 
@@ -78,6 +84,8 @@ public class C_BPartner_StepDef
 	private final C_BPartner_Location_StepDefData bPartnerLocationTable;
 	private final M_PricingSystem_StepDefData pricingSystemTable;
 	private final M_Product_StepDefData productTable;
+	private final M_DiscountSchema_StepDefData discountSchemaTable;
+
 	private final IBPartnerDAO bpartnerDAO = Services.get(IBPartnerDAO.class);
 	private final IProductDAO productDAO = Services.get(IProductDAO.class);
 	private final IQueryBL queryBL = Services.get(IQueryBL.class);
@@ -88,12 +96,14 @@ public class C_BPartner_StepDef
 			@NonNull final C_BPartner_StepDefData bPartnerTable,
 			@NonNull final C_BPartner_Location_StepDefData bPartnerLocationTable,
 			@NonNull final M_PricingSystem_StepDefData pricingSystemTable,
-			@NonNull final M_Product_StepDefData productTable)
+			@NonNull final M_Product_StepDefData productTable,
+			@NonNull final M_DiscountSchema_StepDefData discountSchemaTable)
 	{
 		this.bPartnerTable = bPartnerTable;
 		this.bPartnerLocationTable = bPartnerLocationTable;
 		this.pricingSystemTable = pricingSystemTable;
 		this.productTable = productTable;
+		this.discountSchemaTable = discountSchemaTable;
 	}
 
 	@Given("metasfresh contains C_BPartners:")
@@ -102,20 +112,10 @@ public class C_BPartner_StepDef
 		final List<Map<String, String>> tableRows = dataTable.asMaps(String.class, String.class);
 		for (final Map<String, String> tableRow : tableRows)
 		{
-			createC_BPartner(tableRow, true);
+			createC_BPartner(tableRow);
 		}
 	}
 
-	@Given("metasfresh contains C_BPartners without locations:")
-	public void metasfresh_contains_c_bpartners_without_locations(@NonNull final DataTable dataTable)
-	{
-		final List<Map<String, String>> tableRows = dataTable.asMaps(String.class, String.class);
-		for (final Map<String, String> tableRow : tableRows)
-		{
-			createC_BPartner(tableRow, false);
-		}
-	}
-	
 	@And("preexisting test data is put into tableData")
 	public void store_test_data_in_table_data(@NonNull final DataTable dataTable)
 	{
@@ -169,7 +169,7 @@ public class C_BPartner_StepDef
 		}
 	}
 
-	private void createC_BPartner(@NonNull final Map<String, String> tableRow, final boolean addDefaultLocationIfNewBPartner)
+	private void createC_BPartner(@NonNull final Map<String, String> tableRow)
 	{
 		final String bPartnerName = tableRow.get("Name");
 		final String bPartnerValue = CoalesceUtil.coalesce(tableRow.get("Value"), bPartnerName);
@@ -186,6 +186,14 @@ public class C_BPartner_StepDef
 		bPartnerRecord.setIsVendor(StringUtils.toBoolean(tableRow.get("OPT." + COLUMNNAME_IsVendor), false));
 		bPartnerRecord.setIsCustomer(StringUtils.toBoolean(tableRow.get("OPT." + COLUMNNAME_IsCustomer), false));
 		bPartnerRecord.setIsSalesRep(StringUtils.toBoolean(tableRow.get("OPT." + COLUMNNAME_IsSalesRep), false));
+
+		final String discountSchemaIdentifier = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + COLUMNNAME_PO_DiscountSchema_ID + "." + TABLECOLUMN_IDENTIFIER);
+
+		if (EmptyUtil.isNotBlank(discountSchemaIdentifier))
+		{
+			final I_M_DiscountSchema discountSchemaRecord = discountSchemaTable.get(discountSchemaIdentifier);
+			bPartnerRecord.setPO_DiscountSchema_ID(discountSchemaRecord.getM_DiscountSchema_ID());
+		}
 
 		final String invoiceRule = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + COLUMNNAME_InvoiceRule);
 
@@ -253,7 +261,25 @@ public class C_BPartner_StepDef
 			bPartnerRecord.setPO_PaymentTerm_ID(paymentTerm.getC_PaymentTerm_ID());
 		}
 
-		final boolean alsoCreateLocation = InterfaceWrapperHelper.isNew(bPartnerRecord) && addDefaultLocationIfNewBPartner;
+		final String paymentRule = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + COLUMNNAME_PaymentRule);
+		if(Check.isNotBlank(paymentRule))
+		{
+			bPartnerRecord.setPaymentRule(paymentRule);
+		}
+
+		final String paymentRulePO = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + COLUMNNAME_PaymentRulePO);
+		if(Check.isNotBlank(paymentRulePO))
+		{
+			bPartnerRecord.setPaymentRulePO(paymentRulePO);
+		}
+
+		final String poInvoiceRule = DataTableUtil.extractStringOrNullForColumnName(tableRow, "OPT." + COLUMNNAME_PO_InvoiceRule);
+		if (EmptyUtil.isNotBlank(poInvoiceRule))
+		{
+			bPartnerRecord.setPO_InvoiceRule(poInvoiceRule);
+		}
+
+		final boolean alsoCreateLocation = InterfaceWrapperHelper.isNew(bPartnerRecord);
 		InterfaceWrapperHelper.saveRecord(bPartnerRecord);
 
 		if (alsoCreateLocation)
@@ -289,7 +315,7 @@ public class C_BPartner_StepDef
 
 	private void changeBPartner(@NonNull final Map<String, String> row)
 	{
-		final String bpartner = DataTableUtil.extractStringForColumnName(row, COLUMNNAME_C_BPartner_ID + ".Identifier");
+		final String bpartner = DataTableUtil.extractStringForColumnName(row, I_C_BPartner.COLUMNNAME_C_BPartner_ID + ".Identifier");
 		final String name2 = DataTableUtil.extractStringOrNullForColumnName(row, "Name2");
 
 		final I_C_BPartner bPartner = bPartnerTable.get(bpartner);
@@ -309,7 +335,7 @@ public class C_BPartner_StepDef
 		final I_C_BPartner bPartnerRecord = bpartnerDAO.getById(bpartnerIdOptional.get().getValue());
 		assertThat(bPartnerRecord).isNotNull();
 
-		final String bpartnerIdentifier = DataTableUtil.extractStringForColumnName(row, COLUMNNAME_C_BPartner_ID + "." + TABLECOLUMN_IDENTIFIER);
+		final String bpartnerIdentifier = DataTableUtil.extractStringForColumnName(row, I_C_BPartner.COLUMNNAME_C_BPartner_ID + "." + StepDefConstants.TABLECOLUMN_IDENTIFIER);
 		bPartnerTable.putOrReplace(bpartnerIdentifier, bPartnerRecord);
 	}
 }

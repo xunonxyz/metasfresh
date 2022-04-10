@@ -4,7 +4,6 @@ Feature: Handling unit rest controller
   Background:
     Given the existing user with login 'metasfresh' receives a random a API token for the existing role with name 'WebUI'
     And metasfresh has date and time 2022-01-03T13:30:13+01:00[Europe/Berlin]
-    And set sys config boolean value true for sys config SKIP_WP_PROCESSOR_FOR_AUTOMATION
 
   Scenario: retrieve HU by id and update HU attributes EPs validation
     Given metasfresh contains M_Products:
@@ -36,8 +35,8 @@ Feature: Handling unit rest controller
       | huProductTU                        | huPiItemTU                 | huProduct               | 10  | 2022-01-01 |
 
     And metasfresh contains M_Inventories:
-      | M_Inventory_ID.Identifier | MovementDate         | M_Warehouse_ID |
-      | huProduct_inventory       | 2022-01-02T00:00:00Z | 540008         |
+      | M_Inventory_ID.Identifier | MovementDate | M_Warehouse_ID |
+      | huProduct_inventory       | 2022-01-02   | 540008         |
     And metasfresh contains M_InventoriesLines:
       | M_Inventory_ID.Identifier | M_InventoryLine_ID.Identifier | M_Product_ID.Identifier | QtyBook | QtyCount | UOM.X12DE355 |
       | huProduct_inventory       | huProduct_inventoryLine       | huProduct               | 0       | 9        | PCE          |
@@ -156,8 +155,8 @@ Feature: Handling unit rest controller
       | huProductTU                        | huPiItemTU                 | huProduct               | 10  | 2022-01-01 |
 
     And metasfresh contains M_Inventories:
-      | M_Inventory_ID.Identifier | MovementDate         | M_Warehouse_ID |
-      | huProduct_inventory       | 2022-01-02T00:00:00Z | 540008         |
+      | M_Inventory_ID.Identifier | MovementDate | M_Warehouse_ID |
+      | huProduct_inventory       | 2022-01-02   | 540008         |
     And metasfresh contains M_InventoriesLines:
       | M_Inventory_ID.Identifier | M_InventoryLine_ID.Identifier | M_Product_ID.Identifier | QtyBook | QtyCount | UOM.X12DE355 |
       | huProduct_inventory       | huProduct_inventoryLine       | huProduct               | 0       | 9        | PCE          |
